@@ -1,5 +1,6 @@
 import { block_1 } from '@/public/content';
 import Link from 'next/link';
+import { MdArrowBack } from 'react-icons/md';
 
 export default function BlockOne() {
   return (
@@ -9,6 +10,7 @@ export default function BlockOne() {
           {block.name}
         </Link>
       ))}
+      <MdArrowBack />
     </div>
   );
 }

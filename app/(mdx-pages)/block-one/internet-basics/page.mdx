@@ -1,1 +1,144 @@
-# Internet basics
+# Internet Basics
+
+## URL - Uniform Resource Locator
+
+### Syntax
+
+#### Structure
+
+protocol :// sub-domain.top-level domain : port / file path ? parameters # anchors
+
+##### Example:
+
+- https://laba.solvd.com:443/index.html?key1=value1&key2=value2#description
+- protocol: https
+- domain: laba.solvd.com
+- sub-domain: laba
+- top-level domain: com
+- port: 443
+- file path: index.html
+- parameters: ?key1=value1&key2=value2
+- anchor: description
+
+#### http vs https
+
+- Encryption
+  - http does not encrypt connection
+  - https encrypts connection - uses certificates (SSL or TLS)
+- Ports
+  - http - 80
+  - https - 443
+
+#### URL Types
+
+##### Absolute URLs:
+
+- Full URL: https://google.com/search?q=test
+- Implicit protocol: //google.com/search?q=test
+- implicit of domain name: /search?q=test
+
+##### Relative URLs:
+
+- Sub-resource: ../path/to/file.html
+
+## DNS - Domain Name System
+
+It is a naming database that translates domain names into internet protocol (IP) addresses. It helps users to remember names and not numbers to access resources on a network and the internet. DNS is cached locally.
+
+If one DNS servers does not have a IP for a particular name, then it asks another DNS server for the IP.
+
+You can check the IP address in Dev tools in chrome. Network > First request > Headers > Remote Address
+
+## Client - Server Model
+
+The Client-server model is a distributed application structure that partitions tasks or workloads between the providers of a resource or service, called servers, and service requesters called clients. In the client-server architecture, when the client computer sends a request for data to the server through the internet, the server accepts the requested process and delivers the data packets requested back to the client. Clients do not share any of their resources. Examples of the Client-Server Model are Email, World Wide Web, etc.
+
+## TCP - Transmission Control Protocol
+
+It provides reliable, ordered, and error-checked delivery of a stream of octets (bytes) between applications running on hosts communicating via an IP network.
+
+### TCP Handshake
+
+- SYN (Synchronize): The initiating computer sends a SYN message to the receiving computer to start the communication. This message includes a sequence number to initiate the connection.
+- SYN-ACK (Synchronize-Acknowledgment): The receiving computer responds with a SYN-ACK message. This acknowledges the SYN message it received and includes its own sequence number.
+- ACK (Acknowledgment): The initiating computer sends an ACK message to acknowledge the SYN-ACK message from the receiver. Once this message is received, the connection is established, and data transmission can begin.
+
+You can use curl in terminal to see it
+
+## HTTP
+
+HTTP is an application layer protocol for distributed, collaborative, hypermedia information systems.
+
+### Structure
+
+- Starting line
+- Headers
+- Message body
+
+#### Starting line
+
+##### Request
+
+- Method: GET, POST
+- URI: /
+- Version: 1.0
+
+##### Response
+
+- Version: 1.0
+- Status code: 200
+- Reason phrase: OK
+
+#### Headers
+
+HTTP Headers let the client and the server pass additional information with a HTTP request or response.
+
+- General Headers
+- Request Headers
+- Resposne Headers
+- Entity Headers
+
+#### Message Body
+
+HTTP messages are how data is exchanged between a client and a server.
+
+There are two types of HTTP messages:
+
+- Requests: These are sent by the client to initiate an action on the server.
+- Responses: These are the server's replies to the client's requests.
+
+#### Methods
+
+HTTP defines a set of request methods to indicate the desired action to be performed for a given resource
+
+- GET - method requests a representation of specified resource, method to get some information, inf
+- POST - method is used to submit an entitiy to the specified resource, to create, often causing a change in state or side effects on the server
+- PUT - method replaces all current representations of the target resource with the request payload, replaces the whole object with updated information
+- PATCH - method is used to apply partial modifications to a resource
+- DELETE - method used to delete the specified resource
+- OPTIONS - method is used to describe the communication options for the target resource
+
+#### Status codes
+
+- 1xx - informational response - the request was received, continuing process
+- 2xx - successful - the request was successfully received, undrstood, and accepted
+- 3xx - rediraction - further action needs to be taken in order to complete the request
+- 4xx - clinet error - the request contains bad syntax or cannot be fulfilled
+- 5xx - server error - the server failed to fulfil an apparently valid request
+
+##### Examples of 2xx
+
+- 200 OK – standard response for successful HTTP requests
+- 201 Created – the request has been fulfilled, resulting in the creation of a new resource
+- 202 Accepted – the request has been accepted for processing, but the processing has not been completed
+- 204 No Content – the server successfully processed the request, and is not returning any content
+
+##### Examples of 4xx
+
+- 400 Bad Request – the server cannot or will not process the request due to an apparent client error
+- 401 Unauthorized – similar to 403 Forbidden, but specifically for use when authentication is required and has failed or has not yet been provided
+- 403 Forbidden – the request contained valid data and was understood by the server, but the server is refusing action
+- 404 Not Found – The requested resource could not be found but may be available in the future
+- 405 Method Not Allowed – A request method is not supported for the requested resource
+- 409 Conflict – Indicates that the request could not be processed because of conflict
+- 429 Too Many Requests – The user has sent too many requests in a given amount of time

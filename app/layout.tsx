@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Roboto } from 'next/font/google';
+import { ReactNode } from 'react';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -16,12 +17,14 @@ const roboto = Roboto({
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <html lang='en' className={roboto.className}>
       <body>
-        <main className='max-w-[1280px] mx-auto'>{children}</main>
+        <main className='max-w-[1280px] mx-auto text-slate-950 bg-slate-50 p-4'>
+          {children}
+        </main>
       </body>
     </html>
   );
