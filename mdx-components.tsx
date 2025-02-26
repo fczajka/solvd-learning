@@ -40,15 +40,13 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         {children}
       </blockquote>
     ),
-    code: ({ children }) => (
-      <code className='bg-gray-100 border border-gray-300 rounded px-1 text-sm'>
-        {children}
-      </code>
-    ),
     pre: ({ children }) => (
-      <pre className='bg-gray-100 border border-gray-300 rounded p-2 overflow-x-auto my-4'>
+      <pre className='bg-gray-900 text-gray-100 border border-gray-700 rounded-2xl p-4 overflow-x-auto my-4 shadow-lg'>
         {children}
       </pre>
+    ),
+    code: ({ children }) => (
+      <code className='text-grey-400 font-mono text-sm'>{children}</code>
     ),
     a: ({ children, href }) => (
       <a href={href} className='text-blue-600 hover:underline'>

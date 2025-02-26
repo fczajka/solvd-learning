@@ -1,0 +1,138 @@
+# HTML Basics
+
+## WHat is HTML?
+
+We can imagine that
+
+- HTML - (nouns) - content, structure
+- CSS - (adjectives) - style
+- JS - (verbs) - interactivity
+
+### Element and attribute concepts
+
+#### HTML Element
+
+- Non-Self-Closing Tags (Container Elements)
+- \<h1\>Hello, World!\</h1\>
+  - \<h1\> - opening tag
+  - Hello, World! - content
+  - \</h1\> - closing tag
+- Self-Closing Tags (Void Elements)
+  - \<img src="./cat.jpg" alt="cat" \/\>
+    - img - tag name
+    - src and alt - attribute name
+    - ./cat.jpg and cat - attribute value
+
+#### Main parts of HTML
+
+##### Document structure
+
+```HTML
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+
+  </body>
+</html>
+```
+
+- \<!DOCTYPE html\> - means that we will use HTML5
+- \<html\> we are representing our page in \<head\> and \<body\>
+  - in \<head\> we include all of the important information about SEO, scripts, link fonts, title etc. It is information about hte web page
+    - \<meta charset="UTF-8" \/\> - to specify encoding
+  - in \<body\> we include the web page content that will be displayed
+
+#### Element hierarchy
+
+- html
+  - head
+    - title
+    - link
+    - script
+  - body
+    - h1
+    - p
+      - span
+      - a
+    - h2
+    - nav
+      - ul
+        - li
+          - a
+
+### HTML4 vs HTML5
+
+- In HTML4 there was a lot of ids and classes.
+- In HTML5 we have semantic tags like \<section>, \<header\>, \<main\>, \<nav\>, \<article\>, \<aside\>, \<footed\>, \<figure\>
+  - HTML5 makes HTML structure more undersandable for devs, browsers, screan readers etc.
+  - \<aside\> is for content that is connected to the main content of the content like breadcrumbs, comments section
+
+#### \<article\> vs \<section\>
+
+- \<article\> - Represents a self-contained piece of content that could stand alone, such as a blog post, news article, forum post, or any other independent item. It's suitable when the content can be distributed or reused independently.
+- \<section\> - Denotes a thematic grouping of content, typically with a heading, representing a section within a document. It's used to divide content into logical sections, such as chapters, parts of a thesis, or sections of a tabbed interface.
+
+### SEO (Search Engine Optimization)
+
+#### Title
+
+The \<title\> tag is one of the most important tags in search engine promotion and is responsible for the title of the document. The text in this tag is the title of the snippet in search engine results, browser windows and bookmarked links. \<title\> helps users and search engine crawlers understand what the page is about. It affects the document's ranking in search engine results.
+
+#### Meta description
+
+\<meta\> tags are HTML tags used (in \<head\>) to provide additional information about a page to search engines and other clients. It helps with indexing of web pages and their attractiveness.
+
+- You can use \<meta\> tag for
+  - description
+  - viewport
+  - author
+  - keywords
+  - encoding
+
+##### Viewport meta
+
+The "viewport" meta tag tells the browser how to handle page size, scaling it to fit the width of the screen of the device that is transitioning from. Meta viewport — one of the points of implementing adaptive design, when all devices use the same code with adjustments for screen size. If this element is missing, mobile browsers try to optimize content on their own by adjusting content to fit the size of the screen.
+
+##### Robots meta
+
+Meta robots tag is used to specify rules for indexing specific pages of the site and allowing for robots to follow hyperlinks from these pages. The presence of the robots meta tag in the code of the site is optional. If there is no meta robots tag, the page is open for indexing and links are allowed.
+
+The main values of the content attribute:
+
+- index — the page is available for indexing;
+- noindex — prohibits adding the page to the index;
+- follow — links on the page are available for indexing and open to transfer link weights;
+- nofollow — signals to the robot that it is forbidden to click on links and transfer link weights;
+- noarchive — allows you to not show a link to the cached version of the page in search results;
+- nosnippet — allows you to not show a text snippet or video in search results;
+- all — instructions similar to "index, follow", opposite setting: "none".
+
+#### HTML5 Good practices for SEO
+
+- Use semantic tags isntead of divs with tags
+- You cannot use more then h1 for one page
+- You need to use _h_ in hierarchy, you can't jump between them
+- You cannot include block elements inside the inline elements
+  - For example you can't use \<div\> in \<span\>
+
+#### Forms
+
+- \<form\> is a container element for other elements
+  - \<form\> has two important attributes
+    - action - a function that will be called when the form is submitted
+    - method - specifies which method we use
+- \<label\> - a name for an input from the user
+  - it has one important attribute - for, and it specifies which input (value in its name attribute) is for this label
+  - it is connected to the \<input\> by the attribute name
+- \<input\> - a way we get the data from the user
+  - there are many types of inputs
+    - text
+    - number
+    - password
+    - date
+    - and more...
