@@ -77,6 +77,23 @@ We can imagine that
 - \<article\> - Represents a self-contained piece of content that could stand alone, such as a blog post, news article, forum post, or any other independent item. It's suitable when the content can be distributed or reused independently.
 - \<section\> - Denotes a thematic grouping of content, typically with a heading, representing a section within a document. It's used to divide content into logical sections, such as chapters, parts of a thesis, or sections of a tabbed interface.
 
+#### Forms
+
+- \<form\> is a container element for other elements
+  - \<form\> has two important attributes
+    - action - a function that will be called when the form is submitted
+    - method - specifies which method we use
+- \<label\> - a name for an input from the user
+  - it has one important attribute - for, and it specifies which input (value in its name attribute) is for this label
+  - it is connected to the \<input\> by the attribute name
+- \<input\> - a way we get the data from the user
+  - there are many types of inputs
+    - text
+    - number
+    - password
+    - date
+    - and more...
+
 ### SEO (Search Engine Optimization)
 
 #### Title
@@ -119,20 +136,3 @@ The main values of the content attribute:
 - You need to use _h_ in hierarchy, you can't jump between them
 - You cannot include block elements inside the inline elements
   - For example you can't use \<div\> in \<span\>
-
-#### Forms
-
-- \<form\> is a container element for other elements
-  - \<form\> has two important attributes
-    - action - a function that will be called when the form is submitted
-    - method - specifies which method we use
-- \<label\> - a name for an input from the user
-  - it has one important attribute - for, and it specifies which input (value in its name attribute) is for this label
-  - it is connected to the \<input\> by the attribute name
-- \<input\> - a way we get the data from the user
-  - there are many types of inputs
-    - text
-    - number
-    - password
-    - date
-    - and more...
