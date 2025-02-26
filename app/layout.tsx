@@ -21,8 +21,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en' className={roboto.className}>
-      <body>
-        <main className='max-w-[1280px] mx-auto text-slate-950 bg-slate-50 p-4'>
+      <body className='bg-slate-50'>
+        <main className='max-w-[1280px] mx-auto text-slate-950 p-4'>
           {children}
         </main>
       </body>

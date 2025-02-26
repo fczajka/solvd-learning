@@ -1,0 +1,95 @@
+# Git
+
+Git is a free version control system designed to handle everything from small to very large projects with speed and efficiency. It enables multiple developers to work on the same project simultaneously without interfering with each other's changes. Each developer maintains a complete local copy of the project, including its entire history, allowing for offline work and seamless collaboration.
+
+## Git repository
+
+A place for codebase
+
+##### You can have
+
+- Remote codebase
+- Local codebase
+
+### SSH key
+
+You can access and write data in repositories (for example on GitHub) using SSH (Secure Shell Protocol). When you connect using SSH, you authenticate using a private key on you local machine.
+
+### Workflow
+
+Workspace -> staging -> local repository -> remote repository
+
+#### Moving between stages
+
+- `git add .` - move from workspace to staging
+- `git commit` - move from staging to local repository
+- `git commit -a` - move from workspace to local repository
+- `git reset <file>` - move from local repository to workspace
+- `git push` - move from local repository to remote repository
+- `git reset <commit>` - move from local repository to workspace
+- `git fetch` - move from remote repository to local repository
+- `git clone / pull` - move from remote repository to workspace
+
+### Branches
+
+- Show branch: `git branch`
+- Change branch: `git checkout <branch name>`
+- Create and change branch: `git checkout -b <branch name>`
+- Merge branches: `git merge <branch name>`
+  - You need to be on the branch you want to merge to
+  - Merge creates a new merge commit
+- Rebase branches: `git merge <branch name>`
+
+  - You need to be on the branch you want to merge to
+  - Rebase add all commits from another branch to the main branch, it unifies the commit history by adding the changes to the end of the main branch
+
+#### Git checkout by hash
+
+You can change commits and branches by checkout with hash. If you change branches by hash, then you go to the last commit of the branch
+
+- `git checkout 48c93ccafd588`
+
+### Undo changes
+
+- The `git revert` command is used for undoing changes to a repository's commit history.
+  - A revert operation will take the specified commit, inverse the changes from that commit, and create a new "revert commit".
+- reset
+  - `git reset --soft`
+    - Resets only commit history
+  - `git reset --mixed`
+    - Resets commit history and staged snapshot
+  - `git reset --hard`
+    - Resets everything, commit history, staged snapshot and working directory
+
+### Update commit
+
+- `git commit --amend -m "an updated commit message` - this command is used to update commits
+
+### Cherry pick
+
+- `git cherry-pick <hash>` is a command that enables Git commits to be picked by reference and appended to the current working HEAD. Cherry picking is the act of picking a commit from a branch and applying it to another.
+- `git cherry-pick A^..B` - with A
+- `git cherry-pick A..B` - ignores A
+
+### Messages
+
+Messages should be:
+
+- Short and descriptive
+- Use the imperative mood
+- Capitalize only first letter
+
+#### You can add some types to commits
+
+- fix: a commit that pathes a bug
+- feat: a commit that introduces a new feature
+- BREAKING CHANGE: a commit that has a food BREAKING CHANGE, introduces a breaking API change, can be part of any commits
+- types other then _fix_ and _footer_ are allowed, based on the recommendations from the Angular convention for example:
+  - build
+  - chore
+  - ci
+  - docs
+  - style
+  - perf
+  - test
+- footers other then BREAKING CHANGE may be provided and follow a convention similar to git trailer format
