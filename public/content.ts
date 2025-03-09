@@ -9,4 +9,5 @@ export const block_1 = [
   { name: 'Internet Basics', href: '/block-one/internet-basics' },
   { name: 'Git', href: '/block-one/git' },
   { name: 'HTML', href: '/block-one/html-basics' },
+  { name: 'CSS Part 1', href: '/block-one/css-part-1' },
 ];

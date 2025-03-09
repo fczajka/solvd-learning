@@ -1,0 +1,268 @@
+# CSS Part One
+
+## CSS - Cascading Style Sheets
+
+In CSS, styles at the bottom of CSS file are applied insted of these that are higher in the document (if the specificity is the same).
+
+### Types of CSS
+
+- Inline CSS
+  - Styling in the HTML tag
+  - Use _style_ attribute
+  - Bad because you cannot reuse it
+- Internal CSS
+  - Styling in the \<head\> tag
+  - In the \<style\> tag
+- External CSS
+  - Imported style from another file
+  - Use this in head to import: \<link rel="stylesheet" type="text/css" href="style.css"\>
+
+### CSS Rule
+
+```CSS
+h2 {
+    color: #fogdog;
+    font-size: 12px;
+    margin: 4px;
+}
+```
+
+In the example (rule) above:
+
+- h2 is an element
+- color, font-size and margin are properties
+- #fogdog, 12px and 4px are values
+
+### CSS Selectors
+
+- .class: Selects all elements with a specific class.
+  - Example: .intro selects all elements with class="intro".
+- .class1.class2: Selects elements that have both classes applied.
+  - Example: .name1.name2 selects elements with both class="name1" and class="name2".
+- .class1 .class2: Selects elements with the second class that are descendants of elements with the first class.
+  - Example: .name1 .name2 selects elements with class="name2" inside elements with class="name1".
+- #id: Selects the element with a specific ID.
+  - Example: #firstname selects the element with id="firstname".
+- \*: Selects all elements.
+  - Example: \* selects every element on the page.
+- element: Selects all elements of a specific type.
+  - Example: p selects all \<p\> (paragraph) elements.
+- element.class: Selects specific elements with a certain class.
+  - Example: p.intro selects all \<p\> elements with class="intro".
+- element, element: Selects multiple types of elements.
+  - Example: div, p selects all \<div\> and \<p\> elements.
+- element element: Selects elements that are descendants of other elements.
+  - Example: div p selects all \<p\> elements inside \<div\> elements.
+- element \> element: Selects direct child elements.
+  - Example: div \> p selects all \<p\> elements where the parent is a \<div\>.
+- element + element: Selects adjacent sibling elements.
+  - Example: div + p selects the first \<p\> element immediately following a \<div\>.
+- element1 ~ element2: Selects all siblings following a specific element.
+  - Example: p ~ ul selects every \<ul\> element preceded by a \<p\> element.
+
+### Attribute Selectors
+
+- [attribute]: Selects all elements with a specific attribute.
+  - Example: element[target] selects all elements with a target attribute.
+- [attribute=value]: Selects all elements with a specific attribute value.
+  - Example: element[target="_blank"] selects all elements with target="\_blank".
+- [attribute^=value]: Selects elements with an attribute value that begins with a specific string.
+  - Example: a[href^="https"] selects every \<a\> element whose href attribute value begins with "https".
+- [attribute$=value]: Selects elements with an attribute value that ends with a specific string.
+  - Example: a[href$=".pdf"] selects every \<a\> element whose href attribute value ends with ".pdf".
+- [attribute*=value]: Selects elements with an attribute value that contains a specific substring.
+  - Example: a[href*="w3schools"] selects every \<a\> element whose href attribute value contains the substring "w3schools".
+- [attribute~=value]: Selects elements with an attribute value containing a specific word.
+  - Example: [title~="flower"] selects all elements with a title attribute containing the word "flower".
+- [attribute|=value]: Selects elements with an attribute value equal to or starting with a specific string followed by a hyphen.
+  - Example: [lang|="en"] selects all elements with a lang attribute value equal to "en" or starting with "en-".
+
+### CSS Selectors (Pseudo-class, Pseudo-element)
+
+- :active
+  - Example: a:active
+  - Selects the active link.
+- :after
+  - Example: p:after
+  - Inserts something after the content of each \<p\> element.
+- :before
+  - Example: p:before
+  - Inserts something before the content of each \<p\> element.
+- :checked
+  - Example: input:checked
+  - Selects every checked \<input\> element.
+- :default
+  - Example: input:default
+  - Selects the default \<input\> element.
+- :disabled
+  - Example: input:disabled
+  - Selects every disabled \<input\> element.
+- :empty
+  - Example: p:empty
+  - Selects every \<p\> element that has no children (including text nodes).
+- :enabled
+  - Example: input:enabled
+  - Selects every enabled \<input\> element.
+- :first-child
+  - Example: p:first-child
+  - Selects every \<p\> element that is the first child of its parent.
+- :first-letter
+  - Example: p:first-letter
+  - Selects the first letter of every \<p\> element.
+- :first-line
+  - Example: p:first-line
+  - Selects the first line of every \<p\> element.
+- :first-of-type
+  - Example: p:first-of-type
+  - Selects every \<p\> element that is the first \<p\> element of its parent.
+- :focus
+  - Example: input:focus
+  - Selects the input element which has focus.
+- :fullscreen
+  - Example: :fullscreen
+  - Selects the element that is in full-screen mode.
+- :hover
+  - Example: a:hover
+  - Selects links on mouse over.
+
+### CSS Inheritance
+
+It is the mechanism by which certain properties are passed from an ancestor to its descendants
+
+For example, font color will be passed
+
+### CSS Specificity
+
+- Element
+  - Least specific; applies most broadly
+- Class
+  - Applies to all elements with this class
+  - Elements can have multiple classes applied to them
+- Element ID
+  - References a unique HTML element via its ID
+- Style Attribute (Inline styling)
+  - Most specific
+  - Added to HTML element directy
+- important! flag
+  - The most specific
+  - Avoid at all costs
+- important \> inline style \> id \> class \> element
+
+#### How to measure specificity
+
+We give points to each way of styling
+
+- Inline style - thousands
+- ID - hundreds
+- Class - tens
+- element - ones
+
+### Specificity of CSS Selectors
+
+- h1
+  - Identifiers: 0
+  - Classes: 0
+  - Elements: 1 (h1)
+  - Total specificity: 0-0-1
+- h1 + p:first-letter
+  - Identifiers: 0
+  - Classes: 0
+  - Elements: 3 (h1, p and pseudo element)
+  - Total specificity: 0-0-3
+- li > a[href**"en-US"] > .inline-warning
+  - Identifiers: 0
+  - Classes: 2 (attribute selectors are counted as class - href\*\*"en-US" and inline-warning)
+  - Elements: 2 (li and a)
+  - Total specificity: 0-2-2
+- #identifier
+  - Identifiers: 1 (identifier)
+  - Classes: 0
+  - Elements: 0
+  - Total specificity: 1-0-0
+- button:not(#mainBtn, .cta)
+  - Identifiers: 1 (mainBtn)
+  - Classes: 0
+  - Elements: 1 (button, in pseudo class we can use many selectors - in that case we use the one with biggest specificity)
+  - Total specificity: 1-0-1
+
+### Types of Elements
+
+- block
+  - these elements take all of the available width, they are rendered under the previous one
+- inline
+  - these elements only use the width they need, they are rendered next to each other
+  - these elements do not accept width, height and top and bottom margin in CSS
+- inline-block
+  - works as inline element but you can style it with width, height and top and bottom
+
+### Box Model
+
+- width and height increase the size of an element
+- padding increases the the size of an element
+- margin is applied to the outside of an element
+
+#### Box Model Examples
+
+300px DIV with 10px padding and a 30px border
+
+- box-sizing: "border-box"
+  - the total width is 300px
+- box-sizing: "content-box"
+  - the total width is 300px + padding and border which is 380px
+
+#### Margin collapse
+
+Margins collapse on Y axis, the bigger one is applied
+
+### Positioning
+
+- Static
+  - default one, stays in place
+- Relative
+  - with this you can use top, bottom, left and right to positon the element relatively to its initial positon
+- Absolute
+  - with this you can use top, bottom, left and right to positon the element relatively to its closest parent with positon set to relative, it is took out of the layout
+- Fixed
+  - with this you can use top, bottom, left and right to positon the element relatively to the users viewport window, it always stays in the view
+- Sticky
+  - it stays on the users screen after the user scrolls down and it latches itself
+
+### Z - index
+
+- You need to use postion relative to be able to use this (or other then static)
+- Defaultly the element at the end is the one that stays on top - z - index helps to change this
+- z - index is calculated relatively to the parent
+
+### Responsive layout
+
+#### Flexbox
+
+- Used for responsive layout, it has ability to grow and shrink
+- The parent specifies the styling of its children
+- flex-direction to style direction
+- justify-content to style how it is set horizontally
+  - flex-start
+  - flex-end
+  - center
+  - space-between
+  - space-around
+  - space-evenly
+- align-items to style how they are aligned vertically
+  - flex-start
+  - flex-end
+  - center
+  - strech
+  - baseline
+- align-content to style how children are aligned vertically
+  - flex-start
+  - flex-end
+  - center
+  - strech
+  - space-between
+  - space-around
+
+Adaptive layout has some rules for some kinds of widths, responsive layout does not need that
+
+#### Grid
+
+- Used for styling the whole websites, you can divide the website into squeres
