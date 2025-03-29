@@ -1,1 +1,265 @@
 # JS Basics
+
+### Variables
+
+Variables are for storing data
+
+- var - old way to declare a variable, it is available everywhere in the function (function scope), they are hoisted which means they are alawys at the top but undefined untill the line where is declaration
+- let - modern variable declaration - it is block scoped which means you can redeclare it in new scope with messing with previous declaration
+- const - just like let but cant change its value
+
+#### Variable naming
+
+- Names must contain only letters, digits or the symbols $ and \_
+- The first character cannot be a digit
+- The name cannot be a keyword
+
+Examples:
+
+- Valid:
+  let userName;
+  let test123;
+  let $ = 1;
+  let \_ = 2;
+- Invalid:
+  - let 1a;
+  - let my-name;
+
+#### Good tips to naming Variables
+
+- Use human readable names like userName
+- Do not use too short names on one character names like a, b, c unless it will be good in that case (calculating the area of rectagle)
+- Make names maximally descriptive and concise. Example of bad names are data and value because these names do not describe the vaules in any meaningful way (unless the context makes it obvious)
+- Be consistent
+
+### Data types
+
+- Immutable values:
+  - `number` - for both floating - point and integer numbers
+  - `bigint` - for integer numbers of arbitrary length (large numbers) - n at the end of the number means it is bigint
+  - `string` - for strings, you can use \" \", \' \', and \` \` - the last one lets you write text in many lines
+  - `boolean` - for logical values - `true` adn `false`
+  - `null` - to represent that something does not exist, someone had to make it null on purpose, typeof null === object
+  - `undefined` - to represent that something is not defined yet (`let test;`) orp property on object that does not exist
+- Mutable values:
+  - `symbol` - symbol is a unique and immutable primitive value often used as the key for object properties to avoid property name collisions. Even if multiple symbols share the same description, each is a distinct entity
+  - `object` - a complex data type that allows storage and organization of data in key-value pairs, functions are also objects
+- Primitives - they are accessed by value
+  - All immutable values are primitives
+  - Symbol is also a primitive
+- Composite / non - primitive types - accessed by reference
+  - objects are non - primitive
+
+### Numbers
+
+#### Oparations
+
+- \+ - Addition
+- \- - Subtraction
+- \* - Multiplication
+- \*\* - Exponentiation (ES2016)
+- \/ - Division
+- \% - Modulus (Remainder)
+- \+\+ - Increment
+- \-\- - Decrement
+
+#### Also numbers
+
+- Infinity
+- NaN (not a number)
+- Any arithimetic operation with NaN results to NaNs
+
+**parseInt(string, radix)**
+
+- If the string begins with "0x" or "0X", radix is 16 (hexadecimal).
+- If the string begins with "0", radix is eight (octal) or 10 (decimal).
+- If the string begins with any other value, the radix is 10 (decimal).
+
+### String
+
+- Sequence of 0 or more 16-bit characters
+- No separate character type
+- Strings are immutable
+- Similar strings are equal (`==`) or (`===`)
+- String literals can use single or double quotes
+- `const singleQuotes = 'string';`
+- `const doubleQuotes = "string";`
+- `const backTicks = \`string\`;`
+- `const newStringObj = new String('string');`
+
+#### Falsy Values
+
+- `false`
+- `null`
+- `undefined`
+- `""` (empty string)
+- `0`
+- `NaN` (Not a Number)
+
+#### Truthy Values:
+
+- `"false"` (string containing the word "false")
+- `"0"` (string containing the character "0")
+- `{}` (empty object)
+- Everything else not explicitly listed as falsy.
+
+_Anything in ( ) in if statement wil be converted to boolean_
+
+### typeof operator
+
+- Used to check the data type
+- there is type function here
+- `typeof undefined // "undefined"`
+- `typeof 0 // "number"`
+- `typeof 10n // "bigint"`
+- `typeof true // "boolean"`
+- `typeof "foo" // "string"`
+- `typeof Symbol("id") // "symbol"`
+- `typeof Math // "object"`
+- `typeof null // "object"`
+- `typeof alert // "function"`
+- Since the null is and `object` type, we can check if something is null this way:
+
+```
+const data = null;
+const isNull = typeof data === 'object' && data === null;
+
+console.log(isNull);  // true
+```
+
+### Binary logical operators
+
+- Logical AND
+  - `// Logical AND operator`
+  - `true && true // true`
+  - `true && false // false`
+  - `false && true // false`
+  - `false && false // false`
+- Logical OR
+  - `// Logical OR operator`
+  - `true || true // true`
+  - `true || false // true`
+  - `false || true // true`
+  - `false || false // false`
+
+### Nullish coalescing operator '??'
+
+- The nullish coalescing operator `??` provides a short way to choose the first "defined" value from a list.
+- It's used to assign default values to variables:
+
+```
+// set height = 100, if height is null or undefined
+height = height ?? 100;
+```
+
+### Loops
+
+#### While loop
+
+```
+let i = 0;
+while (i < 3) { // shows 0, then 1, then 2
+  alert(i);
+  i++;
+}
+```
+
+#### do while loop
+
+```
+let i = 0;
+do {
+alert(i);
+i++;
+} while (i < 3);
+```
+
+#### for loop
+
+```
+for (let i = 0; i < 3; i++) { // shows 0, then 1, then 2
+alert(i);
+}
+```
+
+#### Differences Between the Loops:
+
+- while loop: The condition is checked before each iteration. If the condition is initially false, the loop body will not execute at all.
+- do...while loop: The condition is checked after each iteration. This means the loop body will always execute at least once, even if the condition is false from the beginning.
+- for loop: This loop is typically used when you know in advance how many times you want to iterate. It provides a concise way to initialize a counter variable, define a condition for the loop to continue, and specify how the counter variable should be updated after each iteration, all within the for statement itself.
+
+### Switch Statement
+
+```
+let a = 2 + 2;
+
+switch (a) {
+  case 3:
+    alert('Too small');
+    break;
+  case 4:
+    alert('Exactly!');
+    break;
+  case 5:
+    alert('Too big');
+    break;
+  default:
+    alert("I don't know such values");
+}
+```
+
+### Functions
+
+#### Function Declaration / Function Statement
+
+- Syntax
+  ```
+  function multiply(a, b) {
+    return a * b;
+  }
+  ```
+- Hoisting: Hoisted to top, can be declared anywhere in the file (i.e., also after it's used)
+
+### Function Expression
+
+- Syntax:
+  ```
+  const multiply = function(a, b) {
+    return a * b;
+  };
+  ```
+- Hoisting: Not hoisted to top
+
+### Arrow Functions
+
+```
+let func = function(arg1, arg2, ..., argN) {
+  return expression;
+};
+```
+
+Arrow functions are handy for simple actions, especially for one-liners. They come in two flavors:
+
+- Without curly braces: \(...args\) => expression - the right side is an expression: the function evaluates it and returns the result. Parentheses can be omitted, if there's only a single argument, e.g., n => n \* 2.  
+- With curly braces: \(...args\) => \{ body \} - brackets allow us to write multiple statements inside the function, but we need an explicit return to return something.
+
+### Hoisting Explained
+
+Hoisting is a JavaScript behavior where declarations of variables and functions are conceptually moved to the top of their scope (either the global scope or the current function scope) during the compilation phase, before the code is actually executed. It's important to understand that the declarations are hoisted, not the initializations (assignments).
+Here's a breakdown with clarifications:
+
+- Functions:
+
+  - Function Declarations (e.g., `function myFunction() {}`) are hoisted along with a reference to the entire function body. This means you can call a function declared this way before its actual declaration in the code.
+  - Function Expressions (e.g., `const myFunction = function() {};`) are treated like variable declarations. Only the variable declaration (`const myFunction`) is hoisted, not the assignment of the function to the variable.
+
+- Variables:
+
+  - `var`: Variables declared with `var` are hoisted and initialized with the value `undefined` during the compilation phase. This is why you can reference a `var` variable before its declaration without getting a `ReferenceError`. However, its value will be `undefined` until the line of code where it's actually assigned a value is executed.
+  - `let` and `const`: Variables declared with `let` and `const` are also hoisted, but they are not initialized. They are in a "temporal dead zone" (TDZ) from the start of the scope until the line where they are declared is executed.
+  - ES6 Classes: Class declarations (both class expressions and class declarations) are also hoisted but are also subject to the temporal dead zone, similar to `let` and `const`. You cannot instantiate a class before its declaration.
+
+- Referencing Variables Before Declaration:
+
+  - When you reference a variable declared with **`var`** before its declaration, its value will indeed be the default `undefined`.
+  - Attempting to access a variable declared with **`let`** or **`const`** (including ES6 classes) before its declaration will result in a **`ReferenceError`**. This is because they are in the temporal dead zone and haven't been initialized yet.

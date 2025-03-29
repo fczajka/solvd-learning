@@ -1,8 +1,6 @@
 export const blocks = [
   { name: 'Block 1', href: '/block-one' },
   { name: 'Block 2', href: '/block-two' },
-  { name: 'Block 3', href: '/block-three' },
-  { name: 'Block 4', href: '/block-four' },
 ];
 
 export const block_1 = [
@@ -12,4 +10,4 @@ export const block_1 = [
   { name: 'CSS Part 1', href: '/block-one/css-part-1' },
 ];
 
-export const block_2 = [{ name: 'JS Basics', href: '/block-two/js-basics' }];
+export const block_2 = [{ name: 'JS Basics 1', href: '/block-two/js-basics' }];
