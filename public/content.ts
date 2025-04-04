@@ -10,4 +10,7 @@ export const block_1 = [
   { name: 'CSS Part 1', href: '/block-one/css-part-1' },
 ];
 
-export const block_2 = [{ name: 'JS Basics 1', href: '/block-two/js-basics' }];
+export const block_2 = [
+  { name: 'JS Basics 1', href: '/block-two/js-basics-1' },
+  { name: 'JS Basics 2', href: '/block-two/js-basics-2' },
+];
