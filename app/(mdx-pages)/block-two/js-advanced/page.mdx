@@ -1,0 +1,648 @@
+# JS Advanced
+
+### Symbol type
+
+By specification, only two primitive types may serve as object property keys:
+
+- string type, or
+- symbol type.
+
+Otherwise, if one uses another type, such as number, it's autoconverted to string. So that `obj[1]` is the same as `obj["1"]`, and `obj[true]` is the same as `obj["true"]`.
+
+Until now we've been using only strings.
+
+Now let's explore symbols, see what they can do for us.
+
+#### Symbols
+
+A "symbol" represents a unique identifier.
+
+A value of this type can be created using `Symbol()`:
+
+```
+let id = Symbol();
+```
+
+Upon creation, we can give symbols a description (also called a symbol name), mostly useful for debugging purposes, to recognize two different symbols:
+
+```
+// id is a symbol with the description "id"
+let id = Symbol('id');
+```
+
+#### Symbols are unique
+
+Symbols are guaranteed to be unique. Even if we create many symbols with exactly the same description, they are different values. The description is just a label that doesn't affect anything.
+
+For instance, here are two symbols with the same description – they are not equal:
+
+```
+let id1 = Symbol("id");
+let id2 = Symbol("id");
+
+console.log(id1 == id2); // false
+```
+
+#### "Hidden" properties
+
+Symbols allow us to create "hidden" properties of an object, that no other part of code can accidentally access or overwrite.
+
+For instance, if we're working with `user` objects, that belong to a third-party code. We'd like to add identifiers to them.
+
+Let's use a symbol key for it:
+
+```
+let user = { // belongs to another code
+  name: "John"
+};
+
+let id = Symbol("id");
+
+user[id] = 1;
+
+console.log(user[id]); // we can access the data using the symbol as the key
+```
+
+#### Symbol benefits
+
+What's the benefit of using `Symbol("id")` over a string `"id"`?
+
+As `user` objects belong to another codebase, it's unsafe to add fields to them, since we might affect pre-defined behavior in that other codebase. However, symbols cannot be accessed accidentally. The third-party code won't be aware of newly defined symbols, so it's safe to add symbols to the `user` objects.
+
+Also, imagine that another script wants to have its own identifier inside `user`, for its own purposes.
+
+Then that script can create its own `Symbol("id")`, like this:
+
+```
+let id = Symbol("id");
+user[id] = "Their id value";
+```
+
+There will be no conflict between our and their identifiers, because symbols are always different, even if they have the same name.
+
+But if we used a string `"id"` instead of a symbol for the same purpose, then there would be a conflict:
+
+```
+let user = { name: "John" };
+
+// Our script uses "id" property
+user.id = "Our id value";
+
+// ...Another script also wants "id" for its purposes...
+user.id = "Their id value";
+// Boom! overwritten by another script!
+```
+
+#### Symbols in an object literal
+
+If we want to use a symbol in an object literal `{...}`, we need square brackets around it.
+
+Like this:
+
+```
+let id = Symbol("id");
+
+let user = {
+  name: "John",
+  [id]: 123 // not "id": 123
+};
+```
+
+That's because we need the value from the variable `id` as the key, not the string `"id"`.
+
+### Symbols are skipped by for...in
+
+Symbolic properties do not participate in `for..in` loop.
+
+For instance:
+
+```
+let id = Symbol("id");
+let user = {
+  name: "John",
+  age: 30,
+  [id]: 123
+};
+
+for (let key in user) console.log(key); // name, age (no symbols)
+
+// the direct access by the symbol works
+console.log( "Direct: " + user[id] ); // Direct: 123
+```
+
+`Object.keys(user)` also ignores them. That's a part of the general "hiding symbolic properties" principle. If another script or a library loops over our object, it won't unexpectedly access a symbolic property.
+
+In contrast, `Object.assign` copies both string and symbol properties:
+
+```javascript
+let id = Symbol('id');
+let user = {
+  [id]: 123,
+};
+
+let clone = Object.assign({}, user);
+
+console.log(clone[id]); // 123
+```
+
+There's no paradox here. That's by design. The idea is that when we clone an object or merge objects, we usually want _all_ properties to be copied (including symbols like `id`).
+
+### Symbol.for and Symbol.keyFor
+
+`Symbol.for(key)` returns a symbol by name
+
+```
+// read from the global registry
+let id = Symbol.for("id"); // if the symbol did not exist, it is created
+
+// read it again (maybe from another part of the code)
+let idAgain = Symbol.for("id");
+
+// the same symbol
+console.log( id === idAgain ); // true
+```
+
+`Symbol.keyFor(sym)` returns a name by global symbol
+
+```
+// get symbol by name
+let sym = Symbol.for("name");
+let sym2 = Symbol.for("id");
+
+// get name by symbol
+console.log( Symbol.keyFor(sym) ); // name
+console.log( Symbol.keyFor(sym2) ); // id
+```
+
+### Map and Set
+
+`Map` is a collection of keyed data items, just like an `Object`. But the main difference is that `Map` allows keys of any type.
+
+Methods and properties are:
+
+- `new Map()` – creates the map.
+- `map.set(key, value)` – stores the value by the key.
+- `map.get(key)` – returns the value by the key, `undefined` if key doesn't exist in map.
+- `map.has(key)` – returns `true` if the key exists, `false` otherwise.
+- `map.delete(key)` – removes the value by the key.
+- `map.clear()` – removes everything from the map.
+- `map.size` – returns the current element count.
+
+#### Map example
+
+For instance:
+
+```
+let map = new Map();
+
+map.set('1',  'str1');   // a string key
+map.set(1,    'num1');   // a numeric key
+map.set(true, 'bool1');  // a boolean key
+
+// remember the regular Object? it would convert keys to string
+// Map keeps the type, so these two are different:
+console.log( map.get(1)   ); // 'num1'
+console.log( map.get('1') ); // 'str1'
+
+console.log( map.size ); // 3
+```
+
+As we can see, unlike objects, keys are not converted to strings. Any type of key is possible.
+
+#### Map can also use objects as keys
+
+For instance:
+
+```
+let john = { name: "John" };
+
+// for every user, let's store their visits count
+let visitsCountMap = new Map();
+
+// john is the key for the map
+visitsCountMap.set(john, 123);
+
+console.log( visitsCountMap.get(john) ); // 123
+```
+
+Using objects as keys is one of the most notable and important `Map` features. The same does not count for `Object`. String as a key in `Object` is fine, but we can't use another `Object` as a key in `Object`.
+
+#### Iteration over Map
+
+For looping over a map, there are 3 methods:
+
+- `map.keys()` - returns an iterable for keys,
+- `map.values()` - returns an iterable for values,
+- `map.entries()` - returns an iterable for entries `[key, value]`, it's used by default in `for..of`.
+
+For instance:
+
+```
+let recipeMap = new Map([
+  ['cucumber', 500],
+  ['tomatoes', 350],
+  ['onion',    50]
+]);
+
+// iterate over keys (vegetables)
+for (let vegetable of recipeMap.keys()) {
+  console.log(vegetable); // cucumber, tomatoes, onion
+}
+
+// iterate over values (amounts)
+for (let amount of recipeMap.values()) {
+  console.log(amount); // 500, 350, 50
+}
+
+// iterate over [key, value] entries
+for (let entry of recipeMap) { // the same as of recipeMap.entries()
+  console.log(entry); // cucumber,500 (and so on)
+}
+```
+
+#### Map summary
+
+`Map` - is a collection of keyed values.
+
+Methods and properties:
+
+- `new Map([iterable])` – creates the map, with optional `iterable` (e.g. array) of `[key,value]` pairs for initialization.
+- `map.set(key, value)` – stores the value by the key, returns the map itself.
+- `map.get(key)` – returns the value by the key, `undefined` if key doesn't exist in map.
+- `map.has(key)` – returns `true` if the key exists, `false` otherwise.
+- `map.delete(key)` – removes the value by the key, returns `true` if key existed at the moment of the call, otherwise `false`.
+- `map.clear()` – removes everything from the map.
+- `map.size` – returns the current element count.
+
+The differences from a regular `Object`:
+
+- Any keys, objects can be keys.
+- Additional convenient methods, the `size` property.
+
+### Set
+
+A `Set` is a special type collection - "set of values" (without keys), where each value may occur only once.
+
+Its main methods are:
+
+- `new Set(iterable)` - creates the set, and if an `iterable` object is provided (usually an array), copies values from it into the set.
+- `set.add(value)` - adds a value, returns the set itself.
+- `set.delete(value)` - removes the value, returns `true` if `value` existed at the moment of the call, otherwise `false`.
+- `set.has(value)` - returns `true` if the `value` exists in the set, otherwise `false`.
+- `set.clear()` - removes everything from the set.
+- `set.size` - is the elements count.
+
+#### Set example
+
+For example, we have visitors coming, and we'd like to remember everyone. But repeated visits should not lead to duplicates. A visitor must be "counted" only once.
+
+`Set` is just the right thing for that:
+
+```
+let set = new Set();
+
+let john = { name: "John" };
+let pete = { name: "Pete" };
+let mary = { name: "Mary" };
+
+// visits, some users come multiple times
+set.add(john);
+set.add(pete);
+set.add(mary);
+set.add(john);
+set.add(mary);
+
+// set keeps only unique values
+console.log( set.size ); // 3
+
+for (let user of set) {
+  console.log(user.name); // John (then Pete and Mary)
+}
+```
+
+#### Iteration over Set
+
+We can loop over a set either with `for..of` or using `forEach`:
+
+```
+let set = new Set(["oranges", "apples", "bananas"]);
+
+for (let value of set) console.log(value);
+
+// the same with forEach:
+set.forEach((value, valueAgain, set) => {
+  console.log(value); // oranges, apples, bananas
+});
+```
+
+#### Set summary
+
+`Set` - is a collection of unique values.
+
+Methods and properties:
+
+- `new Set([iterable])` – creates the set, with optional `iterable` (e.g. array) of values for initialization.
+- `set.add(value)` – adds a value (does nothing if `value` exists), returns the set itself.
+- `set.delete(value)` – removes the value, returns `true` if `value` existed at the moment of the call, otherwise `false`.
+- `set.has(value)` – returns `true` if the `value` exists in the set, otherwise `false`.
+- `set.clear()` – removes everything from the set.
+- `set.size` – is the elements count.
+
+### WeakMap & WeakSet
+
+`WeakMap` is `Map`-like collection that allows only objects as keys and removes them together with associated value once they become inaccessible by other means.
+
+`WeakSet` is `Set`-like collection that stores only objects and removes them once they become inaccessible by other means.
+
+Their main advantages are that they have _weak reference_ to objects, so they can be easily removed by garbage collector.
+
+That comes at the cost of not having support for `clear`, `size`, `keys`, `values` ...
+
+`WeakMap` and `WeakSet` are used as “secondary” data structures in addition to the “primary” object storage. Once the object is removed from the primary storage, if it is only found as the key of `WeakMap` or in a `WeakSet`, it will be cleaned up automatically.
+
+### Object.keys, values, entries
+
+For plain objects, the following methods are available:
+
+- `Object.keys(obj)` – returns an array of keys.
+- `Object.values(obj)` – returns an array of values.
+- `Object.entries(obj)` – returns an array of `[key, value]` pairs.
+
+### Array destructuring
+
+```
+// we have an array with the name and surname
+let arr = ["John", "Smith"];
+
+// destructuring assignment
+// sets firstName = arr[0]
+// and surname = arr[1]
+let [firstName, surname] = arr;
+
+console.log(firstName); // John
+console.log(surname);  // Smith
+```
+
+### The rest '...'
+
+```
+let [name1, name2, ...rest] = ["Julius", "Caesar", "Consul", "of the Roman Republic"];
+
+// rest is array of items, starting from the 3rd one
+console.log(rest[0]); // Consul
+console.log(rest[1]); // of the Roman Republic
+console.log(rest.length); // 2
+```
+
+```
+// default values
+let [name = "Guest", surname = "Anonymous"] = ["Julius"];
+
+console.log(name); // Julius (from array)
+console.log(surname); // Anonymous (default used)
+```
+
+### Object destructuring
+
+```
+let options = {
+  title: "Menu",
+  width: 100,
+  height: 200
+};
+
+let {title, width, height} = options;
+
+console.log(title); // Menu
+console.log(width); // 100
+console.log(height); // 200
+```
+
+### The rest pattern “...”
+
+What if the object has more properties than we have variables? Can we take some and then assign the "rest" somewhere?
+
+We can use the rest pattern, just like we did with arrays. It’s not supported by some older browsers (IE, use Babel to polyfill it), but works in modern ones.
+
+It looks like this:
+
+```
+let options = {
+  title: "Menu",
+  height: 200,
+  width: 100
+};
+
+// title = property named title
+// rest = object with the rest of properties
+let {title, ...rest} = options;
+
+// now title="Menu", rest={height: 200, width: 100}
+console.log(rest.height); // 200
+console.log(rest.width);  // 100
+```
+
+### Date and Time
+
+#### Create without arguments
+
+`new Date()`
+
+Without arguments – create a `Date` object for the current date and time:
+
+```
+let now = new Date();
+console.log(now); // shows current date/time
+```
+
+#### Create with milliseconds
+
+`new Date(milliseconds)`
+
+Create a `Date` object with the time equal to number of milliseconds (1/1000 of a second) passed after the Jan 1st of 1970 UTC+0.
+
+```
+// 0 means 01.01.1970 UTC+0
+let Jan01_1970 = new Date(0);
+console.log(Jan01_1970);
+
+// now add 24 hours, get 02.01.1970 UTC+0
+let Jan02_1970 = new Date(24 * 3600 * 1000);
+console.log(Jan02_1970);
+```
+
+#### Create with datestring
+
+`new Date(datestring)`
+
+If there is a single argument, and it's a string, then it is parsed automatically. The algorithm is the same as `Date.parse` uses, we'll cover it later.
+
+```
+let date = new Date("2017-01-26");
+console.log(date);
+// The time is not set, so it's assumed to be midnight GMT and
+// is adjusted according to the timezone the code is run in
+// So the result could be
+// Thu Jan 26 2017 11:00:00 GMT+1100 (Australian Eastern Daylight Time)
+// or
+// Wed Jan 25 2017 16:00:00 GMT-0800 (Pacific Standard Time)
+```
+
+#### Create with year, month, date and etc...
+
+`new Date(year, month, date, hours, minutes, seconds, ms)`
+
+Create the date with the given components in the local time zone. Only the first two arguments are obligatory.
+
+- The `year` should have 4 digits. For compatibility, 2 digits are also accepted and considered 19xx, e.g. 98 is the same as 1998 here, but always using 4 digits is strongly encouraged.
+- The `month` count starts with `0` (Jan), up to `11` (Dec).
+- The `date` parameter is actually the day of month, if absent then `1` is assumed.
+- If `hours/minutes/seconds/ms` is absent, they are assumed to be equal `0`.
+
+For instance:
+
+```
+new Date(2011, 0, 1, 0, 0, 0, 0); // 1 Jan 2011, 00:00:00
+new Date(2011, 0, 1); // the same, hours etc are 0 by default
+```
+
+#### Access date components
+
+There are methods to access the year, month and so on from the `Date` object:
+
+- `getFullYear()`
+  Get the year (4 digits)
+
+- `getMonth()`
+  Get the month, from `0` to `11`.
+
+- `getDate()`
+  Get the day of month, from `1` to `31`, the name of the method does look a little bit strange.
+
+- `getHours()`, `getMinutes()`, `getSeconds()`, `getMilliseconds()`
+  Get the corresponding time components.
+
+> ❗ **Not `getYear()`, but `getFullYear()`**
+>
+> Many JavaScript engines implement a non-standard method `getYear()`. This method is deprecated. It returns 2-digit year sometimes. Please never use it. There is `getFullYear()` for the year.
+
+Additionally, we can get a day of week:
+
+- `getDay()`
+  - Get the day of week, from `0` (Sunday) to `6` (Saturday). The first day is always Sunday, in some countries that's not so, but can't be changed.
+- `getTime()`
+  - Returns the timestamp for the date – a number of milliseconds passed from the January 1st of 1970 UTC+0.
+- `getTimezoneOffset()`
+  - Returns the difference between UTC and the local time zone, in minutes:
+
+#### Setting date components
+
+The following methods allow to set date/time components:
+
+- `setFullYear(year, [month], [date])`
+- `setMonth(month, [date])`
+- `setDate(date)`
+- `setHours(hour, [min], [sec], [ms])`
+- `setMinutes(min, [sec], [ms])`
+- `setSeconds(sec, [ms])`
+- `setMilliseconds(ms)`
+- `setTime(milliseconds)` (sets the whole date by milliseconds since 01.01.1970 UTC)
+
+Every one of them except `setTime()` has a UTC-variant, for instance: `setUTCHours()`.
+
+#### Example
+
+```
+let today = new Date();
+
+today.setHours(0);
+console.log(today); // still today, but the hour is changed to 0
+
+today.setHours(0, 0, 0, 0);
+console.log(today); // still today, now 00:00:00 sharp.
+```
+
+### JSON
+
+#### JSON
+
+The JSON (JavaScript Object Notation) is a general format to represent values and objects. It is described as in RFC 4627 standard. Initially it was made for JavaScript, but many other languages have libraries to handle it as well. So it's easy to use JSON for data exchange when the client uses JavaScript and the server is written on Ruby/PHP/Java/Whatever.
+
+JavaScript provides methods:
+
+- `JSON.stringify` to convert objects into JSON.
+- `JSON.parse` to convert JSON back into an object.
+
+#### JSON.stringify
+
+```
+let student = {
+  name: 'John',
+  age: 30,
+  isAdmin: false,
+  courses: ['html', 'css', 'js'],
+  spouse: null
+};
+
+let json = JSON.stringify(student);
+
+console.log(typeof json); // we've got a string!
+console.log(json);
+
+/* JSON-encoded object:
+{
+  "name": "John",
+  "age": 30,
+  "isAdmin": false,
+  "courses": ["html", "css", "js"],
+  "spouse": null
+}
+*/
+```
+
+#### JSON.stringify syntax
+
+The full syntax of `JSON.stringify` is:
+
+```
+let json = JSON.stringify(value[, replacer, space])
+```
+
+- `value` - A value to encode.
+- `replacer` - Array of properties to encode or a mapping function `function(key, value)`.
+- `space` - Amount of space to use for formatting
+
+#### JSON.parse
+
+To decode a JSON-string, we need another method named `JSON.parse`.
+
+The syntax:
+
+```
+let value = JSON.parse(str, [reviver]);
+```
+
+- `str`
+  JSON-string to parse.
+
+- `reviver`
+  Optional function`(key,value)` that will be called for each `(key, value)` pair and can transform the value.
+
+For instance:
+
+```
+// stringified array
+let numbers = "[0, 1, 2, 3]";
+
+numbers = JSON.parse(numbers);
+
+console.log( numbers[1] ); // 1
+```
+
+#### JSON summary
+
+- JSON is a data format that has its own independent standard and libraries for most programming languages.
+- JSON supports plain objects, arrays, strings, numbers, booleans, and `null`.
+- JavaScript provides methods `JSON.stringify` to serialize into JSON and `JSON.parse` to read from JSON.
+- Both methods support transformer functions for smart reading/writing.
+- If an object has `toJSON`, then it is called by `JSON.stringify`.

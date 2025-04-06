@@ -13,4 +13,5 @@ export const block_1 = [
 export const block_2 = [
   { name: 'JS Basics 1', href: '/block-two/js-basics-1' },
   { name: 'JS Basics 2', href: '/block-two/js-basics-2' },
+  { name: 'JS Advanced', href: '/block-two/js-advanced' },
 ];
