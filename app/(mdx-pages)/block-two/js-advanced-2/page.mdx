@@ -1,0 +1,979 @@
+# JS Advanced 2
+
+## Prototype - based OOP
+
+### OOP Principles
+
+- **Encapsulation**: Bundling of data (attributes) and methods that operate on the data within a single unit. This helps in controlling access to the internal state of an object. Instead of directly exposing all data members, encapsulation often involves providing controlled interfaces through **setters** (methods to modify data) and **getters** (methods to retrieve data). This allows for validation and controlled updates, preventing accidental or unintended modifications to the object's state.
+
+- **Abstraction**: Focusing on the essential qualities of something rather than one specific example. It involves hiding complex implementation details and showing only the necessary information to the user. Think about using a **car**: you interact with the steering wheel, accelerator, and brakes to drive. You don't need to understand the intricate workings of the engine, transmission, or braking system to operate the vehicle effectively. Abstraction simplifies the interaction with complex systems by providing a high-level view.
+
+- **Inheritance**: A mechanism where a new class (derived or child class) inherits properties and methods from an existing class (base or parent class). This promotes code reusability. The derived class can then extend or override the inherited methods to add or modify behavior specific to its needs. An object of the derived class will have access to the methods defined in its parent class, allowing for a hierarchical organization of classes and behaviors.
+
+- **Polymorphism**: The ability of an object to take on many forms. This often manifests as the ability to call the same method on different objects, and have each object respond in its own way. For example, you might have different types of shapes (circles, squares, triangles) that all have a `draw()` method. When you call `draw()` on each shape object, the specific drawing logic for that shape will be executed. Polymorphism allows for creating flexible and extensible systems where new object types can be introduced without modifying existing code that interacts with them through a common interface. This can involve extending existing objects or creating new objects with different behaviors while adhering to a common structure.
+
+#### Property getters and setters
+
+Accessor properties are represented by "getter" and "setter" methods. In an object literal they are denoted by `get` and `set`:
+
+```
+let obj = {
+  get propName() {
+    // getter, the code executed on getting obj.propName
+  },
+  set propName(value) {
+    // setter, the code executed on setting obj.propName = value
+  }
+};
+```
+
+The getter works when `obj.propName` is read, the setter – when it is assigned.
+
+#### Property getters and setters
+
+```
+let user = {
+  name: "John",
+  surname: "Smith",
+
+  get fullName() {
+    return `${this.name} ${this.surname}`;
+  },
+
+  set fullName(value) {
+    [this.name, this.surname] = value.split(" ");
+  }
+};
+
+// set fullName is executed with the given value.
+user.fullName = "Alice Cooper";
+
+console.log(user.name); // Alice
+console.log(user.surname); // Cooper
+```
+
+#### Smarter getters/setters
+
+Getters/setters can be used as wrappers over "real" property values to gain more control over operations with them.
+
+For instance, if we want to forbid too short names for `user`, we can have a setter `name` and keep the value in a separate property `_name`:
+
+```
+let user = {
+  get name() {
+    return this._name;
+  },
+
+  set name(value) {
+    if (value.length < 4) {
+      console.log("Name is too short, need at least 4 characters");
+      return;
+    }
+    this._name = value;
+  }
+};
+
+user.name = "Pete";
+console.log(user.name); // Pete
+
+user.name = ""; // Name is too short...
+```
+
+### [[Prototype]]
+
+In JavaScript, objects have a special hidden property `[[Prototype]]` (as named in the specification), that is either `null` or references another object. That object is called "a prototype":
+
+```
+prototype object
+       ^
+       | [[Prototype]]
+       |
+     object
+```
+
+When we read a property from `object`, and it's missing, JavaScript automatically takes it from the prototype. In programming, this is called "prototypal inheritance". And soon we'll study many examples of such inheritance, as well as cooler language features built upon it.
+
+The property `[[Prototype]]` is internal and hidden, but there are many ways to set it.
+
+### `__proto__`
+
+```
+let animal = {
+  eats: true,
+};
+
+let rabbit = {
+  jumps: true,
+};
+
+rabbit.__proto__ = animal; // (*)
+
+// we can find both properties in rabbit now:
+console.log(rabbit.eats); // true (**)
+console.log(rabbit.jumps); // true
+```
+
+Here the line `(*)` sets `animal` to be the prototype of `rabbit`.
+
+Then, when `console.log` tries to read property `rabbit.eats` `(**)`, it's not in `rabbit`, so JavaScript follows the `[[Prototype]]` reference and finds it in `animal` (look from the bottom up):
+
+```
+animal
+  eats: true
+    ^
+    | [[Prototype]]
+    |
+rabbit
+  jumps: true
+```
+
+#### Prototype chain
+
+```
+let animal = {
+  eats: true,
+  walk() {
+    console.log("Animal walk");
+  }
+};
+
+let rabbit = {
+  jumps: true,
+  __proto__: animal
+};
+
+let longEar = {
+  earLength: 10,
+  __proto__: rabbit
+};
+
+// walk is taken from the prototype chain
+longEar.walk(); // Animal walk
+console.log(longEar.jumps); // true (from rabbit)
+```
+
+```
+animal
+  eats: true
+  walk: function
+    ^
+    | [[Prototype]]
+    |
+rabbit
+  jumps: true
+    ^
+    | [[Prototype]]
+    |
+longEar
+  earLength: 10
+```
+
+#### Limitations
+
+There are only two limitations:
+
+1. The references can't go in circles. JavaScript will throw an error if we try to assign `__proto__` in a circle.
+2. The value of `__proto__` can be either an object or `null`. Other types are ignored.
+
+Also it may be obvious, but still: there can be only one `[[Prototype]]`. An object may not inherit from two others.
+
+> ℹ️ `__proto__` is a historical getter/setter for `[[Prototype]]`
+>
+> It's a common mistake of novice developers not to know the difference between these two.
+>
+> Please note that `__proto__` is _not_ the same as the internal `[[Prototype]]` property. It's a getter/setter for `[[Prototype]]`. Later we'll see situations where it matters, for now let's just keep it in mind, as we build our understanding of JavaScript language.
+>
+> The `__proto__` property is a bit outdated. It exists for historical reasons, modern JavaScript suggests that we should use `Object.getPrototypeOf(obj)`/`Object.setPrototypeOf(obj, proto)` functions instead that get/set the prototype. We'll also cover these functions later.
+>
+> By the specification, `__proto__` must only be supported by browsers. In fact though, all environments including server-side support `__proto__`, so we're quite safe using it.
+>
+> As the `__proto__` notation is a bit more intuitively obvious, we use it in the examples.
+
+#### for...in loop
+
+The `for..in` loop iterates over inherited properties too.
+
+For instance:
+
+```
+let animal = {
+  eats: true
+};
+
+let rabbit = {
+  jumps: true,
+  __proto__: animal
+};
+
+// Object.keys only returns own keys
+console.log(Object.keys(rabbit)); // ["jumps"]
+
+// for..in loops over both own and inherited keys
+for(let prop in rabbit) console.log(prop); // jumps, then eats
+```
+
+If that's not what we want, and we'd like to exclude inherited properties, there's a built-in method `obj.hasOwnProperty(key)`: it returns `true` if `obj` has its own (not inherited) property named `key`.
+
+#### Summary
+
+- In JavaScript, all objects have a hidden `[[Prototype]]` property that's either another object or `null`.
+- We can use `obj.__proto__` to access it (a historical getter/setter, there are other ways, to be covered soon).
+- The object referenced by `[[Prototype]]` is called a "prototype".
+- If we want to read a property of `obj` or call a method, and it doesn't exist, then JavaScript tries to find it in the prototype.
+- Write/delete operations act directly on the object, they don't use the prototype (assuming it's a data property, not a setter).
+- If we call `obj.method()`, and the `method` is taken from the prototype, `this` still references `obj`. So methods always work with the current object even if they are inherited.
+- The `for..in` loop iterates over both its own and its inherited properties. All other key/value-getting methods only operate on the object itself.
+
+#### F.prototype
+
+Remember, new objects can be created with a constructor function, like `new F()`.
+
+If `F.prototype` is an object, then the `new` operator uses it to set `[[Prototype]]` for the new object.
+
+> ℹ️ **Please note:**
+>
+> JavaScript had prototypal inheritance from the beginning. It was one of the core features of the language.
+>
+> But in the old times, there was no direct access to it. The only thing that worked reliably was a `"prototype"` property of the constructor function, described in this chapter. So there are many scripts that still use it.
+
+#### F.prototype
+
+Please note that `F.prototype` here means a regular property named `"prototype"` on `F`. It sounds something similar to the term "prototype", but here we really mean a regular property with this name.
+
+Here's the example:
+
+```
+let animal = {
+  eats: true,
+};
+
+function Rabbit(name) {
+  this.name = name;
+}
+
+Rabbit.prototype = animal;
+
+let rabbit = new Rabbit('White Rabbit'); // rabbit.__proto__ == animal
+
+console.log(rabbit.eats); // true
+```
+
+#### F.prototype
+
+Setting `Rabbit.prototype = animal` literally states the following: "When a new `Rabbit` is created, assign its `[[Prototype]]` to `animal`".
+
+That's the resulting picture:
+
+```
+Rabbit -------- prototype -------> animal
+                                     eats: true
+                                       ^
+                                       | [[Prototype]]
+                                       |
+                                   rabbit
+                                     name: "White Rabbit"
+```
+
+On the picture, "prototype" is a horizontal arrow, meaning a regular property, and `[[Prototype]]` is vertical, meaning the inheritance of `rabbit` from `animal`.
+
+> ℹ️ **F.prototype only used at `new F` time**
+>
+> The `F.prototype` property is only used when `new F` is called, it assigns `[[Prototype]]` of the new object.
+>
+> If, after the creation, `F.prototype` property changes (`F.prototype = <another object>`), then new objects created by `new F` will have another object as `[[Prototype]]`, but already existing objects keep the old one.
+
+#### Summary
+
+In this chapter we briefly described the way of setting a `[[Prototype]]` for objects created via a constructor function. Later we'll see more advanced programming patterns that rely on it.
+
+Everything is quite simple, just a few notes to make things clear:
+
+- The `F.prototype` property (don't mistake it for `[[Prototype]]`) sets `[[Prototype]]` of new objects when `new F()` is called.
+- The value of `F.prototype` should be either an object or `null`: other values won't work.
+- The `"prototype"` property only has such a special effect when set on a constructor function, and invoked with `new`.
+
+On regular objects the `prototype` is nothing special:
+
+```
+let user = {
+  name: "John",
+  prototype: "Bla-bla" // no magic at all
+};
+```
+
+By default all functions have `F.prototype = { constructor: F }`, so we can get the constructor of an object by accessing its `"constructor"` property.
+
+### Classes
+
+#### Class basic syntax
+
+> In object-oriented programming, a class is an extensible program-code-template for creating objects, providing initial values for state (member variables) and implementations of behavior (member functions or methods).
+>
+> <footer>Wikipedia</footer>
+
+In practice, we often need to create many objects of the same kind, like users, or goods or whatever.
+
+As we already know from the chapter Constructor, operator "new", `new function` can help with that.
+
+But in the modern JavaScript, there's a more advanced `"class"` construct, that introduces great new features which are useful for object-oriented programming.
+
+#### The “class” syntax
+
+The basic syntax is:
+
+```
+class MyClass {
+  // class methods
+  constructor() { ... }
+  method1() { ... }
+  method2() { ... }
+  method3() { ... }
+  ...
+}
+```
+
+Then use `new MyClass()` to create a new object with all the listed methods.
+
+The `constructor()` method is called automatically by `new`, so we can initialize the object there.
+
+#### The “class” syntax
+
+```javascript
+class User {
+  constructor(name) {
+    this.name = name;
+  }
+
+  sayHi() {
+    console.log(this.name);
+  }
+}
+
+// Usage:
+let user = new User('John');
+user.sayHi();
+```
+
+When `new User("John")` is called:
+
+1. A new object is created.
+2. The `constructor` runs with the given argument and assigns it to `this.name`.
+
+Then we can call object methods, such as `user.sayHi()`.
+
+#### What is a class?
+
+In JavaScript, a class is a kind of function.
+
+Here, take a look:
+
+```
+class User {
+  constructor(name) { this.name = name; }
+  sayHi() { console.log(this.name); }
+}
+
+// proof: User is a function
+console.log(typeof User); // function
+```
+
+What `class User { ... }` construct really does is:
+
+1. Creates a function named `User`, that becomes the result of the class declaration. The function code is taken from the `constructor` method (assumed empty if we don't write such method).
+2. Stores class methods, such as `sayHi`, in `User.prototype`.
+
+After a `new User` object is created, when we call its method, it's taken from the prototype, just as described in the chapter F.prototype. So the object has access to class methods.
+
+We can illustrate the result of `class User` declaration as:
+
+```
+User -------- prototype -------> User.prototype
+constructor(name) {             sayHi: function
+  this.name = name;             constructor: User
+}
+```
+
+#### What is a class?
+
+```
+class User {
+  constructor(name) { this.name = name; }
+  sayHi() { console.log(this.name); }
+}
+
+// class is a function
+console.log(typeof User); // function
+
+// ...or, more precisely, the constructor method
+console.log(User === User.prototype.constructor); // true
+
+// The methods are in User.prototype, e.g:
+console.log(User.prototype.sayHi); // the code of the sayHi method
+
+// there are exactly two methods in the prototype
+console.log(Object.getOwnPropertyNames(User.prototype)); // ["constructor", "sayHi"]
+```
+
+#### Not just a syntactic sugar
+
+Sometimes people say that `class` is a "syntactic sugar" (syntax that is designed to make things easier to read, but doesn't introduce anything new), because we could actually declare the same thing without using the `class` keyword at all:
+
+```
+// rewriting class User in pure functions
+
+// 1. Create constructor function
+function User(name) {
+  this.name = name;
+}
+
+// a function prototype has "constructor" property by default,
+// so we don't need to create it
+
+// 2. Add the method to prototype
+User.prototype.sayHi = function() {
+  console.log(this.name);
+};
+
+// Usage:
+let user = new User("John");
+user.sayHi();
+```
+
+#### Not just a syntactic sugar
+
+- First, a function created by `class` is labelled by a special internal property `[[IsClassConstructor]]: true`. So it's not entirely the same as creating it manually.  
+  The language checks for that property in a variety of places. For example, unlike a regular function, it must be called with `new`:
+
+```
+class User {
+  constructor() {}
+}
+
+console.log(typeof User); // function
+User(); // Error: Class constructor User cannot be invoked without 'new'
+```
+
+- Also, a string representation of a class constructor in most JavaScript engines starts with the "class..."
+
+```
+class User {
+  constructor() {}
+}
+
+console.log(User); // class User { ... }
+```
+
+- There are other differences, we'll see them soon.
+
+- Class methods are non-enumerable. A class definition sets `enumerable flag to false` for all methods in the "prototype".  
+  That's good, because if we `for..in` over an object, we usually don't want its class methods.
+
+- Classes always `use strict`. All code inside the class construct is automatically in strict mode.
+
+#### Class Expression
+
+Just like functions, classes can be defined inside another expression, passed around, returned, assigned, etc.
+
+Here's an example of a class expression:
+
+```
+let User = class {
+  sayHi() {
+    console.log("Hello");
+  }
+};
+```
+
+#### Getters/setters
+
+Just like literal objects, classes may include getters/setters, computed properties etc.
+
+Here's an example for `user.name` implemented using `get/set`:
+
+```
+class User {
+  constructor(name) {
+    // invokes the setter
+    this.name = name;
+  }
+
+  get name() {
+    return this._name;
+  }
+
+  set name(value) {
+    if (value.length < 4) {
+      console.log("Name is too short.");
+      return;
+    }
+    this._name = value;
+  }
+}
+
+let user = new User("John");
+console.log(user.name); // John
+
+user = new User(""); // Name is too short.
+```
+
+Technically, such class declaration works by creating getters and setters in `User.prototype`.
+
+#### Summary
+
+The basic class syntax looks like this:
+
+```
+class MyClass {
+  prop = value; // property
+
+  constructor(...) { // constructor
+    // ...
+  }
+
+  method(...) {} // method
+
+  get something(...) {} // getter method
+  set something(...) {} // setter method
+
+  [Symbol.iterator]() {} // method with computed name (symbol here)
+  // ...
+}
+```
+
+`MyClass` is technically a function (the one that we provide as `constructor`), while methods, getters and setters are written to `MyClass.prototype`.
+
+#### Class inheritance
+
+```
+class Animal {
+  constructor(name) {
+    this.speed = 0;
+    this.name = name;
+  }
+  run(speed) {
+    this.speed = speed;
+    console.log(`${this.name} runs with speed ${this.speed}.`);
+  }
+  stop() {
+    this.speed = 0;
+    console.log(`${this.name} stands still.`);
+  }
+}
+
+let animal = new Animal("My animal");
+```
+
+```
+class Rabbit extends Animal {
+  hide() {
+    console.log(`${this.name} hides!`);
+  }
+}
+
+let rabbit = new Rabbit("White Rabbit");
+rabbit.run(5); // White Rabbit runs with speed 5.
+rabbit.hide(); // White Rabbit hides!
+```
+
+#### Class inheritance
+
+```
+Animal -------- prototype -------> Animal.prototype
+constructor()                        constructor: Animal
+                                     run: function
+                                     stop: function
+
+                                          / \
+                                           | [[Prototype]] <-- extends
+                                           |
+
+Rabbit -------- prototype -------> Rabbit.prototype
+constructor()                        constructor: rabbit
+                                     hide: function
+
+                                          / \
+                                           | [[Prototype]]
+                                           |
+
+                                      new Rabbit
+                                      name: "White Rabbit"
+```
+
+For instance, to find `rabbit.run` method, the engine checks (bottom-up on the picture):
+
+1. The `rabbit` object (has no `run`).
+2. Its prototype, that is `Rabbit.prototype` (has `hide`, but not `run`).
+3. Its prototype, that is (due to `extends`) `Animal.prototype`, that finally has the `run` method.
+
+#### Overriding a method
+
+Now let's move forward and override a method. By default, all methods that are not specified in `class Rabbit` are taken directly "as is" from `class Animal`.
+
+But if we specify our own method in `Rabbit`, such as `stop()`, then it will be used instead:
+
+```
+class Rabbit extends Animal {
+  stop() {
+    // ...now this will be used for rabbit.stop()
+    // instead of stop() from class Animal
+  }
+}
+```
+
+Usually, however, we don't want to totally replace a parent method, but rather to build on top of it to tweak or extend its functionality. We do something in our method, but call the parent method before/after it or in the process.
+
+Classes provide the `"super"` keyword for that.
+
+- `super.method(...)` to call a parent method.
+- `super(...)` to call a parent constructor (inside our constructor only).
+
+#### Overriding a method
+
+```
+class Animal {
+  constructor(name) {
+    this.speed = 0;
+    this.name = name;
+  }
+  run(speed) {
+    this.speed = speed;
+    console.log(`${this.name} runs with speed ${this.speed}.`);
+  }
+  stop() {
+    this.speed = 0;
+    console.log(`${this.name} stands still.`);
+  }
+}
+
+class Rabbit extends Animal {
+  hide() {
+    console.log(`${this.name} hides!`);
+  }
+
+  stop() {
+    super.stop(); // call parent stop
+    this.hide(); // and then hide
+  }
+}
+
+let rabbit = new Rabbit("White Rabbit");
+rabbit.run(5); // White Rabbit runs with speed 5.
+rabbit.stop(); // White Rabbit stands still. White Rabbit hides!
+```
+
+#### Summary
+
+1. To extend a class: `class Child extends Parent:`
+   - That means `Child.prototype.__proto__` will be `Parent.prototype`, so methods are inherited.
+2. When overriding a constructor:
+   - We must call parent constructor as `super()` in `Child` constructor before using `this`.
+3. When overriding another method:
+   - We can use `super.method()` in a `Child` method to call the `Parent` method.
+4. Internals:
+   - Methods remember their class/object in the internal `[[HomeObject]]` property. That's how `super` resolves parent methods.
+   - So it's not safe to copy a method with `super` from one object to another.
+
+Also:
+
+- Arrow functions don't have their own `this` or `super`, so they transparently fit into the surrounding context.
+
+#### Static properties and methods
+
+We can also assign a method to the class as a whole. Such methods are called static.
+
+In a class declaration, they are prepended by the `static` keyword, like this:
+
+```javascript
+class User {
+  static staticMethod() {
+    console.log(this === User);
+  }
+}
+
+User.staticMethod(); // true
+```
+
+That actually does the same as assigning it as a property directly:
+
+```
+class User {}
+
+User.staticMethod = function() {
+  console.log(this === User);
+};
+
+User.staticMethod(); // true
+```
+
+#### Static properties
+
+Static properties are also possible, they look like regular class properties, but prepended by `static`:
+
+```
+class Article {
+  static publisher = "Ilya Kantor";
+}
+
+console.log(Article.publisher); // Ilya Kantor
+```
+
+That is the same as a direct assignment to `Article`:
+
+```
+Article.publisher = "Ilya Kantor";
+```
+
+#### Inheritance of static properties and methods
+
+Static properties and methods are inherited.
+
+For instance, `Animal.compare` and `Animal.planet` in the code below are inherited and accessible as `Rabbit.compare` and `Rabbit.planet`:
+
+```
+class Animal {
+  static planet = "Earth";
+
+  constructor(name, speed) {
+    this.speed = speed;
+    this.name = name;
+  }
+
+  run(speed = 0) {
+    this.speed += speed;
+    console.log(`${this.name} runs with speed ${this.speed}.`);
+  }
+
+  static compare(animalA, animalB) {
+    return animalA.speed - animalB.speed;
+  }
+}
+
+// Inherit from Animal
+class Rabbit extends Animal {
+  hide() {
+    console.log(`${this.name} hides!`);
+  }
+}
+
+let rabbits = [
+  new Rabbit("White Rabbit", 10),
+  new Rabbit("Black Rabbit", 5)
+];
+
+rabbits.sort(Rabbit.compare);
+
+rabbits[0].run(); // Black Rabbit runs with speed 5.
+console.log(Rabbit.planet); // Earth
+```
+
+## Data storages
+
+### Cookies
+
+#### Overview
+
+Cookies are small strings of data that are stored directly in the browser. They are a part of the HTTP protocol, defined by the RFC 6265 specification.
+
+Cookies are usually set by a web-server using the response `Set-Cookie` HTTP-header. Then, the browser automatically adds them to (almost) every request to the same domain using the `Cookie` HTTP-header.
+
+Server sends it to the client, cookies are also send back to the server.
+
+One of the most widespread use cases is authentication:
+
+- Upon sign in, the server uses the `Set-Cookie` HTTP-header in the response to set a cookie with a unique “session identifier”.
+- Next time when the request is sent to the same domain, the browser sends the cookie over the net using the `Cookie` HTTP-header.D
+- So the server knows who made the request.
+
+#### Reading from document.cookie
+
+Does your browser store any cookies from this site? Let's see:
+
+```
+// At javascript.info, we use Google Analytics for statistics,
+// so there should be some cookies
+console.log(document.cookie); // cookie1=value1; cookie2=value2;...
+```
+
+The value of `document.cookie` consists of `name=value` pairs, delimited by `;`. Each one is a separate cookie.
+
+To find a particular cookie, we can split `document.cookie` by `;`, and then find the right name. We can use either a regular expression or array functions to do that.
+
+#### Writing to document.cookie
+
+We can write to `document.cookie`. But it's not a data property, it's an accessor (getter/setter). An assignment to it is treated specially.
+
+A write operation to `document.cookie` updates only cookies mentioned in it, but doesn't touch other cookies.
+
+For instance, this call sets a cookie with the name `user` and value `John`:
+
+```
+document.cookie = "user=John"; // update only cookie named 'user'
+console.log(document.cookie); // show all cookies
+```
+
+If you run it, then probably you'll see multiple cookies. That's because the `document.cookie=` operation does not overwrite all cookies. It only sets the mentioned cookie `user`.
+
+#### path
+
+- `path=/mypath`
+
+The url path prefix must be absolute. It makes the cookie accessible for pages under that path. By default, it's the current path.
+
+If a cookie is set with `path=/admin`, it's visible at pages `/admin` and `/admin/something`, but not at `/home` or `/adminpage`.
+
+Usually, we should set `path` to the root: `path=/` to make the cookie accessible from all website pages.
+
+#### domain
+
+- `domain=site.com`
+
+A domain defines where the cookie is accessible. In practice though, there are limitations. We can't set any domain.
+
+There's no way to let a cookie be accessible from another 2nd-level domain, so `other.com` will never receive a cookie set at `site.com`.
+
+It's a safety restriction, to allow us to store sensitive data in cookies that should be available only on one site.
+
+By default, a cookie is accessible only at the domain that set it.
+
+Please note, by default a cookie is also not shared to a subdomain as well, such as `forum.site.com`.
+
+```
+// if we set a cookie at site.com website...
+document.cookie = "user=John";
+
+// ...we won't see it at forum.site.com
+console.log(document.cookie); // no user
+```
+
+But this can be changed. If we'd like to allow subdomains like `forum.site.com` to get a cookie set at `site.com`, that's possible.
+
+#### expires, max-age
+
+By default, if a cookie doesn't have one of these options, it disappears when the browser is closed. Such cookies are called "session cookies".
+
+To let cookies survive a browser close, we can set either the `expires` or `max-age` option.
+
+- `expires=Tue, 19 Jan 2038 03:14:07 GMT`
+
+The cookie expiration date defines the time when the browser will automatically delete it.
+
+The date must be exactly in this format, in the GMT timezone. We can use `date.toUTCString()` to get it. For instance, we can set the cookie to expire in 1 day:
+
+```
+// +1 day from now
+let date = new Date(Date.now() + 86400e3);
+date = date.toUTCString();
+document.cookie = "user=John; expires=" + date;
+```
+
+If we set `expires` to a date in the past, the cookie is deleted.
+
+- `max-age=3600`
+
+Is an alternative to `expires` and specifies the cookie's expiration in seconds from the current moment.
+
+If set to zero or a negative value, the cookie is deleted:
+
+```
+// cookie will die in +1 hour from now
+document.cookie = "user=John; max-age=3600";
+
+// delete cookie (let it expire right now)
+document.cookie = "user=John; max-age=0";
+```
+
+#### secure
+
+The cookie should be transferred only over HTTPS.
+
+By default, if we set a cookie at `http://site.com`, then it also appears at `https://site.com` and vice versa.
+
+That is, cookies are domain-based, they do not distinguish between the protocols.
+
+With this option, if a cookie is set by `https://site.com`, then it doesn't appear when the same site is accessed by HTTP, as `http://site.com`. So if a cookie has sensitive content that should never be sent over unencrypted HTTP, the secure flag is the right thing.
+
+```
+// assuming we're on https:// now
+// set the cookie to be secure (only accessible over HTTPS)
+document.cookie = "user=John; secure";
+```
+
+#### Summary
+
+`document.cookie` provides access to cookies.
+
+- Write operations modify only cookies mentioned in it.
+- Name/value must be encoded.
+- One cookie may not exceed 4KB in size. The number of cookies allowed on a domain is around 20+ (varies by browser).
+
+##### Cookie options:
+
+- `path=/`, by default current path, makes the cookie visible only under that path.
+- `domain=site.com`, by default a cookie is visible on the current domain only. If the domain is set explicitly, the cookie becomes visible on subdomains.
+- `expires` or `max-age` sets the cookie expiration time. Without them the cookie dies when the browser is closed.
+- `secure` makes the cookie HTTPS-only.
+- `samesite` forbids the browser to send the cookie with requests coming from outside the site. This helps to prevent XSRF attacks.
+
+##### Additionally:
+
+- Third-party cookies may be forbidden by the browser, e.g. Safari does that by default.
+- When setting a tracking cookie for EU citizens, GDPR requires to ask for permission.
+
+## Local Storage & Session Storage
+
+#### Overwiew
+
+Web storage objects `localStorage` and `sessionStorage` allow to save key/value pairs in the browser.
+
+What's interesting about them is that the data survives a page refresh (for `sessionStorage`) and even a full browser restart (for `localStorage`. We'll see that very soon.
+
+We already have cookies. Why additional objects?
+
+- Unlike cookies, web storage objects are not sent to server with each request. Because of that, we can store much more. Most modern browsers allow at least 5 megabytes of data (or more) and have settings to configure that.
+- Also unlike cookies, the server can't manipulate storage objects via HTTP headers. Everything's done in JavaScript.
+- The storage is bound to the origin (domain/protocol/port triplet). That is, different protocols or subdomains infer different storage objects, they can't access data from each other.
+
+#### Methods and properties
+
+Both storage objects provide same methods and properties:
+
+- `setItem(key, value)` - store key/value pair.
+- `getItem(key)` - get the value by key.
+- `removeItem(key)` - remove the key with its value.
+- `clear()` - delete everything.
+- `key(index)` - get the key on a given position.
+- `length` - the number of stored items.
+
+As you can see, it's like a `Map` collection (`setItem`/`getItem`/`removeItem`), but also allows access by index with `key(index)`.
+
+#### Difference
+
+Web storage objects `localStorage` and `sessionStorage` allow to store key/value in the browser.
+
+- Both key and value must be strings.
+- The limit is 5mb+, depends on the browser.
+- They do not expire.
+- The data is bound to the origin (domain/port/protocol).
+
+##### localStorage
+
+- Shared between all tabs and windows with the same origin
+- Survives browser restart
+
+##### sessionStorage
+
+- Visible within a browser tab, including iframes from the same origin
+- Survives page refresh (but not tab close)
+
+## IndexedDB
+
+#### Overwiew
+
+IndexedDB is a database that is built into a browser, much more powerful than `localStorage`.
+
+- Stores almost any kind of values by keys, multiple key types
+- Supports transactions for reliability
+- Supports key range queries, indexes
+- Can store much bigger volumes of data than `localStorage`
+
+That power is usually excessive for traditional client-server apps. IndexedDB is intended for offline apps, to be combined with ServiceWorkers and other technologies.
