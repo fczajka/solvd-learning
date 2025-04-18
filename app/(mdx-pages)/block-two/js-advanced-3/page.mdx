@@ -1,0 +1,914 @@
+# JS Advanced 3
+
+## Modules
+
+Module is just a file, a function can be a module in a file
+
+### Modules: sayHi.js
+
+```javascript
+// 📁 sayHi.js
+export function sayHi(user) {
+  alert(`Hello, ${user}!`);
+}
+```
+
+### Modules: main.js
+
+```javascript
+// 📁 main.js
+import { sayHi } from './sayHi.js';
+
+alert(sayHi); // function...
+sayHi('John'); // Hello, John!
+```
+
+### Export
+
+You can export anything
+
+```
+// export an array
+export let months = ['Jan', 'Feb', 'Mar', 'Apr', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+// export a constant
+export const MODULES_BECAME_STANDARD_YEAR = 2015;
+
+// export a class
+export class User {
+  constructor(name) {
+    this.name = name;
+  }
+}
+
+function sayHi(user) {
+  alert(`Hello, ${user}!`);
+}
+
+function sayBye(user) {
+  alert(`Bye, ${user}!`);
+}
+
+export {sayHi, sayBye}; // a list of exported variables
+```
+
+### Import
+
+```javascript
+// 📁 main.js
+import { sayHi, sayBye } from './say.js';
+
+sayHi('John'); // Hello, John!
+sayBye('John'); // Bye, John!
+```
+
+```javascript
+// 📁 main.js
+import * as say from './say.js';
+
+say.sayHi('John');
+say.sayBye('John');
+```
+
+### Import “as” and export “as”
+
+```javascript
+// 📁 main.js
+import { sayHi as hi, sayBye as bye } from './say.js';
+
+hi('John'); // Hello, John!
+bye('John'); // Bye, John!
+```
+
+```javascript
+// 📁 say.js
+export function sayHi() {
+  /* ... */
+}
+export function sayBye() {
+  /* ... */
+}
+
+export { sayHi as hi, sayBye as bye };
+```
+
+### Export default
+
+```javascript
+// 📁 user.js
+export default class User {
+  // only one "default" export per module
+  constructor(name) {
+    this.name = name;
+  }
+  sayHi() {
+    alert(`Hello, ${this.name}!`);
+  }
+}
+```
+
+```javascript
+// 📁 main.js
+import User from './user.js'; // "default" import doesn't need curly braces
+
+let user = new User('John');
+user.sayHi();
+```
+
+## Error Handling
+
+### try / catch
+
+```
+try {
+// code...
+} catch (err) {
+// error handling
+}
+```
+
+Begin
+
+- try \{
+  - // code...
+- \}
+- No Errors
+  - Ignore catch block
+- An error occurred in the code
+  - Ignore the rest of try
+    - Execute catch block
+
+### Error object
+
+```
+try {
+  lalala; // error, variable is not defined!
+} catch (err) {
+  alert(err.name); // ReferenceError
+  alert(err.message); // lalala is not defined
+  alert(err.stack); // ReferenceError: lalala is not defined at (...call stack)
+
+  // Can also show an error as a whole
+  // The error is converted to string as "name: message"
+  alert(err); // ReferenceError: lalala is not defined
+}
+```
+
+In error object you can see some information about the error
+
+### Optional “catch” binding
+
+```
+try {
+  // ...
+} catch { // <-- without (err)
+  // ...
+}
+```
+
+### “Throw” operator
+
+```
+throw <error object>
+```
+
+or
+
+```javascript
+let error = new Error(message);
+// or
+let error = new SyntaxError(message);
+let error = new ReferenceError(message);
+// ...
+```
+
+```
+let json = '{ "age": 30 }';
+
+try {
+  let user = JSON.parse(json);
+
+  if (!user.name) {
+    throw new SyntaxError("Incomplete data: no name");
+  }
+  undefinedFunction(); // Unexpected error
+
+} catch (err) {
+  if (err instanceof SyntaxError) {
+    console.log("JSON Error:", err.message);
+  } else {
+    throw err; // Rethrow unexpected errors
+  }
+}
+```
+
+### try...catch...finally
+
+Optional, but always working part of try catch block
+
+```
+try {
+  // ... try to execute the code ...
+} catch (err) {
+  // ... handle errors ...
+} finally {
+  // ... execute always ...
+}
+```
+
+### Custom errors, extending Error
+
+```
+// The "pseudocode" for the built-in Error class defined by JavaScript itself
+class Error {
+  constructor(message) {
+    this.message = message;
+    this.name = "Error"; // (different names for different built-in error classes)
+    this.stack = <call stack>; // non-standard, but most environments support it
+  }
+}
+```
+
+### Own ValidationError
+
+```
+class ValidationError extends Error {
+  constructor(message) {
+    super(message); // (1)
+    this.name = 'ValidationError'; // (2)
+  }
+}
+
+function test() {
+  throw new ValidationError('Whoops!');
+}
+
+try {
+  test();
+} catch (err) {
+  alert(err.message); // Whoops!
+  alert(err.name); // ValidationError
+  alert(err.stack); // a list of nested calls with line numbers for each
+}
+```
+
+### Using own ValidationError
+
+```
+class ValidationError extends Error {
+  constructor(message) {
+    super(message); // (1)
+    this.name = 'ValidationError'; // (2)
+  }
+}
+
+// Usage
+function readUser(json) {
+  let user = JSON.parse(json);
+
+  if (!user.age) {
+    throw new ValidationError('No field: age');
+  }
+  if (!user.name) {
+    throw new ValidationError('No field: name');
+  }
+
+  return user;
+}
+
+// Working example with try..catch
+try {
+  let user = readUser('{ "age": 25 }');
+} catch (err) {
+  if (err instanceof ValidationError) {
+    console.log('Invalid data: ' + err.message); // Invalid data: No field: name
+  } else if (err instanceof SyntaxError) {
+    // (*)
+    console.log('JSON Syntax Error: ' + err.message);
+  } else {
+    throw err; // unknown error, rethrow it (**)
+  }
+}
+```
+
+## Regular expressions
+
+Creating a Regular Expression in JavaScript
+
+- Regular Expression Literal
+  - Example: `/(\d+)/`
+  - Benefits: better performance
+- Constructor Function
+  - Example: `new RegExp('(\\d+)')`
+  - Benefits: can use variables
+
+### Matching a Specific Set of Characters
+
+- `.`
+  - Matches: any character
+- `[abc]`
+  - Matches: any character listed
+- `[^abc]`
+  - Matches: any character not listed
+- `\w`
+  - Matches: word characters
+- `\W`
+  - Matches: non-word characters
+- `\d`
+  - Matches: digits
+- `\D`
+  - Matches: non-digits
+- `\s`
+  - Matches: whitespace
+- `\S`
+  - Matches: non-whitespace
+- `\b`
+  - Matches: word boundaries
+- `\B`
+  - Matches: non-word boundaries
+
+### Specifying the Number of Times to Match
+
+- `{n}`
+  - Meaning: specific number of repetitions
+- `{n,}`
+  - Meaning: n or more repetitions
+- `{n,m}`
+  - Meaning: range of repetitions
+- `?`
+  - Meaning: zero or one repetitions (possibly exists)
+- `*`
+  - Meaning: zero or more repetitions
+- `+`
+  - Meaning: one or more repetitions
+
+### Using Flags With Regular Expressions
+
+- `g`
+  - Meaning: global
+- `i`
+  - Meaning: case-insensitive
+- `m`
+  - Meaning: multiline mode
+- `s`
+  - Meaning: dotall mode (allows `.` to match newline characters)
+- `u`
+  - Meaning: unicode; enables full Unicode support
+- `y`
+  - Meaning: sticky search; match at the current position in the string
+
+### Methods
+
+- `test()`
+  - The `test()` method executes a search for a match between a regular expression and a specified string.
+  - Returns `true` or `false`.
+  ```javascript
+  let str1 = 'Hello, world!';
+  let regex1 = /world/;
+  console.log(regex1.test(str1)); // Output: true
+  ```
+- `search()`
+  - The `search()` method executes a search for a match between a regular expression and this `String` object.
+  - Returns the index of the start of the match, or `-1` if no match was found.
+  ```javascript
+  let str2 = 'Hello, world!';
+  let regex2 = /world/;
+  console.log(str2.search(regex2)); // Output: 7
+  ```
+- `match()`
+  - The `match()` method retrieves the result of matching a string against a regular expression.
+  - If the `g` flag is used, all results matching the complete regular expression will be returned, but capturing groups will not.
+  ```javascript
+  let str3 = 'Hello, world, world!';
+  let regex3 = /world/g;
+  console.log(str3.match(regex3)); // Output: ['world', 'world']
+  ```
+- `exec()`
+  - The `exec()` method executes a search for a match in a specified string.
+  - Returns a result array or `null`. The resulting array has an extra `input` property, which includes the original string that was parsed.
+  ```javascript
+  let str4 = 'Hello, world!';
+  let regex4 = /world/;
+  console.log(regex4.exec(str4)[0]); // Output: world
+  ```
+- `replace()`
+  - The `replace()` method returns a new string with some or all matches of a pattern replaced by a replacement.
+  - The pattern can be a string or a `RegExp`, and the replacement can be a string or a function to be called for each match.
+  ```javascript
+  let str5 = 'Hello, world!';
+  let regex5 = /world/;
+  console.log(str5.replace(regex5, 'universe')); // Output: Hello, universe!
+  ```
+- `split()`
+  - The `split()` method divides a String into an ordered list of substrings, puts these substrings into an array, and returns the array.
+  - The division is done by searching for a pattern; where the pattern is provided as the first parameter in the method's call.
+  ```javascript
+  let str6 = 'Hello1world2!';
+  let regex6 = /\d/;
+  console.log(str6.split(regex6)); // Output: ['Hello', 'world', '!']
+  ```
+
+## Callbacks / Promises
+
+### Callbacks
+
+```javascript
+function loadScript(src, callback) {
+  let script = document.createElement('script');
+  script.src = src;
+  script.onload = () => callback(script);
+  document.head.append(script);
+}
+
+loadScript(
+  'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.2.0/lodash.js',
+  (script) => {
+    alert(`Cool, the script ${script.src} is loaded`);
+  },
+);
+```
+
+### "Callback hell" or "pyramid of doom"
+
+```javascript
+loadScript('/my/script.js', function (script) {
+  loadScript('/my/script2.js', function (script) {
+    loadScript('/my/script3.js', function (script) {
+      loadScript('/my/script4.js', function (script) {
+        loadScript('/my/script5.js', function (script) {
+          loadScript('/my/script6.js', function (script) {
+            loadScript('/my/script7.js', function (script) {
+              loadScript('/my/script8.js', function (script) {
+                // ...continue after all scripts are loaded (*)
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+});
+```
+
+### Promise
+
+```javascript
+let promise = new Promise(function (resolve, reject) {
+  // executor (the producing code, "singer")
+});
+```
+
+```
+        resolve(value)  --> state: "fulfilled"
+                       --   result: value
+new Promise(executor)
+  state: "pending"
+  result: undefined
+                      --
+        reject(error)   --> state: "rejected"
+                            result: error
+```
+
+```javascript
+let promise = new Promise(function (resolve, reject) {
+  resolve('done');
+
+  reject(new Error('...')); // ignored
+  setTimeout(() => resolve('...'), 100); // ignored
+});
+```
+
+### Promise API
+
+- `Promise.all()`
+  - Returns a new promise that can be accessed as an array of resolved values of fulfilled promises.
+- `Promise.allSettled()`
+  - Returns a new Promise object that resolves to an array after all Promises in an iterable object have been resolved or rejected.
+- `Promise.any()`
+  - Iterates over an iterable object of Promises and stops at the first one that fulfills. The resulting value from that fulfilled Promise is resolved in the returned Promise object.
+- `Promise.catch()`
+  - Returns a new Promise related to a previously rejected Promise in the chain. This is ideal for formatting error messages for potential Promise rejections.
+- `Promise.finally()`
+  - Returns a new Promise object after the previous Promise in the chain has been resolved or rejected. This last part of the chain will execute no matter what.
+- `Promise.race()`
+  - Returns the first Promise in an iterable object that is either resolved or rejected.
+- `Promise.reject()`
+  - Returns a rejected Promise object with a given reason.
+- `Promise.resolve()`
+  - Returns a new Promise object that turns into the value that was passed to the method.
+- `Promise.then()`
+  - Returns a new Promise object.
+
+### Promise.then
+
+```javascript
+promise.then(
+  function (result) {
+    /* handle a successful result */
+  },
+  function (error) {
+    /* handle an error */
+  },
+);
+```
+
+### Promise.catch
+
+```javascript
+let promise = new Promise((resolve, reject) => {
+  setTimeout(() => reject(new Error('Whoops!')), 1000);
+});
+
+// .catch(f) is the same as promise.then(null, f)
+promise.catch(alert); // shows "Error: Whoops!" after 1 second
+```
+
+### Promise.finally
+
+```javascript
+fetch(myRequest)
+  .then(function (response) {
+    var contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return response.json();
+    }
+    throw new TypeError("Oops, we haven't got JSON!");
+  })
+  .then(function (json) {
+    /* process your JSON further */
+  })
+  .catch(function (error) {
+    console.error(error);
+  })
+  .finally(function () {
+    isLoading = false;
+  });
+```
+
+### Promise.all
+
+```javascript
+Promise.all([
+  new Promise((resolve) => setTimeout(() => resolve(1), 3000)), // 1
+  new Promise((resolve) => setTimeout(() => resolve(2), 2000)), // 2
+  new Promise((resolve) => setTimeout(() => resolve(3), 1000)), // 3
+]).then(alert); // when all promises are resolved, the array of their results [1, 2, 3] is passed to .then
+```
+
+### Promise.allSettled
+
+```js
+Promise.allSettled([
+  Promise.resolve(33),
+  new Promise((resolve) => setTimeout(() => resolve(66), 0)),
+  99,
+  Promise.reject(new Error('an error')),
+]).then((values) => console.log(values));
+
+// [
+//   {status: "fulfilled", value: 33},
+//   {status: "fulfilled", value: 66},
+//   {status: "fulfilled", value: 99},
+//   {status: "rejected", reason: Error: an error}
+// ]
+```
+
+### Promise.race
+
+```javascript
+Promise.race([
+  new Promise((resolve) => setTimeout(() => resolve(1), 1000)), // 1
+  new Promise((resolve, reject) =>
+    setTimeout(() => reject(new Error('Whoops!')), 2000),
+  ), // 2
+  new Promise((resolve) => setTimeout(() => resolve(3), 3000)), // 3
+]).then(alert); // 1
+```
+
+### Promise.resolve/reject
+
+```javascript
+Promise.resolve(value);
+
+let promise = new Promise((resolve) => resolve(value));
+
+Promise.reject(error);
+
+let promise = new Promise((resolve, reject) => reject(error));
+```
+
+### async / await
+
+```javascript
+// Function declaration
+async function myFn() {
+  // await ...
+}
+
+// Arrow function
+const myFn = async () => {
+  // await ...
+};
+```
+
+### async / await with Promises
+
+```javascript
+const delayAndGetRandom = (ms) => {
+  return new Promise((resolve) =>
+    setTimeout(() => {
+      const val = Math.trunc(Math.random() * 100);
+      resolve(val);
+    }, ms),
+  );
+};
+
+async function fn() {
+  const a = await 9;
+  const b = await delayAndGetRandom(1000);
+  const c = await 5;
+  await delayAndGetRandom(1000);
+  return a + b * c;
+}
+
+fn().then(console.log);
+```
+
+```javascript
+// GET
+fetch('/article/promise/user.json')
+  .then((response) => response.json())
+  .then((user) => alert(user.name));
+
+// POST
+let user = {
+  name: 'John',
+  surname: 'Smith',
+};
+
+let response = await fetch('/article/promise/user', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify(user),
+});
+
+let result = await response.json();
+alert(result.message);
+```
+
+### Error handling
+
+```javascript
+async function foo() {
+  try {
+    await canRejectOrReturn();
+  } catch (e) {
+    return 'Error handling';
+  }
+}
+```
+
+### Asynchronous JavaScript Cheatsheet
+
+#### Pending promises can become either...
+
+- `value`: Fulfilled with a value, or...
+- `error`: Rejected with an error, or...
+- `outcome`: Either way, they are settled with an outcome.
+
+#### async/await
+
+- Calling an `async` function always results in a promise.
+  - `async () => value` returns `Promise.resolve(value)`
+  - `async () => { return value; }` returns `Promise.resolve(value)`
+  - `async () => { throw error; }` returns `Promise.reject(error)`
+- `await` waits for a promise to be fulfilled, then returns its value.
+  ```javascript
+  async function() {
+    try {
+      let val = await outcome;
+      // ...
+    } catch (error) {
+      // ...
+    }
+  }
+  ```
+- You can pass non-promise values to `await`.
+  ```javascript
+  const fn = async () => {
+    let val = await 5;
+  };
+  ```
+- `await` may only be used within `async` functions.
+- `await` will wait until at least the next tick before returning, even when awaiting already-fulfilled promises or non-promise values.
+
+#### Combining promises
+
+- `Promise.all([...])`
+  - If any promise is rejected, the error will be passed through.
+  ```javascript
+  Promise.all([getValue1(), getValue2(), getValue3()])
+    .then(([value1, value2, value3]) => {
+      // ...
+    })
+    .catch((error) => {
+      // ...
+    });
+  ```
+- `Promise.allSettled([...])`
+  - Returns a promise that resolves after all of the given promises have either fulfilled or rejected, with an array of objects that each describes the outcome of each promise.
+  ```javascript
+  Promise.allSettled([
+    Promise.resolve(33),
+    new Promise((resolve) => setTimeout(() => resolve(66), 0)),
+    99,
+    Promise.reject(new Error('an error')),
+  ]).then((results) => results.forEach((result) => console.log(result.status)));
+  // expected output:
+  // "fulfilled"
+  // "fulfilled"
+  // "fulfilled"
+  // "rejected"
+  ```
+- `Promise.any([...])`
+  - Returns a single promise that fulfills as soon as any of the promises in the iterable fulfills, with the value of the fulfilled promise. If all of the given promises are rejected, the returned promise is rejected with an AggregateError holding the rejection reasons.
+  ```javascript
+  Promise.any([
+    new Promise((resolve, reject) => setTimeout(reject, 500, 'slow')),
+    new Promise((resolve, reject) => setTimeout(reject, 100, 'fast')),
+    Promise.resolve('quick'),
+  ])
+    .then((value) => console.log(value))
+    .catch((error) => console.log(error));
+  // expected output: "quick"
+  ```
+- `Promise.race([...])`
+  - Returns a promise that passes through the first settled outcome.
+  ```javascript
+  Promise.race([
+    delay(100).then(() => 'slow'),
+    delay(50).then(() => 'fast'),
+    'instant',
+  ]).then((value) => console.log(value)); // logs 'instant'
+  ```
+
+#### Promise.then(onFulfilled, onRejected)
+
+- Calls `onFulfilled` once the promise is fulfilled.
+  ```javascript
+  promise.then(
+    (value) => {
+      // ... nextValue
+      return nextValue;
+    },
+    (error) => {
+      // ... nextError
+      throw nextError;
+    },
+  );
+  ```
+- Calls `onRejected` if the promise is rejected.
+- Passes through values if `onFulfilled`/`onRejected` return.
+- Passes through errors if `onFulfilled` returns or throws.
+
+#### Promise.catch(onRejected)
+
+- Behaves identically to `.then(undefined, onRejected)`.
+- Passes fulfilled values through.
+- Passes through errors if `onRejected` returns.
+
+#### Promise.finally(onFinally)
+
+- Calls `onFinally` with no arguments once any outcome is available. Passes through input promise.
+- The eventual fulfilled and rejected callbacks will not be executed until at least the next tick, even for promises that already have an outcome.
+
+#### Making Promises
+
+- The function passed to `new Promise()` will be executed synchronously.
+  ```javascript
+  new Promise((resolve, reject) => {
+    if (/* condition */) {
+      resolve(value);
+    } else {
+      reject(error);
+    }
+  });
+  ```
+- Use `Promise.resolve(value)` to create promises from values.
+- Use `Promise.reject(error)` to create promises from errors.
+- If you put a fulfilled promise into a fulfilled promise, they collapse into one.
+  ```javascript
+  Promise.resolve(Promise.resolve('value')) === Promise.resolve('value');
+  ```
+- Sometimes you might not need `resolve` or might not resolve to a value.
+  ```javascript
+  function delay(milliseconds) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, milliseconds);
+    });
+  }
+  ```
+
+## Event Loop
+
+![](https://i.imgur.com/5d18esp.png)
+
+![](https://i.imgur.com/qfd9eNe.png)
+
+![](https://i.imgur.com/OtS389n.gif)
+
+### setTimeout
+
+```javascript
+let timerId = setTimeout(func|code, [delay], [arg1], [arg2], ...)
+```
+
+```javascript
+let timerId = setTimeout(() => alert('never happens'), 1000);
+alert(timerId); // timer identifier
+
+clearTimeout(timerId);
+console.log(timerId); // same identifier (doesn't become null after canceling)
+```
+
+### setInterval
+
+```javascript
+let timerId = setInterval(func|code, [delay], [arg1], [arg2], ...)
+```
+
+```javascript
+// repeat with the interval of 2 seconds
+let timerId = setInterval(() => alert('tick'), 2000);
+
+// after 5 seconds stop
+setTimeout(() => {
+  clearInterval(timerId);
+  alert('stop');
+}, 5000);
+```
+
+### Fetch
+
+```javascript
+let promise = fetch(url, [options]);
+```
+
+- `url` – the URL to access.
+- `options` – optional parameters: method, headers etc.
+
+### Fetch example
+
+```javascript
+// Default options are marked with *
+const response = await fetch(url, {
+  method: 'POST', // *GET, POST, PUT, DELETE, etc.
+  mode: 'cors', // no-cors, *cors, same-origin
+  cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+  credentials: 'same-origin', // include, *same-origin, omit
+  headers: {
+    'Content-Type': 'application/json',
+    // 'Content-Type': 'application/x-www-form-urlencoded',
+  },
+  redirect: 'follow', // manual, *follow, error
+  referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin,
+                  origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+  body: JSON.stringify(data), // body data type must match "Content-Type" header
+});
+```
+
+```javascript
+// 1. Create a new XMLHttpRequest object
+let xhr = new XMLHttpRequest();
+
+// 2. Configure it: GET-request for the URL /article/.../load
+xhr.open('GET', '/article/xmlhttprequest/example/load');
+
+// 3. Send the request over the network
+xhr.send();
+
+// 4. This will be called after the response is received
+xhr.onload = function () {
+  if (xhr.status != 200) {
+    // analyze HTTP status of the response
+    alert(`Error ${xhr.status}: ${xhr.statusText}`); // e.g. 404: Not Found
+  } else {
+    // show the result
+    alert(`Done, got ${xhr.response.length} bytes`); // response is the server response
+  }
+};
+
+xhr.onprogress = function (event) {
+  if (event.lengthComputable) {
+    alert(`Received ${event.loaded} of ${event.total} bytes`);
+  } else {
+    alert(`Received ${event.loaded} bytes`); // no Content-Length
+  }
+};
+
+xhr.onerror = function () {
+  alert('Request failed');
+};
+```
