@@ -1,0 +1,425 @@
+# JS DOM
+
+## DOM
+
+### Browser Environment
+
+At the top, the "window" object is shown as the global object.
+
+### Browser Object Model (BOM)
+
+- The Browser Object Model (BOM) represents additional objects provided by the browser (host environment) for working with everything except the document.
+- Key BOM objects include:
+  - navigator: Contains information about the browser.
+  - screen: Contains information about the user's screen.
+  - location: Contains information about the current URL.
+  - frames: Represents the frames (if any) in the current window.
+  - history: Contains the browser's history.
+  - XMLHttpRequest: Used for making asynchronous HTTP requests.
+
+### Document Object Model (DOM)
+
+- The Document Object Model, or DOM for short, represents all page content as objects that can be modified. The document object is the main "entry point" to the page. We can change or create anything on the page using it.
+
+### JavaScript Objects
+
+- JavaScript itself provides built-in objects for various purposes:
+  - Object: The base object type.
+  - Array: Used for ordered lists of items.
+  - Function: Represents a callable block of code.
+  - ... (other built-in JavaScript objects)
+
+The diagram shows that both the BOM and the DOM are accessible through the global "window" object in the browser environment, and that JavaScript provides its own set of core objects.
+
+### DOM. CSSOM. DOM (render) tree
+
+![](https://i.imgur.com/gJG3Q3Y.png)
+
+### DOM node types
+
+The image shows an example of HTML code and its corresponding Document Object Model (DOM) tree structure, illustrating different DOM node types.
+
+On the left, the HTML code includes:
+
+- `<!DOCTYPE HTML>`: Document type declaration.
+- `<html>`: Root element of the HTML page.
+- `<head>`: Contains meta-information about the HTML document (not explicitly shown in the DOM tree but implied).
+- `<body>`: Contains the visible page content.
+- A heading: "The truth about elk." (represented as text content within the `<body>`).
+- `<ol>`: An ordered list.
+- `<li>An elk is a smart</li>`: A list item.
+- ``: An HTML comment.
+- `<li>...and cunning animal!</li>`: Another list item.
+
+On the right, the DOM tree represents this HTML structure as a hierarchy of nodes:
+
+- **HTML**: Represents the `<html>` element (Element node).
+  - **HEAD**: Represents the `<head>` element (Element node - implied).
+  - **BODY**: Represents the `<body>` element (Element node).
+    - **#text**: Represents the text content "The truth about elk." (Text node).
+    - **OL**: Represents the `<ol>` element (Element node).
+      - **#text**: Represents whitespace (Text node).
+      - **LI**: Represents the first `<li>` element (Element node).
+        - **#text**: Represents whitespace (Text node).
+        - **#text**: Represents the text content "An elk is a smart" (Text node).
+        - **#text**: Represents whitespace (Text node).
+      - **#text**: Represents whitespace (Text node).
+      - **#comment**: Represents the `` (Comment node).
+      - **#text**: Represents whitespace (Text node).
+      - **LI**: Represents the second `<li>` element (Element node).
+        - **#text**: Represents the text content "...and cunning animal!" (Text node).
+        - **#text**: Represents whitespace (Text node).
+      - **#text**: Represents whitespace (Text node).
+    - **#text**: Represents whitespace (Text node).
+
+This example highlights several key DOM node types:
+
+- Element nodes: Represent HTML elements (e.g., `<html>`, `<body>`, `<ol>`, `<li>`)
+  - nodeType: 1
+  - nodeName: tag name (uppercase like "DIV")
+- Text nodes: Represent the text content within elements
+  - nodeType: 3
+  - nodeName: "#text"
+- Comment nodes: Represent HTML comments
+  - nodeType: 8
+  - nodeName: "#comment"
+- Document nodes: Represent the entire HTML document
+  - nodeType: 9
+  - nodeName: "#document"
+- Text nodes: Represent the text content within elements.
+- Comment nodes: Represent HTML comments.
+- Document node: Represents the entire HTML document (not explicitly shown as a separate node in this simplified tree but is the root of the DOM tree).
+- Document Type node: Represents the document type declaration (`<!DOCTYPE HTML>`) - also not explicitly in the tree.
+- children returns node, childNodes returns everything
+
+### Walking the DOM. DOM search
+
+On top: `documentElement` and `body`
+
+- `<html>` = `document.documentElement`
+- `<body>` = `document.body`
+- `<head>` = `document.head`
+
+### Walking the DOM. DOM search
+
+![](https://i.imgur.com/9IxYBMN.png)
+
+### Searching the DOM
+
+```
+document.getElementById
+document.getElementsByTagName --> document.querySelector
+getElementsByClassName            document.querySelectorAll
+```
+
+### Node properties
+
+Different DOM nodes may have different properties. For instance, an element node corresponding to tag `<a>` has link-related properties, and the one corresponding to `<input>` has input-related properties and so on.
+
+### Element's content
+
+- The innerHTML property allows to get the HTML inside the element as a string. We can also modify it. So it's one of the most powerful ways to change the page.
+
+- The outerHTML property contains the full HTML of the element. That's like `innerHTML` plus the element itself. The `outerHTML` assignment does not modify the DOM element (the object referenced by, in this case, the variable 'div'), but removes it from the DOM and inserts the new HTML in its place.
+
+- textContent - just text, without html elements
+
+### Attributes and properties
+
+All attributes are accessible by using the following methods:
+
+- `elem.hasAttribute(name)` - checks for existence.
+- `elem.getAttribute(name)` - gets the value.
+- `elem.setAttribute(name, value)` - sets the value.
+- `elem.removeAttribute(name)` - removes the attribute.
+
+### Non-standard attributes, dataset
+
+Sometimes non-standard attributes are used to pass custom data from HTML to JavaScript, or to "mark" HTML-elements for JavaScript.
+
+### Modifying the document
+
+**Creating elements:**
+
+- `document.createElement(tag)` - create element
+- `document.createTextNode(value)` - create text node
+- `elem.cloneNode(deep)` - clone element (if `deep === true`, it copies all child elements)
+
+**Inserting elements:**
+
+- `node.append(...nodes or strings)` - insert to the **end** of the node
+- `node.prepend(...nodes or strings)` - insert to the **start** of the node
+- `node.before(...nodes or strings)` - insert **before** node
+- `node.after(...nodes or strings)` - insert **after** node
+- `node.replaceWith(...nodes or strings)` - replace with nodes or strings
+
+`Node.remove()` - remove node
+
+### Modifying the document
+
+Also we can use pretty versatile method `elem.insertAdjacentHTML(where, html)`
+
+- `"beforebegin"` - insert `html` immediately before `elem`,
+- `"afterbegin"` - insert `html` into `elem`, at the beginning,
+- `"beforeend"` - insert `html` into `elem`, at the end,
+- `"afterend"` - insert `html` immediately after `elem`.
+
+### Styles and classes
+
+`Elem.className` corresponds to the `"class"` attribute.
+
+The `elem.classList` is a special object with methods to add/remove/toggle a single class.
+
+**Methods of classList:**
+
+- `elem.classList.add("class")` - adds the class.
+- `elem.classList.remove("class")` - removes the class.
+- `elem.classList.toggle("class")` - adds the class if it doesn't exist, otherwise removes it.
+- `elem.classList.contains("class")` - checks for the given class, returns true/false.
+
+### Styles and classes
+
+The property `elem.style` is an object that corresponds to what's written in the "style" attribute. Setting `elem.style.width="100px"` works the same as if we had in the attribute `style` a string `width:100px`.
+
+The `style` property operates only on the value of the "style" attribute, without any CSS cascade. So we can't read anything that comes from CSS classes using `elem.style`. There's another method for that:
+
+`getComputedStyle(element, [pseudo])`
+
+### Sizing geometry
+
+![](https://i.imgur.com/LnnTPua.png)
+
+### offsetParent, offsetLeft/Top
+
+The `offsetParent` is the nearest ancestor that the browser uses for calculating coordinates during rendering.
+
+CSS-positioned (`position` is `absolute`, `relative`, `fixed`, or `sticky`), or `<td>`, `<th>`, or `<table>`, or `<body>` elements can be `offsetParent`.
+
+![](https://i.imgur.com/k2Id7RN.png)
+
+### offsetWidth/Height
+
+![](https://i.imgur.com/BjwjbFu.png)
+
+### clientTop/Left
+
+Inside the element we have the borders. To measure them, there are properties `clientTop` and `clientLeft`.
+
+![](https://i.imgur.com/qyrVJDP.png)
+
+### clientWidth/Height
+
+These properties provide the size of the area inside the element borders. They include the content width together with paddings, but without the scrollbar:
+
+![]9https://i.imgur.com/R38zjyf.png
+
+### scrollWidth/Height
+
+These properties are like `clientWidth`/`clientHeight`, but they also include the scrolled out (hidden) parts:
+
+![](https://i.imgur.com/68K5BgR.png)
+
+### scrollLeft/scrollTop
+
+Properties `scrollLeft`/`scrollTop` are the width/height of the hidden, scrolled out part of the element.
+
+![](https://i.imgur.com/CEbfPrw.png)
+
+### Elements sizing summary
+
+- `offsetParent` - is the nearest positioned ancestor or td, th, table, body.
+- `offsetLeft`/`offsetTop` - coordinates relative to the upper-left edge of `offsetParent`.
+- `offsetWidth`/`offsetHeight` - "outer" width/height of an element including borders.
+- `clientLeft`/`clientTop` - the distances from the upper-outer corner to the upper-inner (content + padding) corner. For left-to-right OS they are always the widths of left/top borders. For right-to-left OS the vertical scrollbar is on the left so `clientLeft` includes its width too.
+- `clientWidth`/`clientHeight` - the width/height of the content including paddings, but without the scrollbar.
+- `scrollWidth`/`scrollHeight` - the width/height of the content, just like `clientWidth`/`clientHeight`, but also include scrolled-out, invisible part of the element.
+- `scrollLeft`/`scrollTop` - width/height of the scrolled out upper part of the element, starting from its upper-left corner.
+
+### Window sizing/scrolling
+
+- To get window width and height, we can use the `clientWidth`/`clientHeight` of `document.documentElement`. These properties provide the width/height without the scrollbar.
+- `window.innerWidth`/`innerHeight` includes the scrollbar.
+- `window.pageXOffset`/`pageYOffset` - get current scroll.
+- The method `scrollTo(pageX, pageY)` scrolls the page to absolute coordinates, so that the top-left corner of the visible part has coordinates (`pageX`, `pageY`) relative to the document's top-left corner. It's like setting `scrollLeft`/`scrollTop`.
+- The method `scrollBy(x, y)` scrolls the page relative to its current position. For instance, `scrollBy(0, 10)` scrolls the page 10px down.
+
+### Coordinates
+
+Most JavaScript methods deal with one of two coordinate systems:
+
+- **Relative to the window** - similar to `position:fixed`, calculated from the window top/left edge. We'll denote these coordinates as `clientX`/`clientY`; the reasoning for such name will become clear later, when we study event properties.
+- **Relative to the document** - similar to `position:absolute` in the document root, calculated from the document top/left edge. We'll denote them `pageX`/`pageY`.
+
+![](https://i.imgur.com/3LpIAxO.png)
+
+### getBoundingClientRect
+
+![](https://i.imgur.com/mjf5hTy.png)
+
+### Events
+
+An event is a signal that something has happened
+
+#### Mouse events:
+
+- click – when the mouse clicks on an element (touchscreen devices generate it on a tap).
+- contextmenu – when the mouse right-clicks on an element.
+- mouseover / mouseout – when the mouse cursor comes over / leaves an element.
+- mousedown / mouseup – when the mouse button is pressed / released over an element.
+- mousemove – when the mouse is moved.
+
+#### Keyboard events:
+
+- keydown and keyup – when a keyboard key is pressed and released.
+
+#### Form element events:
+
+- submit – when the visitor submits a `<form>`.
+- focus – when the visitor focuses on an element, e.g. on an `<input>`.
+
+#### Document events:
+
+- DOMContentLoaded – when the HTML is loaded and processed, DOM is fully built.
+
+#### CSS events:
+
+- transitionend – when a CSS-animation finishes.
+
+### addEventListener
+
+We can add/remove event listeners using special methods `addEventListener` and `removeEventListener`
+
+`element.addEventListener(event, handler, [options]);`
+
+An additional optional object with properties:
+
+- `once`: if true, then the listener is automatically removed after it triggers.
+- `capture`: the phase where to handle the event, to be covered later in the chapter Bubbling and capturing. For historical reasons, options can also be false/true, that’s the same as `{capture: false/true}`.
+- `passive`: if true, then the handler will not call `preventDefault()`
+
+### removeEventListener
+
+`element.removeEventListener(event, handler, [options]);`
+
+Remove event listener requires the _same_ function as for `addEventListener`
+
+### Event phases
+
+![](https://i.imgur.com/8xlgnrV.png)
+
+![](https://i.imgur.com/9MZwYuu.png)
+
+### Example
+
+```
+<style>
+  body * {
+  margin: 10px;
+  border: 1px solid blue;
+  }
+</style>
+
+<form onclick="alert('form')">FORM
+  <div onclick="alert('div')">DIV
+    <p onclick="alert('p')">P</p>
+  </div>
+</form>
+```
+
+![](https://i.imgur.com/CaOgpEf.png)
+
+### UI Events
+
+- Mouse Events.
+- Pointer Events.
+- Keyboard Events.
+- Scrolling events.
+- Document events.
+
+### Mouse events
+
+- onclick – The event occurs when the user clicks on an element. (DOM: 2)
+- oncontextmenu – The event occurs when the user right-clicks on an element to open a context menu. (DOM: 3)
+- ondblclick – The event occurs when the user double-clicks on an element. (DOM: 2)
+- onmousedown – The event occurs when the user presses a mouse button over an element. (DOM: 2)
+- onmouseenter – The event occurs when the pointer is moved onto an element. (DOM: 2)
+- onmouseleave – The event occurs when the pointer is moved out of an element. (DOM: 2)
+- onmousemove – The event occurs when the pointer is moving while it is over an element. (DOM: 2)
+- onmouseover – The event occurs when the pointer is moved onto an element, or onto one of its children. (DOM: 2)
+- onmouseout – The event occurs when a user moves the mouse pointer out of an element, or out of one of its children. (DOM: 2)
+- onmouseup – The event occurs when a user releases a mouse button over an element. (DOM: 2)
+
+### Mouse events order
+
+![](https://i.imgur.com/g7J7JK7.png)
+
+### Pointer events
+
+Pointer events are named similarly to mouse events:
+
+- `pointerdown` - Similar mouse event: `mousedown`
+- `pointerup` - Similar mouse event: `mouseup`
+- `pointermove` - Similar mouse event: `mousemove`
+- `pointerover` - Similar mouse event: `mouseover`
+- `pointerout` - Similar mouse event: `mouseout`
+- `pointerenter` - Similar mouse event: `mouseenter`
+- `pointerleave` - Similar mouse event: `mouseleave`
+- `pointercancel` - Similar mouse event: -
+- `gotpointercapture` - Similar mouse event: -
+- `lostpointercapture` - Similar mouse event: -
+
+### Keyboard: keydown and keyup
+
+![](https://i.imgur.com/xvMl6Ff.png)
+
+![](https://i.imgur.com/Bs8BhZP.png)
+
+### Forms, controls
+
+Special properties and events for forms `<form>` and controls: `<input>`, `<select>` and other.
+
+![](https://i.imgur.com/toIG7Sn.png)
+
+### Backreference: element.form
+
+For any element, the form is available as `element.form`. So a form references all elements, and elements reference the form.
+
+![](https://i.imgur.com/OWZxqeG.png)
+
+### Focusing: focus/blur
+
+The `focus` event is called on focusing.
+`Blur` - when the element loses the focus.
+
+![](https://i.imgur.com/LyjkuwF.png)
+
+### Page: DOMContentLoaded, load, beforeunload, unload
+
+![](https://i.imgur.com/3nHNojD.png)
+
+### Page: DOMContentLoaded, load, beforeunload, unload
+
+- `DOMContentLoaded` - event when HTML is parsed
+- `window.onload` - event triggers when everything is loaded
+- `window.onunload` - When i close the page - deprecated
+- `window.onbeforeunload` - event is fired when the current window, contained document, and associated resources are about to be unloaded. The document is still visible and the event is still cancelable at this point.
+- `readyState` - state of document loading
+
+### Scripts: async, defer
+
+Both `async` and `defer` have one common thing: downloading of such scripts doesn't block page rendering. So the user can read page content and get acquainted with the page immediately.
+
+But there are also essential differences between them:
+
+- async
+  - Order: Load-first order. Their document order doesn't matter - which loads first runs first.
+  - DOMContentLoaded: Irrelevant. May load and execute while the document has not yet been fully downloaded. That happens if scripts are small or cached, and the document is long enough.
+- defer
+  - Order: Document order (as they go in the document).
+  - DOMContentLoaded: Execute after the document is loaded and parsed (they wait if needed), right before `DOMContentLoaded`.
+
+### Scripts: async, defer
+
+![](https://i.imgur.com/BHAgBmS.png)
+
+![](https://i.imgur.com/F2LuEqI.png)

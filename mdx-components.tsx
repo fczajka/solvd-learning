@@ -54,7 +54,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       </a>
     ),
     img: ({ src, alt }) => (
-      <img src={src} alt={alt} className='max-w-full my-4' />
+      <img src={src} alt={alt} className='max-w-full my-4 rounded-2xl' />
     ),
     table: ({ children }) => (
       <table className='border-collapse border border-gray-300 my-4'>
