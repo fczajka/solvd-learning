@@ -17,4 +17,5 @@ export const block_2 = [
   { name: 'JS Advanced 2', href: '/block-two/js-advanced-2' },
   { name: 'JS Advanced 3', href: '/block-two/js-advanced-3' },
   { name: 'JS DOM', href: '/block-two/js-dom' },
+  { name: 'Data Structures and Algorithms', href: '/block-two/dsaa' },
 ];

@@ -1,0 +1,439 @@
+# Data Structures and Algorithms
+
+## Data Structures
+
+### What is Data Structure?
+
+Data structure is a meaningful way of arranging and storing data in a computer so as to use it efficiently.
+
+Data structures provide means for management of large datasets such as databases or internet indexing services.
+
+### Structured Data vs. Non-Structured Data
+
+- Structured Data: This image depicts books neatly arranged on shelves in a library. The books are organized, likely by author, title, or genre, making it easy to find specific information. This represents structured data, which is organized and easily searchable.
+
+- Non-Structured Data: This image shows a pile of books scattered haphazardly. There is no apparent order or organization. This represents non-structured data, which lacks a specific format, making it difficult to search and analyze.
+
+### Basic Terminology
+
+- Data - represents an atomic value or collection of facts that could lead to contextual information e.g. a unit value 40 or a collection such as [(35, 19), (35, 18), (30, 18), (29, 18), (29, 17)] doesn't make sense in isolation but are referred to as data nonetheless. It's only when we associate respective contexts like the price of apples per kg. or 5-day temperature forecast, do we harness information out of the raw data.
+
+- Database - an organized record of data so as to use it efficiently, nevertheless usually stored in hard disk or permanent memory as opposed to data structures being stored usually in RAM or volatile memory.
+
+- Algorithm - is a step-by-step set of instructions for doing stuff such as making an omelet, playing rugby, checking primes, and reading this article. From washing machines to self-driving cars to every deterministic action ever taken can be expressed as algorithms.
+
+- Asymptotic Complexity - determines how fast an algorithm can compute (with respect to input) when applied over a data structure.
+
+### Types of Data Structures
+
+- Primitive: These are fundamental data types that are directly supported by the programming language.
+
+  - Int (Integer)
+  - Char (Character)
+  - Bool (Boolean)
+  - Float (Floating-point number)
+  - Pointer
+
+- Non-Primitive: These are data structures derived from primitive data types and are used to store collections of data. They are further divided into:
+  - Linear: Data elements are arranged in a sequential order.
+    - Static: The size is fixed at the time of creation.
+      - Array
+    - Dynamic: The size can be changed during runtime.
+      - Linked list
+      - Stack
+      - Queue
+  - Non-linear: Data elements are not arranged in a sequential order.
+    - Tree
+    - Graph
+
+### Linear and Non-Linear Data Structures
+
+- Linear: In linear data structures, elements are arranged in a sequential manner, where each element has a predecessor and a successor (except for the first and last elements). Examples shown include: - A stack where elements (A, B, C) are added and removed from the top (LIFO - Last-In, First-Out).
+  - A queue of numbers (4, 2, 3, 5) where each number follows the previous one.
+  - An array of numbers (5, 9, 1, 3) stored in contiguous memory locations.
+  - A linked list where elements are connected through pointers, forming a chain.
+- Non-Linear: In non-linear data structures, elements are not arranged sequentially. Elements can have multiple predecessors and successors, creating a hierarchical or network-like structure. Examples shown include:
+  - A tree where elements are organized in a hierarchical structure with a root, branches, and leaves.
+  - A graph where elements (nodes or vertices) are connected by edges, allowing for more complex relationships between elements, including cycles.
+
+### Advantages of Data Structures
+
+- Efficiency: The diverse range of data structures exists to enable efficient storage and retrieval of data tailored to various use cases. For instance, when you need to quickly find a value using a specific key, a hash map is generally more efficient than searching through an array. Similarly, a tree structure is well-suited for modeling file systems, but might not be the most efficient way to represent relationships in social media applications.
+
+- Abstractions: Each data structure provides a clean interface through a set of operations specific to its abstract data type. This abstraction hides the underlying implementation details from developers. For example, when using `std::unordered_map` in C++, you don't need to understand its internal workings. You only need to know the operations it supports (like inserting, deleting, and searching key-value pairs) and how to leverage them in your application.
+
+- Composition: Fundamental data structures can be combined to build more specialized and complex data structures. In database management systems, for example, indexing is often implemented using a B+ tree, which is built upon the concept of a B tree – a self-balancing tree structure with multiple branches at each node. In fact, you can think of the database itself as a large, composite data structure designed to persistently store vast amounts of data.
+
+### Why do we need to learn Data Structures?
+
+Data structures are important, which is why companies often ask about them in interviews, making it necessary to learn them to pass. However, a more insightful perspective is that learning data structures is crucial for improving our problem-solving skills and becoming more effective in our respective jobs, as well as for successfully navigating technical interviews.
+
+### What are Algorithms?
+
+An algorithm is a collection of steps to solve a particular problem in a finite time.
+
+### Algorithm example
+
+**HOW TO BAKE A CAKE?**
+
+The image provides a step-by-step algorithm for baking a cake:
+
+1. Preheat the oven
+2. Gather the ingredients
+3. Measure out the ingredients
+4. Mix together the ingredients to make the batter
+5. Grease a pan
+6. Pour the batter into the pan
+7. Put the pan in the oven
+8. Set a timer
+9. When the timer goes off, take the pan out of the oven
+10. Enjoy!
+
+### Algorithm definition
+
+Technically speaking, an algorithm is defined as a set of rules or a step-by-step procedure that are to be executed in a specific order to get the desired output.
+
+The image also includes a diagram illustrating the concept of an algorithm:
+
+```
+Input --> [Set of rules to obtain the expected output from the given input (Algorithm)] --> Output
+```
+
+The formal definition of an **algorithm** is a finite set of steps carried out in a specific time for specific problem-solving operations, especially by a Computer. So basically, it is not the complete code, rather it is the logic that can be implemented to solve a particular problem.
+
+### Why do we Need Algorithms?
+
+Primarily, we need algorithms for the following two reasons:
+
+- Scalability: When faced with large real-world problems, we cannot address them effectively at a macro level. Algorithms enable us to break down these complex problems into smaller, manageable steps, making the problem easier to analyze and solve. Thus, algorithms facilitate scalability.
+- Performance: Decomposing large problems into smaller modules is not always straightforward. Algorithms provide a structured approach to achieve this decomposition. They help us make the problem feasible to solve and offer efficient, performance-driven solutions.
+
+### Importance of Algorithms
+
+The importance of algorithms can be classified as:
+
+- Theoretical Importance: The most effective approach to tackling any real-world problem is to decompose it into smaller, more manageable modules. The theoretical knowledge gained from studying pre-existing algorithms often provides us with the tools and strategies to achieve this decomposition.
+
+- Practical Importance: Simply designing an algorithm theoretically or incorporating aspects of existing ones is often insufficient. Real-world problems can only be considered solved if we can achieve practical and tangible results from the implementation of these algorithms.
+
+Hence, an algorithm can be said to have both theoretical and practical importance.
+
+### Time Complexity Analysis in Data Structure
+
+The **Time complexity** can be defined as the amount of time taken by an algorithm to execute each statement of code of an algorithm until its completion with respect to the function of the length of the input.
+
+To determine which algorithm is the most efficient, we choose the one that requires the smallest number of operations in terms of its time complexity.
+
+### Asymptotic Notations
+
+Now we shall be understanding the Notations of Time Complexity. There are major 3 notations which we will hear about:
+
+- Big O(expression): The Big-O notation is used to define if the set of functions is going to grow slower than or at the same rate with respect to the expression. This is how we define the worst-case scenario of an algorithm's time complexity. This also elaborates on the maximum amount of time required by an algorithm considering all input values.
+- Omega(expression): The Omega notation is used to define if the set of functions is going to grow faster than or at the same rate with respect to the expression. This is how we define the best-case scenario of an algorithm's time complexity. This also elaborates on the minimum amount of time required by an algorithm considering all input values.
+- Theta(expression): The Theta notation is used to define if the set of functions is going to lie in both O(expression) and Omega(expression). This is how we define the average-case scenario of an algorithm's time complexity. This also elaborates the average bound of an algorithm.
+
+## Linked lists
+
+### Linked list
+
+The image illustrates a singly linked list. It consists of several nodes, each containing a data element and a pointer (represented by the yellow section).
+
+- The first node contains the data "Hi!" and its pointer points to the next node.
+- The second node contains "How" and points to the subsequent node.
+- This continues with nodes containing "are" and then "you?".
+- The last node, containing "you?", has its pointer set to NULL, indicating the end of the list.
+
+There is also a "Start" pointer that points to the first node of the linked list. The blue arrows visually represent the links between the nodes.
+
+### Linked list vs array
+
+Arrays store elements in contiguous memory, enabling direct access by index for quick retrieval; however, their size is typically fixed, and inserting/deleting elements in the middle can be inefficient due to shifting.
+
+- Array:
+  - Contiguous memory, fast access by index.
+  - Fixed size, slow middle insertion/deletion.
+
+Linked lists use nodes with data and pointers to the next node, allowing for dynamic resizing and efficient insertion/deletion of elements at any position. Accessing a specific element requires traversing the list from the beginning.
+
+- Linked List:
+
+  - Dynamic size, fast middle insertion/deletion.
+  - Non-contiguous memory, slower access (traversal).
+
+### Linked List pros and cons
+
+- Disadvantage:
+  - slow to get the k-th element.
+  - this operation has a time complexity of o(n), which is linear.
+- Advantage:
+  - insert and delete operations can be quick.
+  - prepending (adding to the beginning) has a time complexity of o(1).
+  - appending (adding to the end) has a time complexity of o(n).
+
+### Doubly linked list
+
+A doubly linked list is a linear data structure where each element (node) contains data and two pointers: one to the next node and one to the previous node. This bidirectional linking allows for traversal of the list in both forward and reverse directions. The first node's 'previous' pointer and the last node's 'next' pointer are typically set to NULL.
+
+## Stacks and Queues
+
+### Stack
+
+A stack is a linear data structure that follows the Last-In, First-Out (LIFO) principle. This means the last element added to the stack is the first one to be removed. Stacks typically support two primary operations: push (adding an element to the top) and pop (removing the top element). They often have a flexible size, adapting as elements are added or removed.
+
+### Queue
+
+Queues are linear data structures that operate on the First-In, First-Out (FIFO) principle, where the first element added to the queue is the first one to be removed. Common operations include enqueue (adding an element to the rear) and dequeue (removing an element from the front). Like stacks, queues often have a flexible size, adjusting as elements are added or removed.
+
+### Hash Tables
+
+Hash tables, also known as hash maps, are data structures that implement an associative array abstract data type, a structure that can map keys to values. A hash function is used to compute an index (a "hash code") for each key, which determines where the corresponding value resides in the underlying storage (typically an array). This allows for efficient (often O(1) on average) lookups, insertions, and deletions of key-value pairs. However, "collisions" can occur when different keys produce the same hash code, requiring strategies like chaining to handle them.
+
+For example, if you want to store information about "Alex," the hash function might process the name "Alex" and determine that Alex's data should be stored at a specific spot, say, location 0. Similarly, "Sarah" might get assigned to location 1, and "Bob" to location 2. So, when you want to retrieve information about "Alex" again, you just apply the same hash function to "Alex," get the address 0, and directly access the stored information.
+
+However, it's possible that two different names, like "Alex" and "Christy," could, through the magic of the hash function, end up pointing to the same storage location. This is called a collision. One way to handle this is called chaining, where instead of just storing one piece of information at that location, you create a list of information, so both Alex's and Christy's details can be stored there, and you might have to do a little extra searching within that list to find the right one. The overall goal of a good hash table design is to minimize these collisions to keep the lookups as fast as possible.
+
+## Trees
+
+### Binary tree
+
+Imagine a hierarchical structure like a family tree, but where each person can have at most two direct descendants. This is the basic idea behind a binary tree. It's a tree-like data structure where each node has at most two children, referred to as the left child and the right child.
+
+At the very top of this structure is the root node, the ancestor of all other nodes in the tree. Nodes that have children are called internal nodes, while nodes that don't have any children are known as leaf nodes. The connections between the nodes are called edges.
+
+For instance, a special type of binary tree called a binary search tree has an ordering property: the value in the left child of any node is less than the value in the node itself, and the value in the right child is greater. This property allows for efficient searching, insertion, and deletion of elements. Think of it like a well-organized index where you can quickly narrow down your search.
+
+## Heaps
+
+### Heap
+
+A Heap is a special Tree-based data structure in which the tree is a complete binary tree. Generally, Heaps can be of two types:
+
+1.  Max-Heap: In a Max-Heap the key present at the root node must be greatest among the keys present at all of it's children. The same property must be recursively true for all sub-trees in that Binary Tree.
+2.  Min-Heap: In a Min-Heap the key present at the root node must be minimum among the keys present at all of it's children. The same property must be recursively true for all sub-trees in that Binary Tree.
+
+#### Heap Data Structure
+
+For example, we can have a **Min Heap** where the root node is 10. Its children are 15 and 30, both of which are greater than 10. Further down, the children of 15 are 40 and 50 (both greater than 15), and the children of 30 are 100 and 40 (both greater than 30). This structure ensures the smallest element is always at the root.
+
+Conversely, we can have a **Max Heap** where the root node is 100. Its children are 40 and 50, both smaller than 100. Similarly, the children of 40 are 10 and 15 (both smaller than 40), and the children of 50 are 50 and 40 (both smaller than or equal to 50). In a Max Heap, the largest element is always at the root.
+
+### Graph
+
+```
+  O ----- O
+ / \       \
+O - O       O
+ \ /       /
+  O ----- O
+```
+
+### Nodes and edges
+
+For example, consider a network of friends. Each person in the network can be represented as a **node**. The connections or relationships between these friends, such as knowing each other, can be represented as **edges**.
+
+Let's look at a simple illustration. Imagine three people: Alice, Bob, and Carol. In a graph representing their friendships, Alice, Bob, and Carol would be the **nodes**. If Alice knows Bob, we would draw an **edge** connecting the node representing Alice to the node representing Bob. Similarly, if Bob knows Carol, there would be an edge between their respective nodes. If Alice also knows Carol, we'd have a third edge completing a triangle of connections.
+
+## Algorithms
+
+### Linear Search
+
+Consider a list of numbers:
+
+- 5 3 12 9 45 1 22
+
+Linear search is a straightforward way to find a specific value within this list. It involves examining each element in the list one by one, in sequential order, until the target value is found or the end of the list is reached.
+
+For example, if we were searching for the number `9` in this list:
+
+1.  We would start by looking at the first number, `5`. Is `5` equal to `9`? No.
+2.  Next, we look at the second number, `3`. Is `3` equal to `9`? No.
+3.  We continue to the third number, `12`. Is `12` equal to `9`? No.
+4.  Then, we examine the fourth number, `9`. Is `9` equal to `9`? Yes! We have found the target value.
+
+If we were searching for a number that is not in the list, say `7`, we would go through
+
+### Binary Search
+
+Binary search is a more efficient algorithm for finding a specific value within a **sorted** list. Unlike linear search, which checks each element sequentially, binary search repeatedly divides the search interval in half.
+
+Let's consider a sorted list of numbers:
+
+```
+1  3  3  5  9  12  22  38  45
+```
+
+And let's say we are searching for the number `9`.
+
+Binary search starts by examining the middle element of the list. To find the middle index, we can take the average of the starting and ending indices of our current search interval. Initially, the start index is 0 and the end index is 8 (since there are 9 elements). So, the middle index is $(0 + 8) / 2 = 4$. The element at index 4 is `9`.
+
+Since the middle element `9` is equal to our target value, we have found it!
+
+Now, let's consider an example where the target value is not the middle element on the first try. Suppose we are searching for `38`.
+
+1.  The initial middle index is 4, and the element is `9`. Since `38` is greater than `9`, we know that if `38` exists in the list, it must be in the right half of the current interval. So, we update our search interval to the portion of the list after index 4. Our new start index becomes $4 + 1 = 5$, and the end index remains 8.
+2.  Now, our search interval is `[12, 22, 38, 45]`. The new middle index is $(5 + 8) / 2 = 6$. The element at index 6 is `22`. Since `38` is greater than `22`, we again narrow our search to the right half. The new start index is $6 + 1 = 7$, and the end index remains 8.
+3.  Our search interval is now `[38, 45]`. The middle index is $(7 + 8) / 2 = 7$ (floor of 7.5). The element at index 7 is `38`. Since `38` is equal to our target value, we have found it!
+
+If at any point our target value was smaller than the middle element, we would have narrowed our search to the left half of the interval. This process of repeatedly dividing the search interval in half continues until the target value is found or the interval becomes empty (meaning the target value is not in the list).
+
+Key requirement for Binary Search: The list being searched must be sorted for this algorithm to work correctly and efficiently.
+
+### Sorting Algorithms
+
+- Bubble Sort
+- Quick Sort
+- Merge Sort
+- Selection Sort
+- Insertion Sort
+- Heap Sort
+- Radix Sort
+
+### Bubble Sort
+
+Bubble Sort is a simple sorting algorithm that repeatedly steps through the list, compares adjacent elements, and swaps them if they are in the wrong order. The pass through the list is repeated until the list is sorted. The larger elements "bubble" to the end of the list with each pass.
+
+Let's trace the Bubble Sort algorithm on the initial list: `9 7 8 2`.
+
+**FIRST PASS:**
+
+1.  Compare the first two elements: `9` and `7`. Since `9 > 7`, they are out of order, so we swap them. The list becomes: `7 9 8 2`.
+2.  Compare the next two elements: `9` and `8`. Since `9 > 8`, they are out of order, so we swap them. The list becomes: `7 8 9 2`.
+3.  Compare the last two elements: `9` and `2`. Since `9 > 2`, they are out of order, so we swap them. The list becomes: `7 8 2 9`.
+
+After the first pass, the largest element (`9`) has "bubbled" to its correct position at the end of the list.
+
+**SECOND PASS:**
+
+1.  Compare the first two elements: `7` and `8`. Since `7 < 8`, they are in the correct order, so no swap occurs. The list remains: `7 8 2 9`.
+2.  Compare the next two elements: `8` and `2`. Since `8 > 2`, they are out of order, so we swap them. The list becomes: `7 2 8 9`.
+3.  Compare the last two elements: `8` and `9`. Since `8 < 9`, they are in the correct order, so no swap occurs. The list remains: `7 2 8 9`.
+
+After the second pass, the second largest element (`8`) has moved closer to its sorted position.
+
+**THIRD PASS:**
+
+1.  Compare the first two elements: `7` and `2`. Since `7 > 2`, they are out of order, so we swap them. The list becomes: `2 7 8 9`.
+2.  Compare the next two elements: `7` and `8`. Since `7 < 8`, they are in the correct order, so no swap occurs. The list remains: `2 7 8 9`.
+3.  Compare the last two elements: `8` and `9`. Since `8 < 9`, they are in the correct order, so no swap occurs. The list remains: `2 7 8 9`.
+
+After the third pass, the list `2 7 8 9` is now sorted. In each pass, at least one of the largest unsorted elements moves to its correct sorted position at the end of the unsorted portion of the list.
+
+### Selection Sort
+
+Selection Sort is another simple sorting algorithm that works by repeatedly finding the minimum element from the unsorted part of the list and putting it at the beginning. The algorithm maintains two sub-lists: a sub-list of elements which are already sorted and a sub-list of elements which are unsorted.
+
+Let's trace the Selection Sort algorithm on the initial list: `8 7 5 2`.
+
+**STEP - 1:**
+
+1.  We start with the unsorted list: `8 7 5 2`.
+2.  We find the minimum element in the unsorted list, which is `2`.
+3.  We swap the minimum element (`2`) with the first element of the unsorted list (`8`).
+4.  The list becomes: `2 7 5 8`.
+5.  Now, the sorted part of the list is `[2]`, and the unsorted part is `[7 5 8]`.
+
+**STEP - 2:**
+
+1.  The unsorted list is now: `7 5 8`.
+2.  We find the minimum element in the unsorted list, which is `5`.
+3.  We swap the minimum element (`5`) with the first element of the unsorted list (`7`).
+4.  The list becomes: `2 5 7 8`.
+5.  Now, the sorted part of the list is `[2 5]`, and the unsorted part is `[7 8]`.
+
+**STEP - 3:**
+
+1.  The unsorted list is now: `7 8`.
+2.  We find the minimum element in the unsorted list, which is `7`.
+3.  We swap the minimum element (`7`) with the first element of the unsorted list (`7`). In this case, no actual swap occurs as they are the same.
+4.  The list remains: `2 5 7 8`.
+5.  Now, the sorted part of the list is `[2 5 7]`, and the unsorted part is `[8]`.
+
+**STEP - 4:**
+
+1.  The unsorted list is now: `8`.
+2.  The minimum element in the unsorted list is `8`.
+3.  We would swap it with the first (and only) element of the unsorted list (`8`). Again, no actual swap occurs.
+4.  The list remains: `2 5 7 8`.
+5.  Now, the sorted part of the list is `[2 5 7 8]`, and the unsorted part is empty. The list is sorted.
+
+In summary, Selection Sort iterates through the list, finds the smallest element in the remaining unsorted portion, and moves it to the sorted portion at the beginning. This process continues until the entire list is sorted.
+
+### Merge Sort
+
+Merge Sort is an efficient, general-purpose, comparison-based sorting algorithm. It follows a divide-and-conquer approach. The algorithm recursively divides the list into sublists until each sublist contains only one element (which is considered sorted). Then, it repeatedly merges the sublists to produce new sorted sublists until there is only one sorted list remaining.
+
+Let's trace the Merge Sort algorithm on the initial list: `22 4 17 6`.
+
+1.  **Divide:** The initial list `[22, 4, 17, 6]` is divided into two halves: `[22, 4]` and `[17, 6]`.
+
+2.  **Further Divide:** Each of these sublists is further divided: `[22]` and `[4]` from the first half, and `[17]` and `[6]` from the second half. Now, each sublist contains only one element, so they are considered sorted.
+
+3.  **Merge:** Now, we start merging the sublists back together in sorted order:
+
+    - Merge `[22]` and `[4]`. Comparing the elements, `4` comes before `22`, so the merged sorted sublist is `[4, 22]`.
+    - Merge `[17]` and `[6]`. Comparing the elements, `6` comes before `17`, so the merged sorted sublist is `[6, 17]`.
+
+4.  **Final Merge:** Finally, we merge the two sorted sublists `[4, 22]` and `[6, 17]`. We compare the first elements of each sublist: `4` and `6`. `4` is smaller, so it comes first in the merged list. Then we compare `22` and `6`. `6` is smaller, so it comes next. Now we compare `22` and `17`. `17` is smaller. Finally, `22` is the remaining element.
+
+The final sorted list after merging is `[4, 6, 17, 22]`.
+
+In essence, Merge Sort breaks down the sorting problem into smaller, easily solvable subproblems (sorting single-element lists) and then combines the solutions to solve the original problem (sorting the entire list). Its efficiency comes from the fact that the merging step can be implemented efficiently.
+
+### Quick Sort
+
+Quick Sort is a highly efficient sorting algorithm that also uses a divide-and-conquer strategy. It works by selecting a 'pivot' element from the array and partitioning the other elements into two sub-arrays, according to whether they are less than or greater than the pivot. The sub-arrays are then recursively sorted.
+
+Let's trace the Quick Sort algorithm as shown in the image, where the last element of the current partition is chosen as the pivot. The initial list is: `9 -3 5 2 6 8 -6 1 3`, and the first pivot is `3`.
+
+1.  **Partitioning (Pivot = 3):** The elements are compared to the pivot `3`.
+
+    - Elements less than or equal to `3`: `-3 2 -6 1`
+    - Pivot: `3`
+    - Elements greater than or equal to `3`: `8 5 9 6`
+
+2.  **Recursive Sort (Left Sub-array: `-3 2 -6 1`):** The pivot for this sub-array is `1`.
+
+    - Elements less than or equal to `1`: `-3 -6 1`
+    - Pivot: `1`
+    - Elements greater than or equal to `1`: `2`
+
+3.  **Recursive Sort (Sub-array: `-3 -6 1`):** The pivot is `1`.
+
+    - Elements less than or equal to `1`: `-3 -6`
+    - Pivot: `1`
+    - Elements greater than or equal to `1`: (empty)
+
+4.  **Recursive Sort (Sub-array: `-3 -6`):** The pivot is `-6`.
+
+    - Elements less than or equal to `-6`: `-6`
+    - Pivot: `-6`
+    - Elements greater than or equal to `-6`: `-3`
+    - This sub-array is sorted as `-6 -3`.
+
+5.  **Combining the sorted left sub-array:** Combining the sorted parts of the left branch, we get `-6 -3 1 2`.
+
+6.  **Recursive Sort (Right Sub-array: `8 5 9 6`):** The pivot for this sub-array is `6`.
+
+    - Elements less than or equal to `6`: `5 6`
+    - Pivot: `6`
+    - Elements greater than or equal to `6`: `9 8`
+
+7.  **Recursive Sort (Sub-array: `5 6`):** The pivot is `6`.
+
+    - Elements less than or equal to `6`: `5 6`
+    - Pivot: `6`
+    - Elements greater than or equal to `6`: (empty)
+    - This sub-array is sorted as `5 6`.
+
+8.  **Recursive Sort (Sub-array: `9 8`):** The pivot is `8`.
+
+    - Elements less than or equal to `8`: `8`
+    - Pivot: `8`
+    - Elements greater than or equal to `8`: `9`
+    - This sub-array is sorted as `8 9`.
+
+9.  **Combining the sorted right sub-array:** Combining the sorted parts of the right branch, we get `5 6 8 9`.
+
+10. **Final Combination:** Finally, we combine the sorted left sub-array, the pivot of the initial partition, and the sorted right sub-array: `-6 -3 1 2 3 5 6 8 9`.
+
+The efficiency of Quick Sort heavily depends on the choice of the pivot element. A good pivot selection generally leads to balanced partitions and better performance.
