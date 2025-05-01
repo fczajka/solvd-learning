@@ -1,0 +1,668 @@
+# Environment and CSS Preprocessors
+
+## npm
+
+### What is npm?
+
+- It is a package manager for the Node JavaScript platform.
+- NPM is known as the world's largest software registry.
+- Open-source developers all over the world use npm to publish and share their source code.
+
+### Npm consists of three components:
+
+- The website allows you to find third-party packages, set up profiles, and manage your packages.
+- The command-line interface or npm CLI that runs from a terminal to allow you to interact with npm.
+- The registry is a large public database of JavaScript code.
+
+### What can you do with npm?
+
+- npm allows you to install a new package from the registry. This is what you will do most of the time with npm.
+- On top of this, npm allows you to discover and publish your new node packages.
+
+### package.json
+
+- every npm project has a file called package.json located in the root directory.
+- The package.json is a plain text file that contains important information that npm uses to identify the project and handle dependencies.
+
+### npm init
+
+create package.json file with next information:
+
+- Package name
+- Version
+- Test command
+- Git repository
+- Keywords
+- Author
+- License
+
+### npm install &lt;package_name&gt;
+
+this command installs a package and any packages that it depends on
+
+npm i &lt;package_name&gt; - shorter version
+
+```
+"dependencies": {
+  "express": "^4.17.1"
+}
+```
+
+### /node_modules
+
+- all the new modules that you install will be placed in this directory
+- you can think of the /node_modules folder like a cache for the external modules that your project depends upon
+- when you npm install them, they are downloaded from the web and copied into the /node_modules
+- should be in .gitignore file
+
+### npm install &lt;package_name&gt; --save-dev
+
+- install a package that runs only on the development environment
+
+```
+"devDependencies": {
+  "morgan": "^1.10.0"
+}
+```
+
+- basically, the devDependencies should contain packages that you use during development.
+- these packages are necessary only while you are developing your application.
+
+### npm install &lt;package_name&gt; --global
+
+- install a package globally on your system
+- install a package globally when you want to use it in your command line or shell
+
+### npm uninstall &lt;package_name&gt;
+
+- remove a package from your node_modules directory
+- npm uninstall --save &lt;package_name&gt;
+- npm uninstall --save-dev &lt;package_name&gt;
+- npm uninstall -g &lt;package_name&gt;
+
+### package-lock.json
+
+- it stores an exact, versioned dependency tree rather than using starred versioning like package.json itself
+- this means you can guarantee the dependencies for other developers or prod releases, etc.
+- the main packages you install may be listed in package.json, but package-lock.json is where the entire dependency tree is tracked.
+- the lockfile is also never supposed to be updated by hand; only by npm
+
+### What happens when you install a package
+
+When you install (or uninstall, or update) a package, npm does most, if not all, of the following four things:
+
+1. updates the **package.json** file in your project, if needed;
+2. updates the **package-lock.json** file (called the "lockfile") that contains all of the technical specifics;
+3. installs the actual package files—and any other packages the original package might depend on (inside of the **node_modules** folder); and
+4. runs an audit of the installed packages.
+
+### npm audit
+
+- is a built-in security feature that scans your project for security vulnerabilities, and if available, provides an assessment report that contains details of the identified anomalies, potential fixes, and more.
+- runs automatically any time you install a package
+- allows you to leverage their efforts to find and fix security problems in your code, instead of going the tedious route of manually perusing the dependencies in your project to identify security loopholes
+
+### npm audit
+
+```
+joco-gridsome git:(master) npm i
+changed 15 packages, and audited 2456 packages in 16s
+
+212 packages are looking for funding
+  run `npm fund` for details
+
+93 vulnerabilities (46 moderate, 42 high, 5 critical)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues possible (including breaking changes), run:
+  npm audit fix --force
+
+Some issues need review, and may require choosing a different dependency.
+
+Run `npm audit` for details.
+joco-gridsome git:(master)
+```
+
+### scripts section of the package.json
+
+- inside of the scripts section of the package.json file, we have access to all of our installed packages.
+- npm run-script &lt;custom_script_name&gt;
+- npm run &lt;custom_script_name&gt;
+
+```json
+"scripts": {
+  "sass:build": "sass style.scss style.css"
+},
+```
+
+## yarn
+
+- an alternative to the npm package manager
+- was created as a collaboration of Facebook, Exponent (now Expo.dev), Google, and Tilde (the company behind Ember.js) to solve consistency, security, and performance problems with large codebases.
+- since Yarn is built on top of NPM's registry, packages published on NPM are also available on Yarn, which helps for a seamless upgrade
+- improve some issues that NPM presents, like the slowness and impossibility of installing packages offline
+
+### yarn commands
+
+- `yarn add` – Adds a package to your existing package.
+- `yarn init` – Starts the package development process.
+- `yarn install` – Installs all of the package's dependencies in the `package.json` file.
+- `yarn publish` – Sends a package to the package management system.
+- `yarn remove` – Removes an unnecessary package from the current package.
+
+### Yarn vs. NPM
+
+**NPM**
+
+- Generating Lock Files: Automatically generated as package-lock.json
+- Using Workspaces: Supported
+- Remote Scripts: Supported, using the npx command
+- Plug'n'Play: Not supported
+- Zero Installs: Not supported
+- License Check: Not supported
+
+**Yarn**
+
+- Generating Lock Files: Automatically generated as yarn.lock
+- Using Workspaces: Supported
+- Remote Scripts: Supported, using the yarn dlx command
+- Plug'n'Play: Uses a single .pnp.cjs file instead of the node_modules folder
+- Zero Installs: Uses the .pnp.cjs file to quickly reinstall packages from the offline cache
+- License Check: Checks each package license while downloading
+
+### Yarn vs. NPM: speed
+
+- Yarn installs dependency packages in parallel, whereas NPM installs them sequentially. As a result, Yarn outperforms NPM when installing bigger files.
+- Both tools can save dependent files to the offline cache. This allows users to install dependencies even when they are not connected to the internet.
+- Yarn also uses the Zero install functionality starting with version 2. This functionality leverages the dependency map from the .pnp.cjs file to do an offline dependency install with zero delays.
+
+### Yarn vs. NPM: security
+
+**Yarn**
+
+- While downloading packages, Yarn does a security check in the background. It uses the package licensing information to avoid downloading dangerous scripts or causing dependency issues.
+- To ensure secure data flow, both employ encryption techniques. Yarn validates packages using checksums, whereas NPM utilizes the package-lock.json file's SHA-512 (Secure Hash Algorithm).
+
+**NPM**
+
+- In early versions of NPM, security issues were a major concern. Now, every time you install a package, NPM does a security assessment as of version 6. This helps to avoid vulnerabilities and assures that no dependencies are incompatible.
+
+### Yarn vs. NPM: dependencies
+
+**Yarn**
+
+- Yarn version 1 and NPM both handle dependencies in a similar way. They keep project metadata in the package.json file, which is stored in the project's subdirectory - node_modules.
+- Yarn no longer tracks dependencies in the node modules subdirectory as of version 2. Yarn 2.0, on the other hand, employs the Plug'n'Play functionality, which creates a single .pnp.cjs file. This file shows a diagram of a project's dependency hierarchy.
+
+**NPM**
+
+- NPM installs dependencies one by one through the npm install command
+- NPM also produces a package-lock.json version lock file. This file is also supported by Yarn, allowing users to move version data from NPM to Yarn.
+
+### Yarn vs. NPM: features
+
+Yarn and NPM share several fundamental features:
+
+- **Creating lock files** - Both package managers produce a version lock file by default. This file is referred to as yarn.lock in Yarn and package-lock.json in NPM.
+- **Remote scripts** - Using the npx command in NPM and the yarn dlx command in Yarn, you can run scripts remotely in both NPM and Yarn.
+- **Using workspaces** - Yarn and NPM both enable workspaces, which allow you to manage dependencies for various projects from a single repository.
+
+### Yarn vs. NPM: features
+
+Yarn's unique features include:
+
+- **Plug'n'Play** - Yarn produces a single .pnp.cjs file that maps project dependencies instead of utilizing the node modules folder. This results in more streamlined dependency trees and quicker project launch and package installation.
+- **Zero installation** - Works with Plug'n'Play, as it uses the .pnp.cjs file to map packages stored in the offline cache. This allows you to quickly retrieve and install packages that have been saved.
+- **License check** - Yarn has a built-in licensing checker when obtaining and installing packages.
+
+### Yarn vs. NPM: conclusion
+
+- NPM is preferable for developers familiar with and happy with its current workflow. It offers a decent user experience while also saving hard drive space.
+- Yarn has more complex components like Plug'n'Play and Zero installation through Yarn 2. It also improves performance and security, although at the expense of hard disk capacity.
+- As we can see, both technologies are used in similar ways, so you should analyze the priority of your project and your preferences when choosing between the two.
+
+## nvm
+
+- Node Version Manager
+- makes it easier to install and manage multiple versions of Node.js on a single local environment.
+- even if you only need a single version of Node.js right now, we still recommend using nvm because it allows you to switch between different versions of Node (depending on the requirements of your project) with minimal hassle.
+
+### nvm commands
+
+- nvm ls-remote
+- nvm ls
+- nvm install &lt;version number&gt;
+- nvm use &lt;version number&gt;
+
+### Semantic Versioning
+
+- helps other developers who depend on your code understand the extent of changes in a given version, and adjust their own code if necessary.
+
+```
+1.0.0-beta1
+^ ^ ^   ^
+| | |   |
+| | | Label
+| | Patch
+|Minor
+Major
+
+
+- Major version is when you make big changes to your package. An example is incompatible API changes.
+- Minor version is when you add functionality in a backwards compatible manner.
+- Patch version is when you make backwards compatible bug fixes.
+```
+
+### Semantic Versioning
+
+```
+      3 . 9 . 2
+      ^   ^   ^
+      |   |   |
+    Major | Patch
+        Minor
+
+Major
+- breaking change
+
+Minor
+- backwards compatible new functionality
+- old functionality deprecated, but operational
+- large internal refactor
+
+Patch
+- bug fixes
+```
+
+### Allow patch/minor update
+
+- caret (^)
+  - Dependency: ^3.9.2
+  - Versions: 3.\*.\*
+  - Changes:
+    - backwards compatible new functionality
+    - old functionality deprecated, but operational
+    - large internal refactor
+    - bug fix
+- tilde (~)
+  - Dependency: ~3.9.2
+  - Versions: 3.9.\*
+  - Changes:
+    - bug fix
+
+## CSS Preprocessors
+
+### What is a CSS Preprocessor?
+
+- The basic idea of a css preprocessor is a scripting language that extends regular CSS.
+- Saves time by being able to create reusable pieces of code.
+- Provide modularization - Makes it easy to make reusable modules which enable developers to use variables to change colors, visual aspects and fonts without searching and replacing.
+- Ability to use variables, functions, nested rules or even math operations.
+- Easy code maintenance and being able to keep the code more organised.
+- Helps to avoid cross browser compatibility issues by using mixins.
+
+![](https://i.imgur.com/AQHVZ1g.png)
+
+### Drawbacks of using a preprocessor
+
+Similar to any other technology, CSS preprocessors also come with few trade-offs. Below is a list of major drawbacks.
+
+- Debugging can be harder - CSS line numbers are irrelevant when trying to debug the code. Due to this reason, debugging can make things harder and time consuming.
+- The generated CSS might be huge - Even though the source file might be small, the generated CSS could be huge. In some cases this might have an effect on the application's performance.
+- Maintenance - For an example if we need to change the color, we need to update the name and value of the variable, then the variable concept become pointless.
+- Extra tools and complexity - Preprocessors require extra tools, such as 'Source Maps' to handle the minified CSS which can add complexity to the project.
+
+### CSS Preprocessors
+
+- CSS Preprocessor
+  - SASS
+  - LESS
+  - STYLUS
+  - POSTCSS
+  - PLEEEASE
+  - CSS-CRUSH
+  - GARDEN
+  - styled-components
+  - CSS-CRUSH
+
+### SASS
+
+**Syntactically Awesome Stylesheets (SASS)** - sass-lang.com
+
+SASS was introduced in 2006. Compared to other preprocessors, SASS adds extra features which requires more learning time. It has more complex and powerful conditionals and better module management.
+
+**Pros:**
+
+- SASS still looks like CSS and is easy to read.
+- Even complicated features are easy to understand.
+- Every CSS can be scripted into powerful SASS scripts.
+- Better structure and nesting.
+- Bigger community with continuous updates.
+
+**Cons:**
+
+- Needs Ruby to run.
+- Needs extra setup.
+
+### LESS
+
+**Learner CSS (LESS)** - lesscss.org
+
+This was introduced in 2009 which created new implementation of scss syntax. LESS is written in Javascript and needs Node.js or a web browser to run. LESS is also backward compatible.
+
+**Pros:**
+
+- Looks more like CSS.
+- Less use variables which can be used to reference in anywhere.
+- Easy documentation with more examples.
+- Better for debugging, since it clearly says where the issue is.
+
+**Cons:**
+
+- Limited conditions and inheritance, which do not allow to do complicated conditions.
+- Initial setup takes time.
+
+## Key features in Sass and LESS
+
+### Variables
+
+**Sass**
+
+```sass
+$primary-color: #333;
+$font-size: 16px;
+
+body {
+  color: $primary-color;
+}
+
+a {
+  font-size: $font-size;
+}
+```
+
+**LESS**
+
+```less
+@primary-color: #333;
+@font-size: 16px;
+
+body {
+  color: @primary-color;
+}
+
+a {
+  font-size: @font-size;
+}
+```
+
+**Compiled CSS**
+
+```css
+body {
+  color: #333;
+}
+
+a {
+  font-size: 16px;
+}
+```
+
+### Nesting
+
+**Sass**
+
+```sass
+table {
+  border-collapse: collapse;
+  tr {
+    border: 1px solid black;
+    th {
+      border: 1px solid red;
+    }
+  }
+}
+```
+
+**LESS**
+
+```less
+table {
+  border-collapse: collapse;
+  tr {
+    border: 1px solid black;
+    th {
+      border: 1px solid red;
+    }
+  }
+}
+```
+
+**Compiled CSS**
+
+```css
+table {
+  border-collapse: collapse;
+}
+table tr {
+  border: 1px solid black;
+}
+table tr th {
+  border: 1px solid red;
+}
+```
+
+### Import
+
+**Sass**
+
+```sass
+// _general.scss (file name)
+html, body, ul, ol { padding: 5px; }
+
+// construct.scss (file name)
+@import 'general';
+
+body { background-color: #f5f5f5; }
+```
+
+**LESS**
+
+```less
+// _general.less (file name)
+html,
+body,
+ul,
+ol {
+  padding: 5px;
+}
+
+// construct.less (file name)
+@import 'general';
+
+body {
+  background-color: #f5f5f5;
+}
+```
+
+**Compiled CSS**
+
+```css
+// construct.css (file name)
+html, body, ul, ol {
+  padding: 5px;
+}
+body {
+  background-color: #f5f5f5;
+}
+```
+
+### Mixins
+
+**Sass**
+
+```sass
+@mixin warning($borderWidth) {
+  border: $borderWidth solid #f00;
+  color: #f00;
+}
+
+.generic-warning {
+  padding: 20px;
+  margin: 4px;
+  @include warning(2px); /* Applies styles from the mixin */
+}
+```
+
+**LESS**
+
+```less
+.warning(@borderWidth) {
+  border: @borderWidth solid #f00;
+  color: #f00;
+}
+
+.generic-warning {
+  padding: 20px;
+  margin: 4px;
+  .warning(2px); /* Applies styles from the mixin */
+}
+```
+
+**Compiled CSS**
+
+```css
+.generic-warning {
+  padding: 20px;
+  margin: 4px;
+  border: 2px solid #f00;
+  color: #f00;
+}
+```
+
+### Operators
+
+**Sass**
+
+```sass
+$height: 200px;
+
+.div1 {
+  height: $height * 2;
+}
+```
+
+**LESS**
+
+```less
+@height: 200px;
+
+.div1 {
+  height: @height * 2;
+}
+```
+
+**CSS**
+
+```css
+div {
+  height: 400px;
+}
+```
+
+### Sass vs Scss
+
+**Scss**
+
+- New Syntax
+- Compatible with CSS
+- Semicolons, Brackets
+
+**Sass**
+
+- Old Syntax
+- In-compatible with CSS
+- No Semicolons, Indentation Blocks
+
+### Sass vs Scss
+
+```sass
+/* SASS */
+$primary-color: #3bbfce
+$secondary-color: #ff8700
+
+.content-navigation
+  background-color: $primary-color
+  color: darken($secondary-color, 9%)
+```
+
+```scss
+/* SCSS */
+$primary-color: #3bbfce;
+$secondary-color: #ff8700;
+
+.content {
+  background-color: $primary-color;
+  color: darken($secondary-color, 9%);
+}
+```
+
+## JavaScript Module Bundlers
+
+### What's A Module Bundler?
+
+A module bundler is a tool that takes pieces of JavaScript and their dependencies and bundles them into a single file, usually for use in the browser.
+
+```
+---------------------------------------
+|               app.js                |
+|     -------------------------       |
+|     |           |           |       |
+|     V           V           V       |
+|   log.js     utils.js     dom.js    |
+|     |           |            |      |-----> bundle.js
+|     =============            V      |
+|           |               jquery    |
+|           V                         |
+|        lodash                       |
+---------------------------------------
+```
+
+### Webpack
+
+is one of the most popular static module bundlers for JavaScript, and it holds the responsibility of bundling all the files in your project for smooth execution.
+
+### Webpack features
+
+- Improved long-term caching mechanism allows you to build your project within a few seconds.
+- Hot module replacement allows you to modify your project while it's in the running state and saves you precious time by avoiding full application reloads.
+- With the code splitting and lazy loading features, you can easily integrate an on-demand build process to optimize the build time.
+- Webpack handles the dependencies automatically and includes them in the final bundle based on the dependency graph it generates.
+
+### Browserify
+
+is another exciting module bundler that has had a long rivalry with Webpack.
+
+### Browserify features
+
+- It doesn't require its own CLI tools to manage dependencies, allowing easy integration with NPM scripts.
+- Browserify has an automatic watch-and-build feature that eases the stress of the manual build process.
+- CSS and SCSS support can be added with the scssify transform.
+- Easy to learn.
+
+### Parcel
+
+is another new yet promising module bundler for JavaScript projects. It provides blazing-fast bundling, and behind the scenes, it uses worker processes for multi-core compilation.
+
+### Parcel features
+
+- Hot module replacement, which allows you to make changes to your code without completely refreshing your application.
+- Bundles all the assets, including JS, CSS, HTML, files, images, and more.
+- Supports lazy loading by splitting the bundle into small pieces.
+- Has the ability to automatically transform your code using Babel, PostCSS, and PostHTML.
+
+### Vite
+
+Is another new yet promising module bundler for JavaScript projects. Vite (French word for "quick", pronounced /vit/, like "veet") is a build tool that aims to provide a faster and leaner development experience for modern web projects.
