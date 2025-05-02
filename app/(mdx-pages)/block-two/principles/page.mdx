@@ -1,0 +1,677 @@
+# Principles
+
+## Why do you need it?
+
+- Help you make the right decision for common tasks
+- Describes common design and coding problems
+- Make your code flexible, more readable and maintainable.
+
+## DRY - Don't repeat yourself
+
+Every piece of knowledge must have a single, unambiguous, authoritative representation within a system
+
+DRY, or "Don't Repeat Yourself," is a principle of software development aimed at reducing repetition of information of all kinds, especially useful in multi-tier architectures. The DRY principle is stated as "Every piece of knowledge must have a single, unambiguous, authoritative representation within a system." By adhering to DRY, you make your code more maintainable, readable, and less prone to errors because changes to a piece of knowledge only need to be done in one place.
+
+### DRY
+
+```
+class ProductsApi {
+  findByName(name) {
+    return fetch(`/products?name=${name}`);
+  }
+
+  findByBrand(brandName) {
+    return fetch(`/products?brand=${brandName}`);
+  }
+}
+```
+
+```
+class ProductsApi {
+  _findByField(name, value) {
+    return fetch(`/products?${name}=${value}`);
+  }
+
+  findByName(name) {
+    return this._findByField('name', name);
+  }
+
+  findByBrand(brandName) {
+    return this._findByField('brand', brandName);
+  }
+}
+```
+
+```
+class Product {
+  /* Product data here */
+}
+
+class ProductsApi {
+  _findByField(name, value) {
+    return fetch(`/products?${name}=${value}`)
+      .then((response) => response.json())
+      .then((products) => products.map((product) => new Product(product)));
+  }
+}
+```
+
+### Where it's useless
+
+- Form validation on backend and frontend sides
+- Support for different versions of your library
+
+### Benefits
+
+- Single point for changing the code
+- Duplicate parts can contain different issues and implementation
+- Your teammates can use your code, not make it up
+
+## KISS
+
+Simplicity should be a key goal in design, and unnecessary complexity should be avoided
+
+KISS, an acronym for "Keep It Simple, Stupid," is a design principle stating that most systems work best if they are kept simple rather than made complicated; therefore, simplicity should be a key goal in design, and unnecessary complexity should be avoided. The principle is often associated with the U.S. Navy, where it was reportedly coined. The idea behind KISS is that simpler systems are easier to understand, implement, and maintain, leading to fewer errors and increased efficiency.
+
+### KISS - Coding rules
+
+- Divide tasks into subtasks
+- Keep your methods small
+- Keep your classes small
+- Come up with a solution to the problem first, then write the code
+- Don't be afraid to get rid of the code
+
+### KISS
+
+```
+class ProductsService {
+  getAndUpdateProduct() {}
+}
+
+class ProductComponent {
+  _productsService = new ProductsService();
+
+  init() {
+    this._productsService.getAndUpdateProduct();
+  }
+}
+```
+
+```
+class ProductsService {
+  getProduct() {}
+  updateProduct(product) {}
+}
+
+class ProductComponent {
+  _productsService = new ProductsService();
+
+  init() {
+    this._productsService.getProduct()
+      .then((product) => this._productsService.updateProduct(product));
+  }
+}
+```
+
+## YAGNI - You aren't gonna need it
+
+Always implement things when you actually need them, never when you just foresee that you need them
+
+YAGNI, which stands for "You Aren't Gonna Need It," is a principle of extreme programming (XP) that states a programmer should not add functionality until deemed necessary. In other words, developers should only implement features they currently need and avoid speculating about future requirements. The rationale behind YAGNI is to reduce development time, avoid unnecessary complexity, and ensure that effort is focused on delivering value. By following YAGNI, teams can produce simpler, more maintainable code and adapt more easily to changing requirements.
+
+### YAGNI - Consequences of non-use
+
+- Time is wasted that would be spent on adding, testing and improving the required functionality
+- New features need to be debugged, documented and maintained
+- New functionality limits what can be done in the future
+- It is difficult to fully predict what new features should do and test them until they are really needed
+
+### YAGNI - Consequences of non-use
+
+- This makes the software more complex
+- If all functionality is not documented, it may remain unknown to users, but it can create various security risks for the user system
+- Adding new functionality can lead to a snowball effect
+
+## BDUF - Big Design Up Front
+
+It's a software development approach in which the program's design is to be completed and perfected before that program's implementation is started
+
+BDUF, or "Big Design Up Front," is a software development approach where a significant portion of the system's design is completed and perfected before implementation begins. This involves creating detailed specifications, diagrams, and plans before writing any code. The idea behind BDUF is to mitigate risks and ensure a solid architectural foundation. However, it can be less flexible and may not adapt well to changing requirements discovered during implementation. It stands in contrast to more agile approaches that favor iterative development and continuous feedback.
+
+## PoLA - Principle of least astonishment
+
+If a necessary feature ha(s) a high astonishment factor, it may be necessary to redesign this feature
+
+The Principle of Least Astonishment (PoLA), also known as the Principle of Least Surprise, suggests that a system should behave in a way that users expect it to behave. In essence, the outcome of an operation should not surprise or confuse the user. When a feature has a high "astonishment factor," meaning its behavior is unexpected or counter-intuitive, it might be necessary to redesign that feature to align better with user expectations and common conventions. Adhering to PoLA can significantly improve the usability and intuitiveness of a system.
+
+### PoLA - Principle of least astonishment
+
+```
+const date = createDate();
+date.add(13);
+```
+
+```
+const date = createDate();
+date.addDays(13);
+
+date.add(13, 'days');
+```
+
+## SOLID
+
+- Single responsibility principle
+- Open-closed principle
+- Liskov substitution principle
+- Interface segregation principle
+- Dependency inversion principle
+
+### SRP - Single responsibility principle
+
+Every module, class or function in a computer program should have responsibility over a single part of that program's functionality
+
+```
+class User {
+  constructor(firstName, lastName, avatar) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.avatar = avatar;
+  }
+}
+
+console.log(new User('John', 'Cena', 'https://google.com/'));
+// User { firstName: 'John', lastName: 'Cena', avatar: 'https://google.com/' }
+```
+
+```
+class User {
+  get fullName() {
+    return `${this.firstName} ${this.lastName}`;
+  }
+
+  toHtml() {
+    return `
+      <div class="user-profile">
+        <div class="user-avatar">
+          <img src="${this.avatar}" alt="${this.fullName}">
+        </div>
+        <div class="user-profile_info">
+          ${this.fullName}
+        </div>
+      </div>
+    `;
+  }
+}
+```
+
+```
+console.log(new User('John', 'Cena', 'https://google.com/').toHtml());
+/*
+<div class="user-profile">
+  <div class="user-avatar">
+    <img src="https://google.com/" alt="John Cena">
+  </div>
+  <div class="user-profile_info">
+    John Cena
+  </div>
+</div>
+*/
+```
+
+```
+class User {
+  toHtml() {}
+  toJson() {}
+  toXml() {}
+}
+```
+
+```
+class User {
+  constructor(firstName, lastName, avatar) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.avatar = avatar;
+  }
+
+  get fullName() {
+    return `${this.firstName} ${this.lastName}`;
+  }
+}
+```
+
+```
+class UserPrinter {
+  constructor(user) {
+    this._user = user;
+  }
+
+  html() {}
+}
+```
+
+```
+html() {
+  return `
+    <div class="user-profile">
+      <div class="user-avatar">
+        <img
+          src="${this._user.avatar}"
+          alt="${this._user.fullName}"
+        >
+      </div>
+      <div class="user-profile_info">
+        ${this._user.fullName}
+      </div>
+    </div>
+  `;
+}
+```
+
+```javascript
+const user = new User('John', 'Cena', 'https://google.com/');
+const printer = new UserPrinter(user);
+
+console.log(printer.html());
+/*
+<div class="user-profile">
+  <div class="user-avatar">
+    <img
+      src="https://google.com/"
+      alt="John Cena"
+    >
+  </div>
+  <div class="user-profile_info">
+    John Cena
+  </div>
+</div>
+*/
+```
+
+## OCP - Open-closed principle
+
+Software entities (classes, modules, functions, etc.) should be open for extension, but closed for modification
+
+```
+class Circle {
+  constructor(radius) {
+    this.radius = radius;
+  }
+}
+
+class Square {
+  constructor(width) {
+    this.width = width;
+  }
+}
+```
+
+```
+class AreaCalculator {
+  constructor(shapes = []) {
+    this.shapes = shapes;
+  }
+
+  sum() {
+    return this.shapes.reduce((acc, shape) => {
+      if (shape instanceof Circle) {
+        return acc + (shape.radius ** 2) * Math.PI;
+      } else if (shape instanceof Square) {
+        return acc + (shape.width ** 2);
+      }
+      return acc;
+    }, 0);
+  }
+}
+```
+
+```
+console.log(new AreaCalculator([
+  new Circle(5),
+  new Square(4),
+]).sum());
+// 94.53981633974483
+```
+
+```
+class Shape {
+  area() {
+    throw new Error('Not implemented');
+  }
+}
+```
+
+```
+class Circle extends Shape {
+  constructor(radius) {
+    super();
+    this.radius = radius;
+  }
+
+  area() {
+    return (this.radius ** 2) * Math.PI;
+  }
+}
+
+class Square extends Shape {
+  constructor(width) {
+    super();
+    this.width = width;
+  }
+
+  area() {
+    return this.width ** 2;
+  }
+}
+```
+
+```
+class AreaCalculator {
+  constructor(shapes = []) {
+    this.shapes = shapes;
+  }
+
+  sum() {
+    return this.shapes.reduce((acc, shape) => acc + shape.area(), 0);
+  }
+}
+```
+
+```
+console.log(new AreaCalculator([
+  new Circle(5),
+  new Square(4),
+]).sum());
+// 94.53981633974483
+```
+
+```
+class Rectangle extends Shape {
+  constructor(width, height) {
+    super();
+    this.width = width;
+    this.height = height;
+  }
+
+  area() {
+    return this.width * this.height;
+  }
+}
+```
+
+```
+console.log(new AreaCalculator([
+  new Circle(5),
+  new Square(4),
+  new Rectangle(2, 3),
+]).sum());
+// 100.53981633974483
+```
+
+## LSP - Liskov substitution principle
+
+If S is a subtype of T, then objects of type T may be replaced with objects of type S without altering any of the desirable properties of the program
+
+```
+class Component {
+  template = 'COMPONENT';
+  render() {
+    return `<div>${this.template}</div>`;
+  }
+}
+
+class HeaderComponent extends Component {
+  template = 'HEADER';
+}
+class FooterComponent extends Component {
+  template = 'FOOTER';
+}
+```
+
+```
+const render = (component) => {
+  console.log(component.render());
+};
+```
+
+```
+render(new HeaderComponent());
+// <div>HEADER</div>
+render(new FooterComponent());
+// <div>FOOTER</div>
+render(new Component());
+// <div>COMPONENT</div>
+```
+
+```
+class Hoc extends Component {
+  render() {
+    throw new Error('Render is impossible here!');
+  }
+
+  wrap(component) {
+    return `<div class="wrapper">${component.render()}</div>`;
+  }
+}
+
+render(new Hoc());
+// Error: Render is impossible here!
+```
+
+```
+class Component {}
+
+class ComponentWithTemplate extends Component {
+  template = 'COMPONENT';
+  render() {
+    return `<div>${this.template}</div>`;
+  }
+}
+
+class HigherOrderComponent extends Component {}
+```
+
+```
+class HeaderComponent extends ComponentWithTemplate {
+  template = 'HEADER';
+}
+
+class FooterComponent extends ComponentWithTemplate {
+  template = 'FOOTER';
+}
+
+class Hoc extends HigherOrderComponent {
+  render() {
+    throw new Error('Render is impossible here!');
+  }
+
+  wrap(component) {
+    return `<div class="wrapper">${component.render()}</div>`;
+  }
+}
+```
+
+```
+/**
+ * @param {ComponentWithTemplate} component
+ */
+const render = (component) => {
+  console.log(component.render());
+};
+
+render(new HeaderComponent());
+// <div>HEADER</div>
+render(new FooterComponent());
+// <div>FOOTER</div>
+
+// You just can't use the following line because the render function
+// works only with ComponentWithTemplate
+// render(new Hoc());
+```
+
+```
++-------------------------+
+|     EmployeeService     |
+|-------------------------|
+| - employee: IEmployee   |-------------------------
+| + login()               |                        |
+| + listPosts()           |                        V
++-------------------------+             +-------------------------+
+                                        | <<interface>> Employee  |
+                                        |-------------------------|
+                                        | + login()               |
+                                        | + listPosts()           |
+                                        +------------^------------+
+                                                     |
+                            . . . . . . . . . . . . .|. . . . . . . . . . . . . .
+                            .                        |                          .
+                            .                        |                          .
+                        +--------------+        +--------------+        +--------------+
+                        |   Editor     |        |    Admin     |        |   Guest      |
+                        |--------------|        |--------------|        |--------------|
+                        | + login()    |        | + login()    |        | + login()    |
+                        | + listPosts()|        | + listPosts()|        | + listPosts()|
+                        +--------------+        +--------------+        +--------------+
+```
+
+## ISP - Interface segregation principle
+
+ISP splits interfaces that are very large into smaller and more specific ones so that clients will only have to know about the methods that are of interest to them
+
+```
+interface FactoryWorker {
+  work(): void;
+  sleep(): void;
+}
+
+class HumanWorker implements FactoryWorker {
+  work() {
+    console.log('I\'m working, I\'m working!');
+  }
+  sleep() {
+    console.log('Go away! I\'m asleep!');
+  }
+}
+```
+
+```
+class RobotWorker implements FactoryWorker {
+  work() {
+    console.log('I\'m better than these leather ones! I am working');
+  }
+  sleep() {
+    throw new Error('Are you serious? I\'m a robot!');
+  }
+}
+```
+
+```
+interface Workable {
+  work(): void;
+}
+
+interface Sleepable {
+  sleep(): void;
+}
+```
+
+```
+class RobotWorker implements Workable {
+  work() {
+    console.log('I\'m better than these leather ones! I am working');
+  }
+}
+
+class HumanWorker implements Workable, Sleepable {
+  work() {
+    console.log('I\'m working, I\'m working!');
+  }
+  sleep() {
+    console.log('Go away! I\'m asleep!');
+  }
+}
+```
+
+## DIP - Dependency inversion principle
+
+- High-level modules should not depend on low-level modules.
+- Both should depend on abstractions (e.g., interfaces).
+- Abstractions should not depend on details. Details (concrete implementations) should depend on abstractions.
+
+```
+class OrdersService {
+  constructor() {
+    this.http = new XMLHttpRequestService();
+  }
+
+  fetchOrders() {
+    return this.http.request('/orders', { method: 'GET' });
+  }
+}
+```
+
+```
+class XMLHttpRequestService {
+  request(url: string, options: { method: 'GET' | 'POST' }) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+
+      xhr.open(options.method, url);
+
+      xhr.onload = (response) => resolve(response);
+      xhr.onerror = (error) => reject(error);
+
+      xhr.send();
+    });
+  }
+}
+```
+
+```
+interface Connection {
+  request<T>(
+    url: string,
+    options: { method: 'GET' | 'POST' },
+  ): Promise<T>;
+}
+```
+
+```
+class XMLHttpRequestService implements Connection {
+  request<T>(
+    url: string,
+    options: { method: 'GET' | 'POST' },
+  ): Promise<T> {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+
+      xhr.open(options.method, url);
+
+      xhr.onload = (response) => resolve(response as T);
+      xhr.onerror = (error) => reject(error);
+
+      xhr.send();
+    });
+  }
+}
+```
+
+```
+interface Order {
+  id: number;
+  name: string;
+}
+
+class OrdersService {
+  constructor(
+    private connection: Connection,
+  ) {}
+
+  fetchOrders() {
+    return this.connection.request<Order>(
+      '/orders',
+      { method: 'GET' },
+    );
+  }
+}
+```

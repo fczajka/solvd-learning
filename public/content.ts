@@ -19,4 +19,6 @@ export const block_2 = [
   { name: 'JS DOM', href: '/block-two/js-dom' },
   { name: 'Data Structures and Algorithms', href: '/block-two/dsaa' },
   { name: 'Environment and CSS Preprocessors', href: '/block-two/eacp' },
+  { name: 'Principles', href: '/block-two/principles' },
+  { name: 'Typescript Basics', href: '/block-two/typescript-basics' },
 ];
