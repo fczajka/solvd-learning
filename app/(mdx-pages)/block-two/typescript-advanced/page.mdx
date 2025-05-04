@@ -1,0 +1,517 @@
+# TypeScript advanced
+
+## Generics
+
+Generics allow creating 'type variables' which can be used to create classes, functions & type aliases that don't need to explicitly define the types that they use. Generics makes it easier to write reusable code.
+
+`let's do the the identity function. The identity function is a function that will return back whatever is passed in.`
+
+Without generics, we would have to give the identity function a specific type:
+
+```
+function identity(arg: any): any {
+  return arg;
+}
+```
+
+### Generics cont.
+
+While using `any` is certainly generic in that it will cause the function to accept any and all types for the type of `arg`, we actually are losing the information about what that type was when the function returns. If we passed in a number, the only information we have is that any type could be returned. Instead, we need a way of capturing the type of the argument in such a way that we can also use it to denote what is being returned. Here, we will use a type variable, a special kind of variable that works on types rather than values.
+
+```
+function identity<Type>(arg: Type): Type {
+  return arg;
+}
+```
+
+```
+let output = identity<string>("myString");
+
+`let output: string`
+```
+
+```
+function identity<Type>(arg: Type): Type {
+  return arg;
+}
+
+const str: string = '123';
+`const test: string;`
+const test = identity(str);
+```
+
+### Type Aliases
+
+Generics in type aliases allow creating types that are more reusable.
+
+```
+type Wrapped<T> = { value: T };
+const wrappedValue: Wrapped<number> = { value: 10 };
+```
+
+This also works with interfaces with the following syntax: `interface Wrapped<T> {`
+
+### Default Value
+
+Generics can be assigned default values which apply if no other value is specified or inferred.
+
+```
+class NamedValue<T = string> {
+  private _value: T | undefined;
+
+  constructor(private name: string) {}
+
+  public setValue(value: T) {
+    this._value = value;
+  }
+
+  public getValue(): T | undefined {
+    return this._value;
+  }
+
+  public toString(): string {
+    return `${this.name}: ${this._value}`;
+  }
+}
+
+let value = new NamedValue('myNumber');
+value.setValue('myValue');
+console.log(value.toString()); // myNumber: myValue
+```
+
+### Classes
+
+Generics can be used to create generalized classes, like Map.
+
+```
+class NamedValue<T> {
+  private _value: T | undefined;
+
+  constructor(private name: string) {}
+
+  public setValue(value: T) {
+    this._value = value;
+  }
+
+  public getValue(): T | undefined {
+    return this._value;
+  }
+
+  public toString(): string {
+    return `${this.name}: ${this._value}`;
+  }
+}
+
+let value = new NamedValue<number>('myNumber');
+value.setValue(10);
+console.log(value.toString()); // myNumber: 10
+```
+
+TypeScript can also infer the type of the generic parameter if it's used in a constructor parameter.
+
+### Extends
+
+Constraints can be added to generics to limit what's allowed. The constraints make it possible to rely on a more specific type when using the generic type.
+
+```
+function createLoggedPair<S extends string | number, T extends string | number>(v1: S, v2: T): [S, T] {
+  console.log(`creating pair: v1='${v1}', v2='${v2}'`);
+  return [v1, v2];
+}
+```
+
+This can be combined with a default value.
+
+### TypeScript Enums
+
+An enum is a special "class" that represents a group of constants (unchangeable variables). Enums come in two flavors: string and numeric.
+
+```
+enum StatusCodes {
+  NotFound = 404,
+  Success = 200,
+  Accepted = 202,
+  BadRequest = 400
+}
+
+// Logs 464
+console.log(StatusCodes.NotFound);
+
+// Logs 288
+console.log(StatusCodes.Success);
+```
+
+Technically, you can mix and match string and numeric enum values, but it is recommended not to do so.
+
+### Interfaces
+
+Interfaces are similar to type aliases, except they only apply to object types. An interface declaration is another way to name an object type:
+
+```typescript
+interface Rectangle {
+  height: number;
+  width: number;
+}
+
+const rectangle: Rectangle = {
+  height: 20,
+  width: 10,
+};
+```
+
+### Differences Between Type Aliases and Interfaces
+
+Type aliases and interfaces are very similar, and in many cases you can choose between them freely. Almost all features of an interface are available in type, the key distinction is that a type cannot be re-opened to add new properties vs an interface which is always extendable.
+
+**Interface**
+
+- Extending an interface
+
+  ```typescript
+  interface Animal {
+    name: string;
+  }
+
+  interface Bear extends Animal {
+    honey: boolean;
+  }
+
+  const bear = getBear();
+  bear.name;
+  bear.honey;
+  ```
+
+- Adding new fields to an existing interface
+
+  ```typescript
+  interface Window {
+    title: string;
+  }
+
+  interface Window {
+    ts: TypeScriptAPI;
+  }
+
+  const src = 'const a = "Hello World"';
+  window.ts.transpileModule(src, {});
+  ```
+
+**Type**
+
+- Extending a type via intersections
+
+  ```
+  type Animal = {
+    name: string;
+  };
+
+  type Bear = Animal & {
+    honey: boolean;
+  };
+
+  const bear = getBear();
+  bear.name;
+  bear.honey;
+  ```
+
+- A type cannot be changed after being created
+
+  ```
+  type Window = {
+    title: string;
+  };
+
+  type Window = {
+    // Error: Duplicate identifier 'Window'.
+    ts: TypeScriptAPI;
+  };
+  ```
+
+### TypeScript Classes
+
+TypeScript adds types and visibility modifiers to JavaScript classes.
+
+```
+class Person {
+  name: string;
+}
+
+const person = new Person();
+person.name = "Jane";
+```
+
+### Inheritance: Implements
+
+Interfaces can be used to define the type a class must follow through the `implements` keyword.
+
+```
+interface Shape {
+  getArea: () => number;
+}
+
+class Rectangle implements Shape {
+  public constructor(
+    protected readonly width: number,
+    protected readonly height: number,
+  ) {}
+
+  public getArea(): number {
+    return this.width * this.height;
+  }
+}
+```
+
+A class can implement multiple interfaces by listing each one after `implements`, separated by a comma like so: `class Rectangle implements Shape, Colored { ... }`
+
+### Members: Visibility
+
+Class members can also be given special modifiers which affect visibility. There are three main visibility modifiers in TypeScript:
+
+- `public` - (default) allows access to the class member from anywhere
+- `private` - only allows access to the class member from within the class
+- `protected` - allows access to the class member from itself and any classes that inherit it
+
+```
+class Person {
+  private name: string;
+
+  public constructor(name: string) {
+    this.name = name;
+  }
+
+  public getName(): string {
+    return this.name;
+  }
+}
+
+const person = new Person('Jane');
+console.log(person.getName()); // person.name isn't accessible from outside the class since it's private
+```
+
+### Inheritance: Extends
+
+Classes can extend each other through the `extends` keyword. A class can only extend one other class.
+
+```
+interface Shape {
+  getArea: () => number;
+}
+
+class Rectangle implements Shape {
+  public constructor(
+    protected readonly width: number,
+    protected readonly height: number,
+  ) {}
+
+  public getArea(): number {
+    return this.width * this.height;
+  }
+}
+
+class Square extends Rectangle {
+  public constructor(width: number) {
+    super(width, width);
+  }
+  // getArea gets inherited from Rectangle
+}
+```
+
+### Override
+
+When a class extends another class, it can replace the members of the parent class with the same name.
+
+```
+interface Shape {
+  getArea(): number;
+}
+
+class Rectangle implements Shape {
+  // using protected for these members allows access from classes that extend from this class, such
+  // as Square
+  public constructor(protected readonly width: number, protected readonly height: number) {}
+
+  public getArea(): number {
+    return this.width * this.height;
+  }
+
+  public toString(): string {
+    return `Rectangle(width=${this.width}, height=${this.height})`;
+  }
+}
+
+class Square extends Rectangle {
+  public constructor(width: number) {
+    super(width, width);
+  }
+
+  // this toString replaces the toString from Rectangle
+  public override toString(): string {
+    return `Square(width=${this.width})`;
+  }
+}
+```
+
+### Abstract Classes
+
+Classes can be written in a way that allows them to be used as a base class for other classes without having to implement all the members. This is done by using the `abstract` keyword. Members that are left unimplemented also use the `abstract` keyword.
+
+```
+abstract class Polygon {
+  public abstract getArea(): number;
+
+  public toString(): string {
+    return 'Polygon[area=' + this.getArea() + ']';
+  }
+}
+
+class Rectangle extends Polygon {
+  public constructor(protected readonly width: number, protected readonly height: number) {
+    super();
+  }
+
+  public getArea(): number {
+    return this.width * this.height;
+  }
+}
+```
+
+## TypeScript Utility Types
+
+TypeScript comes with a large number of types that can help with some common type manipulation, usually referred to as utility types.
+
+### Partial
+
+`Partial` changes all the properties in an object to be optional.
+
+```
+interface Point {
+  x: number;
+  y: number;
+}
+
+let pointPart: Partial<Point> = {}; // 'Partial' allows x and y to be optional
+pointPart.x = 10;
+```
+
+### Required
+
+`Required` changes all the properties in an object to be required.
+
+```
+interface Car {
+  make: string;
+  model: string;
+  mileage?: number;
+}
+
+let myCar: Required<Car> = {
+  make: 'Ford',
+  model: 'Focus',
+  mileage: 12000 // 'Required' forces mileage to be defined
+};
+```
+
+### Record
+
+`Record` is a shortcut to defining an object type with a specific key type and value type.
+
+```typescript
+const nameAgeMap: Record<string, number> = {
+  Alice: 21,
+  Bob: 25,
+};
+```
+
+### Omit
+
+`Omit` removes keys from an object type.
+
+```
+interface Person {
+  name: string;
+  age: number;
+  location?: string;
+}
+
+const bob: Omit<Person, 'age' | 'location'> = {
+  name: 'Bob',
+  // 'Omit' has removed age and location from the type and they can't be defined here
+};
+```
+
+### TypeScript Keyof
+
+`keyof` is a keyword in TypeScript which is used to extract the key type from an object type.
+
+```
+interface Person {
+  name: string;
+  age: number;
+}
+
+// 'keyof Person' here creates a union type of "name" and "age", other strings will not be allowed
+function printPersonProperty(person: Person, property: keyof Person) {
+  console.log(`Printing person property ${property}: "${person[property]}"`);
+}
+
+let person = {
+  name: "Max",
+  age: 27
+};
+
+printPersonProperty(person, "name"); // Printing person property name: "Max"
+```
+
+### Optional Chaining
+
+Optional Chaining is a **JavaScript** feature that works well with **TypeScript's** null handling. It allows accessing properties on an object, that may or may not exist, with a compact syntax. It can be used with the `?.` operator when accessing properties.
+
+```typescript
+interface House {
+  sqft: number;
+  yard?: {
+    sqft: number;
+  };
+}
+
+function printYardSize(house: House) {
+  const yardSize = house.yard?.sqft;
+  if (yardSize === undefined) {
+    console.log('No yard');
+  } else {
+    console.log('Yard is ${yardSize} sqft');
+  }
+}
+
+let home: House = {
+  sqft: 500,
+};
+
+printYardSize(home); // Prints 'No yard'
+```
+
+### TypeScript Union Types
+
+Union types are used when a value can be more than a single type. Such as when a property would be `string` or `number`.
+
+```
+function printStatusCode(code: string | number) {
+  console.log(`My status code is ${code}.`);
+}
+
+printStatusCode(404);
+printStatusCode('404');
+```
+
+### Nullish Coalescence
+
+Nullish Coalescence is another JavaScript feature that also works well with TypeScript's null handling. It allows writing expressions that have a fallback specifically when dealing with `null` or `undefined`. This is useful when other falsy values can occur in the expression but are still valid. It can be used with the `??` operator in an expression, similar to using the `||` operator.
+
+```
+function printMileage(mileage: number | null | undefined) {
+  console.log(`Mileage: ${mileage ?? 'Not Available'}`);
+}
+
+printMileage(null); // Prints 'Mileage: Not Available'
+printMileage(0); // Prints 'Mileage: 0'
+```
