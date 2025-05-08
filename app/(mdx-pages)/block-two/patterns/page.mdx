@@ -1,0 +1,293 @@
+# Patterns
+
+## What is this?
+
+Design patterns are typical solutions to common problems in software design.
+
+### Categories
+
+- Creational Design Pattern
+- For handling Object creation mechanisms
+  - Constructor
+  - Factory
+  - Abstract Factory
+  - Prototype
+  - Singleton
+  - Builder
+- Structural Design Pattern
+- For identifying ways to realize relationships between objects
+  - Adapter
+  - Bridge
+  - Composite
+  - Decorator
+  - Facade
+  - Flyweight
+  - Proxy
+- Behavioral Design Pattern
+- For handling communication between different objects
+  - Chain of Responsibility
+  - Command
+  - Iterator
+  - Mediator
+  - Memento
+  - Observer
+  - State
+  - Strategy
+  - Template method
+  - Visitor
+
+### Benefits of Design Patterns
+
+- They are the best solutions
+- They are reusable
+- They are expressive
+- They enhance communication
+- No code refactoring
+- They lower codebase size
+
+## Creational patterns
+
+### Constructor Pattern
+
+The Constructor pattern is a fundamental concept in object-oriented programming, falling under the category of creational design patterns. Its primary role is to facilitate the creation and initialization of objects.
+
+- A constructor is a special method within a class that is automatically invoked when a new instance of that class is created.
+- Its main responsibility is to set the initial state of the object's attributes or properties.
+- It ensures that an object is in a valid and usable state immediately after it is created.
+- Constructors can be overloaded, meaning a class can have multiple constructors with different parameters to allow for various ways of initializing an object.
+- In some languages, if no constructor is explicitly defined, a default constructor is provided.
+
+While the constructor is the most basic mechanism for object creation, other creational patterns often build upon or provide alternatives to direct constructor usage, particularly when the object creation process becomes complex or requires more flexibility.
+
+### Factory Patterns
+
+The term "Factory" in design patterns refers to a concept where an object is responsible for creating other objects. It's a way to delegate the instantiation logic to a dedicated component.
+
+Factory patterns are creational design patterns that provide mechanisms for creating objects without exposing the complex creation logic to the client. They promote loose coupling by allowing the client code to work with interfaces or abstract classes rather than concrete implementations.
+
+There are two main design patterns categorized under the "Factory" umbrella:
+
+- **Factory Method:** Defines an interface for creating an object in a superclass, but lets subclasses alter the type of objects that will be created. This pattern delegates the responsibility of object creation to subclasses.
+- **Abstract Factory:** Provides an interface for creating families of related or dependent objects without specifying their concrete classes. It's used to create a set of related objects that belong to a common theme.
+
+It's worth noting the distinction from a "simple factory," which is a common programming idiom but not a formal design pattern. A simple factory is typically a method or a static method that takes some parameters and returns an instance of one of several possible classes based on the parameters.
+
+### Prototype Pattern
+
+The Prototype pattern is a creational design pattern used to create new objects by copying an existing object, known as the prototype.
+
+- It allows you to create new objects without being dependent on their concrete classes.
+- This pattern is useful when the cost of creating a new object from scratch is high.
+- The prototype object acts as a template, and new objects are created by cloning this template.
+- Cloning can involve either a shallow copy or a deep copy, depending on the complexity of the object's internal structure.
+- It's often implemented using a `clone()` method or similar mechanism provided by the programming language.
+- The pattern helps in avoiding the creation of parallel class hierarchies for object creation, as seen in some other creational patterns.
+
+### Singleton Pattern
+
+The Singleton pattern is a creational design pattern that ensures a class has only one instance and provides a global point of access to it.
+
+- It restricts the instantiation of a class to a single object.
+- This single instance is typically accessed through a static method of the class.
+- The constructor of the Singleton class is usually made private to prevent direct instantiation.
+- It's often used for centralized management of resources, like database connections, logging, or configuration settings.
+- While seemingly simple, implementing a thread-safe Singleton can be complex.
+- Some consider it an anti-pattern in certain contexts as it can introduce global state and make testing difficult.
+
+### Builder Pattern
+
+The Builder pattern is a creational design pattern that allows for the step-by-step construction of complex objects.
+
+- It separates the construction process from the object's representation.
+- This allows the same construction process to create different types and representations of the object.
+- It is particularly useful when an object has a large number of parameters, some of which may be optional.
+- The pattern involves a builder object that provides methods for setting the object's properties.
+- A separate director object can be used to manage the construction process, but it's not always necessary.
+- The final object is typically retrieved from the builder after all the necessary parts have been assembled.
+- The Builder pattern helps in avoiding "telescoping constructors" (multiple overloaded constructors with varying numbers of parameters).
+- It improves readability and maintainability of the code responsible for creating complex objects.
+
+## Structural patterns
+
+### Adapter Pattern
+
+The Adapter pattern is a structural design pattern that allows objects with incompatible interfaces to work together.
+
+- It acts as a bridge between two incompatible types.
+- This pattern involves creating an adapter class that wraps an existing class (the adaptee) and provides an interface that the client expects (the target).
+- The adapter translates calls from the client into calls that the adaptee can understand.
+- It's useful when you want to reuse existing classes that don't have the interface you need, without modifying their source code.
+- The Adapter pattern can be implemented in two ways:
+  - **Class Adapter:** Uses inheritance to adapt the interface.
+  - **Object Adapter:** Uses composition to adapt the interface by holding an instance of the adaptee.
+- It helps in integrating legacy code with new code or integrating code from different libraries with incompatible interfaces.
+
+### Decorator Pattern
+
+The Decorator pattern is a structural design pattern that allows you to add new behaviors or responsibilities to an object dynamically, without altering its structure.
+
+- It provides a flexible alternative to subclassing for extending functionality.
+- The pattern involves creating a set of decorator classes that wrap the original object (the component).
+- Decorators and the component share a common interface.
+- Decorators can be stacked or combined in various ways to add multiple behaviors.
+- Each decorator adds its own behavior before or after delegating the request to the wrapped object.
+- This pattern helps in adhering to the Open/Closed Principle (open for extension, closed for modification) and the Single Responsibility Principle.
+- It avoids the explosion of subclasses that can occur when trying to add combinations of behaviors through inheritance.
+
+### Facade Pattern
+
+The Facade pattern is a structural design pattern that provides a simplified, unified interface to a complex subsystem.
+
+- It acts as a wrapper, hiding the complexities of the underlying system and making it easier for clients to use.
+- The facade class provides a higher-level interface that delegates calls to the appropriate objects within the subsystem.
+- This pattern is useful when dealing with a large number of interconnected classes or when integrating with complex libraries or legacy code.
+- It helps in organizing code and improving readability by providing a single entry point to a set of functionalities.
+
+### Bridge Pattern
+
+The Bridge pattern is a structural design pattern that decouples an abstraction from its implementation, allowing the two to vary independently.
+
+- It is used to separate the interface (abstraction) from its concrete implementation.
+- This pattern involves two separate class hierarchies: one for the abstraction and one for the implementation.
+- This separation prevents a permanent binding between the abstraction and its implementation, enabling them to be developed and modified independently.
+- It is particularly useful when you have a complex system with multiple dimensions of variation (e.g., shapes and colors, or platforms and operating systems).
+- The Bridge pattern favors composition over inheritance to achieve flexibility.
+
+### Composite Pattern
+
+The Composite pattern is a structural design pattern that allows you to compose objects into tree structures to represent part-whole hierarchies.
+
+- It enables clients to treat individual objects and compositions of objects uniformly.
+- The pattern involves a common interface or abstract class (Component) for both individual objects (Leaf) and composite objects (Composite).
+- A Composite object contains a collection of Components (which can be other Composites or Leaves).
+- Operations can be performed on both individual objects and the composite structure as if they were the same type.
+- This pattern is useful for representing hierarchical data, such as file systems, UI elements, or organizational charts.
+- It simplifies client code because it doesn't need to differentiate between individual objects and compositions.
+- The Composite pattern supports recursive composition and operations.
+
+### Flyweight Pattern
+
+The Flyweight pattern is a structural design pattern that aims to minimize memory usage by sharing common state among a large number of fine-grained objects.
+
+- It is used when you have a large number of objects that are similar and a significant portion of their state can be shared.
+- The pattern divides an object's state into two parts:
+  - **Intrinsic State:** The shared, context-independent state that is stored in the flyweight object.
+  - **Extrinsic State:** The unique, context-dependent state that is passed to flyweight methods by the client.
+- A flyweight factory manages the pooling of flyweight objects, ensuring that redundant objects are not created.
+- This pattern can lead to significant memory savings, especially when dealing with millions of objects.
+- It is often used in scenarios like character formatting in a text editor, where many characters share the same font and style information.
+- The Flyweight pattern is a performance optimization and should be applied when memory consumption becomes a significant issue.
+
+### Proxy Pattern
+
+The Proxy pattern is a structural design pattern that provides a substitute or placeholder for another object to control access to it.
+
+- It acts as an intermediary between the client and the real service object.
+- The proxy object has the same interface as the real object, so the client can interact with the proxy without knowing it's not the real object.
+- It helps in managing the lifecycle of the real object and can add a layer of security or optimization.
+- The Proxy pattern is structurally similar to the Decorator pattern, but their purposes are different (Proxy controls access, Decorator adds behavior).
+
+## Behavioral patterns
+
+### Chain of Responsibility Pattern
+
+The Chain of Responsibility pattern is a behavioral design pattern that allows you to pass requests along a chain of handlers. Each handler in the chain decides either to process the request or to pass it along the chain to the next handler.
+
+- It decouples the sender of a request from its receiver by giving multiple objects a chance to handle the request.
+- The handlers are linked together, and the request traverses the chain until it is handled by a concrete handler.
+- Each handler contains a reference to the next handler in the chain.
+- If a handler cannot process the request, it forwards it to its successor.
+- This pattern provides flexibility in assigning responsibilities to objects and allows you to add or change handlers dynamically.
+- It's often used in scenarios like event handling, approval workflows, or filtering systems.
+- The client typically sends the request to the first handler in the chain, and the request is processed by one or more handlers down the line.
+
+### Command Pattern
+
+The Command pattern is a behavioral design pattern that turns a request into a stand-alone object.
+
+- It encapsulates a request as an object, allowing you to parameterize clients with different requests, queue or log requests, and support undoable operations.
+- The client creates a Concrete Command object and sets its Receiver. The client then passes the Command object to the Invoker.
+- The Invoker can store and manage the Command objects, allowing for features like undo/redo, macro commands (composite commands), and logging.
+- This pattern decouples the object that initiates the operation (Invoker) from the object that performs the operation (Receiver).
+
+### Iterator Pattern
+
+The Iterator pattern is a behavioral design pattern that provides a way to access the elements of an aggregate object (like a collection) sequentially without exposing its underlying representation.
+
+- It decouples the traversal logic from the collection itself.
+- This allows you to iterate over different types of collections in a uniform manner using a standard iterator interface.
+- It allows you to add new traversal algorithms without modifying the collection class.
+
+### Observer Pattern
+
+The Observer pattern is a behavioral design pattern that allows some objects to notify other objects about changes in their state. It defines a one-to-many dependency between objects, so that when one object (the subject) changes state, all its dependents (observers) are notified and updated automatically.
+
+- It establishes a publish-subscribe mechanism.
+- The object being watched is called the "subject" or "observable."
+- The objects that are interested in the subject's state changes are called "observers" or "subscribers."
+- Observers register with the subject to receive notifications.
+- When the subject's state changes, it broadcasts a notification to all its registered observers.
+- Observers then react to the notification, typically by updating themselves.
+- Observers can be added or removed dynamically at runtime.
+
+### Mediator Pattern
+
+The Mediator pattern is a behavioral design pattern that defines an object that encapsulates how a set of objects interact. It promotes loose coupling by keeping objects from referring to each other explicitly, and it lets you vary their interaction independently.
+
+- It introduces a mediator object that centralizes the communication between multiple objects (colleagues).
+- Instead of colleagues interacting directly with each other, they communicate through the mediator.
+- This reduces the dependencies between the colleagues, simplifying the system and making it easier to maintain and extend.
+- The mediator knows about and coordinates the interactions between the colleagues, while the colleagues only need to know about the mediator.
+- This pattern is useful when the interactions between a set of objects are complex and tangled, leading to tight coupling.
+- It helps in reducing the number of direct connections between objects, which can become unmanageable as the number of objects increases.
+- The Mediator pattern can be used in scenarios like dialog boxes, air traffic control systems, or chat rooms where many components need to communicate with each other.
+
+### State Pattern
+
+The State pattern is a behavioral design pattern that allows an object to alter its behavior when its internal state changes. The object will appear to change its class.
+
+- It is used when an object's behavior depends on its state, and that behavior needs to change at runtime.
+- The pattern extracts state-specific behaviors into separate classes that represent different states.
+- The original object, called the Context, holds a reference to a current State object and delegates state-sensitive behavior to it.
+- State transitions are typically handled either by the Context or by the State objects themselves, depending on the design.
+- This pattern helps in avoiding large conditional statements (if/else or switch) that handle different states.
+- It makes the code more organized, maintainable, and easier to extend with new states.
+- The State pattern is often compared to the Strategy pattern, but the key difference is that in State, the state objects can be aware of each other and initiate transitions, while strategies typically do not.
+- It can be seen as an object-oriented implementation of a finite-state machine.
+
+### Strategy Pattern
+
+The Strategy pattern is a behavioral design pattern that defines a family of algorithms, encapsulates each one, and makes them interchangeable. It allows the client to choose an algorithm from a family of algorithms at runtime.
+
+- It is used when you have multiple ways of performing a specific task, and you want to be able to switch between these algorithms dynamically.
+- The pattern involves three key components:
+  - **Context:** The object that uses a Strategy. It holds a reference to a Strategy object and delegates the task to it.
+  - **Strategy:** An interface or abstract class that declares a common interface for all supported algorithms.
+  - **Concrete Strategy:** Implements the Strategy interface and provides the implementation for a specific algorithm.
+- The client creates a Concrete Strategy object and passes it to the Context. The Context then uses this Strategy to perform the task.
+- It allows you to add new algorithms without modifying the Context or other Strategy classes.
+- The Strategy pattern is often used for implementing different sorting algorithms, payment methods, or validation rules.
+- While structurally similar to the State pattern, its intent is different: Strategy focuses on making algorithms interchangeable, while State focuses on changing an object's behavior based on its internal state.
+
+### Dependency Injection
+
+Dependency Injection is a design pattern that implements Inversion of Control (IoC) for resolving dependencies. It's a technique where one object supplies the dependencies of another object.
+
+#### Key Concepts
+
+- **Dependency:** An object that another object depends on to function.
+- **Injection:** The process of providing dependencies to an object instead of having it create or find them itself.
+
+#### Types of Dependency Injection
+
+1. **Constructor Injection:** Dependencies are provided through a class constructor.
+2. **Setter Injection:** Dependencies are provided through setter methods.
+3. **Interface Injection:** Dependencies are provided through interfaces.
+
+#### Benefits
+
+- **Testability:** Makes unit testing easier by allowing mock implementations of dependencies.
+- **Decoupling:** Reduces tight coupling between components.
+- **Flexibility:** Makes it easier to swap implementations without changing client code.
+- **Maintainability:** Centralizes dependency configuration, making the system easier to maintain.
+- **Lifecycle Management:** Can manage object lifecycles more effectively.

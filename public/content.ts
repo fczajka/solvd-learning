@@ -21,4 +21,6 @@ export const block_2 = [
   { name: 'Environment and CSS Preprocessors', href: '/block-two/eacp' },
   { name: 'Principles', href: '/block-two/principles' },
   { name: 'Typescript Basics', href: '/block-two/typescript-basics' },
+  { name: 'Typescript Advanced', href: '/block-two/typescript-advanced' },
+  { name: 'Patterns', href: '/block-two/patterns' },
 ];
