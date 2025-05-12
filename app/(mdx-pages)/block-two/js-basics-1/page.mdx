@@ -84,7 +84,7 @@ Examples:
 - String literals can use single or double quotes
 - `const singleQuotes = 'string';`
 - `const doubleQuotes = "string";`
-- `const backTicks = \`string\`;`
+- `const backTicks = \`string\`;
 - `const newStringObj = new String('string');`
 
 #### Falsy Values
@@ -169,8 +169,8 @@ while (i < 3) { // shows 0, then 1, then 2
 ```
 let i = 0;
 do {
-alert(i);
-i++;
+  alert(i);
+  i++;
 } while (i < 3);
 ```
 
@@ -178,7 +178,7 @@ i++;
 
 ```
 for (let i = 0; i < 3; i++) { // shows 0, then 1, then 2
-alert(i);
+  alert(i);
 }
 ```
 
@@ -233,9 +233,11 @@ switch (a) {
 ### Arrow Functions
 
 ```
-let func = function(arg1, arg2, ..., argN) {
-  return expression;
-};
+const multiply = (num1, num2) => {
+  return num1 * num2
+}
+
+const multiply = (num1, num2) => num1 * num2
 ```
 
 Arrow functions are handy for simple actions, especially for one-liners. They come in two flavors:
