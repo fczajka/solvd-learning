@@ -1,0 +1,685 @@
+# React UI
+
+## State. Structure.
+
+If you render the same component twice, each copy will have completely isolated state! Changing one of them will not affect the other.
+
+Unlike props, state is fully private to the component declaring it. The parent component can't change it. This lets you add state to any component or remove it without impacting the rest of the components.
+
+- div
+  - Counter (count: 0)
+  - Counter (count: 1)
+
+### State. Render and Commit.
+
+Imagine that your components are cooks in the kitchen, assembling tasty dishes from ingredients. In this scenario, React is the waiter who puts in requests from customers and brings them their orders. This process of requesting and serving UI has three steps:
+
+- Triggering a render (delivering the guest's order to the kitchen)
+- Rendering the component (preparing the order in the kitchen)
+- Committing to the DOM (placing the order on the table)
+
+#### Step 1: Trigger a render.
+
+There are two reasons for a component to render:
+
+- It's the component's initial render.
+- The component's (or one of its ancestors') state has been updated.
+
+#### Step 2: React renders your components.
+
+After you trigger a render, React calls your components to figure out what to display on screen. "Rendering" is React calling your components.
+
+- On initial render, React will call the root component.
+- For subsequent renders, React will call the function component whose state update triggered the render.
+
+This process is recursive: if the updated component returns some other component, React will render that component next, and if that component also returns something, it will render that component next, and so on. The process will continue until there are no more nested components and React knows exactly what should be displayed on screen.
+
+#### Step 3: React commits changes to the DOM.
+
+After rendering (calling) your components, React will modify the DOM.
+
+- For the initial render, React will use the `appendChild()` DOM API to put all the DOM nodes it has created on screen.
+- For re-renders, React will apply the minimal necessary operations (calculated while rendering!) to make the DOM match the latest rendering output.
+
+React only changes the DOM nodes if there's a difference between renders. After rendering is done and React updated the DOM, the browser will repaint the screen. Although this process is known as "browser rendering", we'll refer to it as "painting" to avoid confusion throughout the docs.
+
+### State as a Snapshot.
+
+"Rendering" means that React is calling your component, which is a function. The JSX you return from that function is like a snapshot of the UI in time. Its props, event handlers, and local variables were all calculated using its state at the time of the render.
+
+When React re-renders a component:
+
+1. React calls your function again.
+2. Your function returns a new JSX snapshot.
+3. React then updates the screen to match the snapshot you've returned.
+
+As a component's memory, state is not like a regular variable that disappears after your function returns. State actually "lives" in React itself—as if on a shelf!—outside of your function. When React calls your component, it gives you a snapshot of the state for that particular render. Your component returns a snapshot of the UI with a fresh set of props and event handlers in its JSX, all calculated using the state values from that render!
+
+Setting a state variable will queue another render. But sometimes you might want to perform multiple operations on the value before queueing the next render. To do this, it helps to understand how React batches state updates.
+
+### State. Queueing/Batching.
+
+In your opinion, will number be in these two examples?
+
+---
+
+```jsx
+1  import { useState } from 'react';
+2
+3  export default function Counter() {
+4    const [number, setNumber] = useState(0);
+5
+6    return (
+7      <>
+8        <h1>{number}</h1>
+9        <button onClick={() => {
+10         setNumber(number + 5);
+11         setNumber(n => n + 1);
+12         setNumber(42);
+13       }}>Increase the number</button>
+14     </>
+15   );
+16 }
+```
+
+---
+
+```jsx
+1  import { useState } from 'react';
+2
+3  export default function Counter() {
+4    const [number, setNumber] = useState(0);
+5
+6    return (
+7      <>
+8        <h1>{number}</h1>
+9        <button onClick={() => {
+10         setNumber(number + 5);
+11         setNumber(n => n + 1);
+12         setNumber(42);
+13       }}>Increase the number</button>
+14     </>
+15   );
+16 }
+17
+```
+
+### State. Updating Objects.
+
+State can hold any kind of JavaScript value, including objects. But you shouldn't change objects that you hold in the React state directly. Instead, when you want to update an object, you need to create a new one (or make a copy of an existing one), and then set the state to use that copy.
+
+1.  Treat state as read-only. In other words, you should treat any JavaScript object that you put into state as read-only.
+
+    ***
+
+    ```javascript
+    1 onPointerMove={e => {
+    2  // Treat state as read-only
+    3  position.x = e.clientX;
+    4  position.y = e.clientY;
+    5 }}
+    ```
+
+    ***
+
+    ```javascript
+    1 onPointerMove={e => {
+    2  setPosition({
+    3    x: e.clientX,
+    4    y: e.clientY
+    5  });
+    6 }}
+    ```
+
+2.  Copying objects with the spread syntax.
+
+    ***
+
+    ```javascript
+    1 setPerson({
+    2  firstName: e.target.value, // New first name from the input
+    3  lastName: person.lastName,
+    4  email: person.email
+    5 });
+    ```
+
+    ***
+
+    ```javascript
+    1 setPerson({
+    2  ...person, // Copy the old fields
+    3  firstName: e.target.value // But override this one
+    4 });
+    ```
+
+### State. Updating Arrays.
+
+Arrays are mutable in JavaScript, but you should treat them as immutable when you store them in state. Just like with objects, when you want to update an array stored in state, you need to create a new one (or make a copy of an existing one), and then set state to use the new array.
+
+**Avoid (mutates the array):**
+
+- **adding:** push, unshift
+- **removing:** pop, shift, splice
+- **replacing:** splice, `arr[i] = ...` assignment
+- **sorting:** reverse, sort
+
+**Prefer (returns a new array):**
+
+- **adding:** concat, `[...arr]` spread syntax (example)
+- **removing:** filter, slice (example)
+- **replacing:** map (example)
+- **sorting:** copy the array first (example)
+
+### State. Structure.
+
+#### Principles for structuring state
+
+When you write a component that holds some state, you'll have to make choices about how many state variables to use and what the shape of their data should be. While it's possible to write correct programs even with a suboptimal state structure, there are a few principles that can guide you to make better choices:
+
+- **Group related state.** If you always update two or more state variables at the same time, consider merging them into a single state variable.
+- **Avoid contradictions in state.** When the state is structured in a way that several pieces of state may contradict and "disagree" with each other, you leave room for mistakes. Try to avoid this.
+- **Avoid redundant state.** If you can calculate some information from the component's props or its existing state variables during rendering, you should not put that information into that component's state.
+- **Avoid duplication in state.** When the same data is duplicated between multiple state variables, or within nested objects, it is difficult to keep them in sync. Reduce duplication when you can.
+- **Avoid deeply nested state.** Deeply hierarchical state is not very convenient to update. When possible, prefer to structure state in a flat way.
+
+### Principles. Grouping.
+
+Should you do this?
+
+```javascript
+const [x, setX] = useState(0);
+const [y, setY] = useState(0);
+```
+
+Or this?
+
+```javascript
+const [position, setPosition] = useState({ x: 0, y: 0 });
+```
+
+Technically, you can use either of these approaches. But if some two state variables always change together, it might be a good idea to unify them into a single state variable. Then you won't forget to always keep them in sync.
+
+#### Pitfall
+
+If your state variable is an object, remember that you can't update only one field in it without explicitly copying the other fields. For example, you can't do `setPosition({x: 100})` in the above example because it would not have the `y` property at all! Instead, if you wanted to set `x` alone, you would either do `setPosition({...position, x: 100})`, or split them into two state variables and do `setX(100)`.
+
+### Principles. Contradictions.
+
+Here's the content of the image, showing two code examples side-by-side.
+
+**Left Code Example:**
+
+```javascript
+1  import { useState } from "react";
+2
+3  export default function FeedbackForm() {
+4    const [text, setText] = useState('');
+5    const [isSending, setIsSending] = useState(false);
+6    const [isSent, setIsSent] = useState(false);
+7
+8    async function handleSubmit(e) {
+9      e.preventDefault();
+10     setIsSending(true);
+11     await sendMessage(text);
+12     setIsSending(false);
+13     setIsSent(true);
+14   }
+15
+16   if (isSent) {
+17     return <h3>Thanks for feedback!</h3>;
+18   }
+19
+20   return (
+21     <form onSubmit={handleSubmit}>
+22       <p>How was your stay at The Prancing Pony?</p>
+23       <textarea
+24         disabled={isSending}
+25         value={text}
+26         onChange={e => setText(e.target.value)}
+27       />
+28       <br />
+29       <button
+30         disabled={isSending}
+31         type="submit"
+32       >
+33         Send
+34       </button>
+35       {isSending && <p>Sending...</p>}
+36     </form>
+37   );
+38 }
+39
+40 // Pretend to send a message
+41 function sendMessage(text) {
+42   return new Promise(resolve => {
+43     setTimeout(resolve, 2000);
+44   });
+45 }
+```
+
+**Right Code Example:**
+
+```javascript
+1  import { useState } from "react";
+2
+3  export default function FeedbackForm() {
+4    const [text, setText] = useState('');
+5    const [status, setStatus] = useState('typing'); // 'typing', 'sending', 'sent'
+6
+7    async function handleSubmit(e) {
+8      e.preventDefault();
+9      setStatus('sending');
+10     await sendMessage(text);
+11     setStatus('sent');
+12   }
+13
+14   const isSending = status === 'sending';
+15   const isSent = status === 'sent';
+16
+17   if (isSent) {
+18     return <h3>Thanks for feedback!</h3>;
+19   }
+20
+21   return (
+22     <form onSubmit={handleSubmit}>
+23       <p>How was your stay at The Prancing Pony?</p>
+24       <textarea
+25         disabled={isSending}
+26         value={text}
+27         onChange={e => setText(e.target.value)}
+28       />
+29       <br />
+30       <button
+31         disabled={isSending}
+32         type="submit"
+33       >
+34         Send
+35       </button>
+36       {isSending && <p>Sending...</p>}
+37     </form>
+38   );
+39 }
+40
+41 // Pretend to send a message
+42 function sendMessage(text) {
+43   return new Promise(resolve => {
+44     setTimeout(resolve, 2000);
+45   });
+46 }
+```
+
+### Principles. Redundant.
+
+The image shows three code examples demonstrating principles related to redundant state.
+
+**Left Code Example (Original):**
+
+```javascript
+1  import { useState } from 'react';
+2
+3  export default function Form() {
+4    const [firstName, setFirstName] = useState('');
+5    const [lastName, setLastName] = useState('');
+6
+7    // Not a good practice: redundant state based on firstName and lastName
+8    const [fullName, setFullName] = useState(''); // This is redundant
+9
+10   function handleFirstNameChange(e) {
+11     setFirstName(e.target.value);
+12     setFullName(e.target.value + ' ' + lastName); // Redundant update
+13   }
+14
+15   function handleLastNameChange(e) {
+16     setLastName(e.target.value);
+17     setFullName(firstName + ' ' + e.target.value); // Redundant update
+18   }
+19
+20   return (
+21     <>
+22       <label>
+23         First name:{' '}
+24         <input
+25           value={firstName}
+26           onChange={handleFirstNameChange}
+27         />
+28       </label>
+29       <label>
+30         Last name:{' '}
+31         <input
+32           value={lastName}
+33           onChange={handleLastNameChange}
+34         />
+35       </label>
+36       <p>Your ticket will be issued to: {fullName}</p>
+37     </>
+38   );
+39 }
+```
+
+**Middle Code Example (Improved):**
+
+```javascript
+1  import { useState } from 'react';
+2
+3  export default function Form() {
+4    const [firstName, setFirstName] = useState('');
+5    const [lastName, setLastName] = useState('');
+6
+7    // Calculate fullName directly during render
+8    const fullName = firstName + ' ' + lastName; // Calculated, not stored in state
+9
+10   function handleFirstNameChange(e) {
+11     setFirstName(e.target.value);
+12   }
+13
+14   function handleLastNameChange(e) {
+15     setLastName(e.target.value);
+16   }
+17
+18   return (
+19     <>
+20       <label>
+21         First name:{' '}
+22         <input
+23           value={firstName}
+24           onChange={handleFirstNameChange}
+25         />
+26       </label>
+27       <label>
+28         Last name:{' '}
+29         <input
+30           value={lastName}
+31           onChange={handleLastNameChange}
+32         />
+33       </label>
+34       <p>Your ticket will be issued to: {fullName}</p>
+35     </>
+36   );
+37 }
+```
+
+**Right Code Example (Top - Incorrect Mirroring):**
+
+```javascript
+1  function Message({ messageColor }) {
+2    const [color, setColor] = useState(messageColor); // Don't mirror props in state
+3  }
+```
+
+**Right Code Example (Bottom - Explanation for Mirroring Props):**
+
+```javascript
+1  function Message({ initialColor }) {
+2    // The `color` state variable holds the *first* value of `initialColor`.
+3    // Further changes to the `initialColor` prop are ignored.
+4    const [color, setColor] = useState(initialColor);
+5  }
+```
+
+### Principles. Duplication.
+
+The image shows two code examples illustrating how to avoid duplication in state.
+
+**Left Code Example (with Duplication):**
+
+```javascript
+1  import { useState } from 'react';
+2
+3  const initialItems = [
+4    { title: 'pretzels', id: 0 },
+5    { title: 'crispy seaweed', id: 1 },
+6    { title: 'granola bar', id: 2 },
+7  ];
+8
+9  export default function Menu() {
+10   const [items, setItems] = useState(initialItems);
+11   const [selectedItem, setSelectedItem] = useState(
+12     items[0] // Duplication: selectedItem is an object from items
+13   );
+14
+15   return (
+16     <>
+17       <h2>What's your travel snack?</h2>
+18       <ul>
+19         {items.map(item => (
+20           <li key={item.id}>
+21             {item.title}
+22             {' '}
+23             <button onClick={() => {
+24               setSelectedItem(item);
+25             }}>Choose</button>
+26           </li>
+27         ))}
+28       </ul>
+29       <p>You picked {selectedItem.title}.</p>
+30     </>
+31   );
+32 }
+```
+
+**Right Code Example (Avoiding Duplication):**
+
+```javascript
+1  import { useState } from 'react';
+2
+3  const initialItems = [
+4    { title: 'pretzels', id: 0 },
+5    { title: 'crispy seaweed', id: 1 },
+6    { title: 'granola bar', id: 2 },
+7  ];
+8
+9  export default function Menu() {
+10   const [items, setItems] = useState(initialItems);
+11   const [selectedId, setSelectedId] = useState(0); // Store only the ID
+12
+13   const selectedItem = items.find(item => // Calculate selectedItem
+14     item.id === selectedId
+15   );
+16
+17   function handleItemChange(id, e) {
+18     setItems(items.map(item => {
+19       if (item.id === id) {
+20         return {
+21           ...item,
+22           title: e.target.value
+23         };
+24       } else {
+25         return item;
+25       }
+26     }));
+27   }
+28
+29   return (
+30     <>
+31       <h2>What's your travel snack?</h2>
+32       <ul>
+33         {items.map((item, index) => (
+34           <li key={item.id}>
+35             <input
+36               value={item.title}
+37               onChange={e => handleItemChange(item.id, e)}
+38             />
+39             {' '}
+40             <button onClick={() => {
+41               setSelectedId(item.id); // Set only the ID
+42             }}>Choose</button>
+43           </li>
+44         ))}
+45       </ul>
+46       <p>You picked {selectedItem.title}.</p>
+47     </>
+48   );
+49 }
+```
+
+### Sharing State
+
+Sometimes, you want the state of two components to always change together. To do it, remove state from both of them, move it to their closest common parent, and then pass it down to them via props. This is known as lifting state up, and it's one of the most common things you will do writing React code.
+
+### Lifting state up by example
+
+The image illustrates the concept of "lifting state up" in a React component structure, using an Accordion and Panel example.
+
+The process is shown in four steps:
+
+1.  **Initial State (Leftmost Diagram):**
+    - An "Accordion" component is the parent of two "Panel" components.
+    - Each "Panel" component independently holds an `isActive` state, initialized to `false`.
+    - _Caption:_ "Initially, each Panel's `isActive` state is false, so they both appear collapsed"
+2.  **Independent Panel State (Second Diagram from Left):**
+    - Clicking one "Panel"'s button changes its `isActive` state to `true`.
+    - The other "Panel"'s `isActive` state remains `false`.
+    - _Caption:_ "Clicking either Panel's button will only update that Panel's `isActive` state alone"
+3.  **Lifting State Up (Third Diagram from Left):**
+    - The `isActive` state is removed from the individual "Panel" components.
+    - The parent "Accordion" component now holds an `activeIndex` state, initialized to `0`.
+    - The "Accordion" passes down `isActive` props to its children "Panel" components, based on `activeIndex`.
+    - In this step, the first "Panel" receives `isActive = true` and the second "Panel" receives `isActive = false` because `activeIndex` is `0`.
+    - _Caption:_ "Initially, Accordion's `activeIndex` is 0, so the first Panel receives `isActive = true`"
+4.  **Shared State in Action (Rightmost Diagram):**
+    - When the "Accordion"'s `activeIndex` state changes to `1` (e.g., due to a click on the second panel).
+    - The first "Panel" now receives `isActive = false`.
+    - The second "Panel" now receives `isActive = true`.
+    - _Caption:_ "When Accordion's `activeIndex` state changes to 1, the second Panel receives `isActive = true` instead"
+
+### Preserving and Resetting State
+
+The image illustrates the process of how React handles components and their state, leading to the rendering of the DOM.
+
+Here's a breakdown of the diagram:
+
+1.  **Components (Left):**
+    - Three distinct components are shown: "Component A", "Component B", and "Component C". These represent the logical building blocks of a React application.
+2.  **React (First Arrow and Middle Diagram):**
+    - The first arrow, labeled "React", indicates that React processes these components.
+    - The middle diagram shows a component tree structure:
+      - "Component A" is at the root
+      - "Component B" and "Component C" are children of "Component A". This represents how components are nested within each other to form the UI.
+3.  **React DOM (Second Arrow and Right Diagram):**
+    - The second arrow, labeled "React DOM", signifies that React then translates this component tree into actual DOM elements.
+    - The rightmost diagram depicts a browser window with a hierarchical structure of boxes, representing the real DOM elements that are rendered on the screen. The blue highlighted boxes likely represent the elements corresponding to "Component A", "Component B", and "Component C" in the final rendered output.
+
+### Preserving and Resetting State
+
+State is tied to a position in the tree
+
+The image illustrates how React preserves or resets component state based on its position in the component tree. It shows a sequence of four stages for two "Counter" components nested within a "div".
+
+**Stage 1 (Leftmost):**
+
+- A parent `div` element has two child `Counter` components.
+- Both `Counter` components initially show `count: 0`.
+
+**Stage 2:**
+
+- The left `Counter` still shows `count: 0`.
+- The right `Counter` has its `count` incremented to `1`. This is indicated by an orange highlight and a small "1" next to the count.
+
+**Stage 3:**
+
+- The right `Counter` component is conceptually "removed" from its original position (indicated by a dashed outline and a fading effect).
+- A "spark" animation suggests the component is being unmounted or effectively reset.
+
+**Stage 4 (Rightmost):**
+
+- The right `Counter` component reappears.
+- Crucially, its `count` has been reset to `0`, and it's highlighted in orange with a "sparkle" effect, implying that a new instance of the component was mounted in that position, or its state was explicitly reset. The left `Counter` remains with `count: 0`.
+
+The overall message is that if a component's position in the UI tree changes (e.g., if it's unmounted and then re-mounted in the same logical slot), its state is generally reset. State is tied to the _identity_ of the component at a particular _position_ in the tree.
+
+### Preserving and Resetting State
+
+Same component at the same position preserves state
+
+The image illustrates how state is preserved when the same component remains at the same position in the component tree, even if a prop passed to it changes.
+
+**Left Diagram (Initial State):**
+
+- An "App" component is at the top, with an `isFancy` state set to `false`.
+- A `div` is a child of "App".
+- A "Counter" component is a child of the `div`.
+- The `isFancy` prop passed to the `div` (and implicitly affecting the "Counter" perhaps through context or further props) is `false`.
+- The "Counter" component has a `count` of `3`.
+
+**Right Diagram (After State Change in Parent):**
+
+- The "App" component's `isFancy` state has changed to `true` (highlighted in orange).
+- This change propagates down: the `div` now receives `isFancy` as `true` (highlighted in purple).
+- **Crucially, the "Counter" component, despite its parent's prop changing, maintains its `count` of `3`**. It has not reset. This demonstrates that if the _same component_ (identified by its type and position) is rendered in the _same place_, its internal state is preserved.
+
+### Preserving and Resetting State
+
+Different components at the same position reset state
+
+The image illustrates how state is reset when a different component is rendered at the same position in the component tree. It shows a sequence of transformations:
+
+**Stage 1 (Leftmost):**
+
+- A `div` element is the parent of a `Counter` component, which has a `count` of `3`.
+
+**Stage 2:**
+
+- The `Counter` component is "deleted" or unmounted from its position (indicated by a dashed outline and a "spark" animation, suggesting removal).
+
+**Stage 3:**
+
+- A new `p` (paragraph) HTML element appears in the same position where the `Counter` component previously was. This `p` element is highlighted in orange, indicating it's a new addition.
+- _Caption below:_ "When `Counter` changes to `p`, the `Counter` is deleted and the `p` is added"
+
+**Stage 4:**
+
+- The `p` element remains in place.
+
+**Stage 5:**
+
+- The `p` element is "deleted" or unmounted (dashed outline and "spark" animation).
+
+**Stage 6 (Rightmost):**
+
+- A `Counter` component reappears in the same position.
+- Crucially, its `count` is reset to `0` (highlighted in orange), indicating that a brand new instance of the `Counter` component was mounted.
+- _Caption below:_ "When switching back, the `p` is deleted and the `Counter` is added"
+
+The key takeaway is that if React sees a _different component type_ in the same logical position in the tree during a re-render, it will unmount the old component and mount a new one, thereby resetting its state. State is tied to the _identity_ of the component type at a specific position.
+
+### Preserving and Resetting State
+
+#### Resetting state at the same position
+
+**Option 1: Rendering a component in different positions**
+
+The image illustrates how state is reset when a component is rendered in different positions within the component tree, even if it's the same component type. It shows a sequence for a "Scoreboard" component controlling a "Counter".
+
+**Diagram Sequence:**
+
+1.  **Initial state (Leftmost):**
+
+    - A "Scoreboard" component has an `isPlayerA` state set to `true`.
+    - A "Counter" component is rendered, with its `count` at `0`. This "Counter" is implicitly in a position controlled by `isPlayerA` being `true`.
+
+2.  **Clicking "next" (Middle):**
+
+    - The "Scoreboard"'s `isPlayerA` state flips to `false`.
+    - The previous "Counter" component is unmounted (indicated by a "spark" effect).
+    - A _new_ "Counter" component is mounted in a different conceptual position (or under a different branch of the UI tree, due to the `isPlayerA` change). This new "Counter" also starts with `count: 0`.
+
+3.  **Clicking "next" again (Rightmost):**
+    - The "Scoreboard"'s `isPlayerA` state flips back to `true`.
+    - The "Counter" associated with `isPlayerA: false` is unmounted.
+    - A _new_ "Counter" associated with `isPlayerA: true` is mounted, again starting with `count: 0`.
+
+The key takeaway from this option is that when conditional rendering or rendering based on state changes cause a component to be mounted/unmounted from its position in the tree, its state will be reset.
+
+**Option 2: Resetting state with a key**
+
+The image also provides a code snippet for "Option 2: Resetting state with a key".
+
+```javascript
+1  {isPlayerA ? (
+2    <Counter key="Taylor" person="Taylor" />
+3  ) : (
+4    <Counter key="Sarah" person="Sarah" />
+5  )}
+```
+
+This code demonstrates how to use the `key` prop in React to explicitly tell React whether a component instance should be preserved or reset. Even though both are `Counter` components, assigning different `key` values ("Taylor" and "Sarah") to them tells React to treat them as distinct components at the same position. When `isPlayerA` changes, React sees that the `key` has changed for the component at that position, and therefore unmounts the old component and mounts a new one, resetting its state.

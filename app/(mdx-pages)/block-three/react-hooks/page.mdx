@@ -1,0 +1,1553 @@
+# React Hooks
+
+## What is a Hook?
+
+Hooks are a new addition in **React 16.8**. They let you use state and other React features without writing a class.
+
+You can either use the built-in Hooks or combine them to build your own.
+
+### Types of hooks
+
+- State Hooks (`useState`, `useReducer`).
+- Context Hooks (`useContext`).
+- Ref Hooks (`useRef`, `useImperativeHandle`).
+- Effect Hooks (`useEffect`, `useLayoutEffect`, `useInsertionEffect`).
+- Performance Hooks (`useMemo`, `useCallback`, `useTransition`, `useDeferredValue`).
+- Other Hooks (`useId`, `useDebugValue`, `useSyncExternalStore`).
+- Your own Hooks
+
+### Rules of Hooks
+
+The image presents a diagram outlining the "Rules of Hooks" in React, along with a code example that breaks one of these rules.
+
+**Rules of Hooks Diagram:**
+
+The diagram is structured into two main rules:
+
+- **Only call React Hooks in React Functions**
+
+  - This branches into:
+    - React Component Functions
+    - Custom Hooks (covered later!)
+
+- **Only call React Hooks at the Top Level**
+  - This branches into:
+    - Don't call them in nested functions
+    - Don't call them in any block statements
+
+Below these two main rules, there's an "extra, unofficial Rule for `useEffect()`":
+
+- **+ extra, unofficial Rule for `useEffect()`: ALWAYS add everything you refer to inside of `useEffect()` as a dependency!**
+
+**Code Example (Breaking a Rule):**
+
+```javascript
+// 🔴 We're breaking the first rule by using a Hook in a condition
+if (name !== '') {
+  useEffect(function persistForm() {
+    localStorage.setItem('formData', name);
+  });
+}
+```
+
+This code snippet is highlighted as "breaking the first rule by using a Hook in a condition". This is because `useEffect` (a Hook) is called inside an `if` statement, which is a block statement and not at the top level of the function component.
+
+### State Hooks
+
+Here are two code examples demonstrating React's State Hooks, `useState` and `useReducer`.
+
+**useState Example:**
+
+```javascript
+1  import { useState } from 'react';
+2
+3  function MyComponent() {
+4    const [age, setAge] = useState(28);
+5    const [name, setName] = useState('Taylor');
+6    const [todos, setTodos] = useState(() => createTodos());
+7    // ...
+8  }
+```
+
+**useReducer Example:**
+
+```javascript
+1  import { useReducer } from 'react';
+2
+3  function reducer(state, action) {
+4    // ...
+5  }
+6
+7  function MyComponent() {
+8    const [state, dispatch] = useReducer(reducer, { age: 42 });
+9    // ...
+10 }
+```
+
+### useState - Reference.
+
+The image provides three code snippets demonstrating the usage of the `useState` Hook in React.
+
+**Top Code Snippet (General Syntax):**
+
+```javascript
+1  const [state, setState] = useState(initialState);
+```
+
+**Bottom Left Code Snippet (Multiple `useState` Calls):**
+
+```javascript
+1  import { useState } from 'react';
+2
+3  function MyComponent() {
+4    const [age, setAge] = useState(28);
+5    const [name, setName] = useState('Taylor');
+6    const [todos, setTodos] = useState(() => createTodos());
+7    // ...
+8  }
+```
+
+**Bottom Right Code Snippet (Updating State):**
+
+```javascript
+1  const [name, setName] = useState('Edward');
+2
+3  function handleClick() {
+4    setName('Taylor');
+5    setAge(a => a + 1);
+6    // ...
+7  }
+```
+
+### useState - Usage.
+
+The image illustrates various aspects of `useState` usage in React, focusing on updating state, particularly with objects and arrays, and avoiding re-creating initial state.
+
+**Top Left Code Snippet (Incorrect State Update - Multiple Updates):**
+
+```javascript
+1  function handleClick() {
+2    setAge(age + 1); // setAge(42 -> 43)
+3    setAge(age + 1); // setAge(42 -> 43)
+4    setAge(age + 1); // setAge(42 -> 43)
+5  }
+```
+
+_Caption:_ Updating state based on the previous state
+
+**Top Right Code Snippet (Correct State Update - Functional Updates):**
+
+```javascript
+1  function handleClick() {
+2    setAge(a => a + 1); // setAge(42 -> 43)
+3    setAge(a => a + 1); // setAge(43 -> 44)
+4    setAge(a => a + 1); // setAge(44 -> 45)
+5  }
+```
+
+_Caption:_ Updating state based on the previous state
+
+**Middle Left Code Snippet (Incorrect State Update - Mutating Objects):**
+
+```javascript
+1  // 🔴 Don't mutate an object in state like this:
+2  form.firstName = 'Taylor';
+```
+
+_Caption:_ Updating objects and arrays in state
+
+**Middle Right Code Snippet (Correct State Update - Replacing Objects):**
+
+```javascript
+1  // ✅ Replace state with a new object
+2  setForm({
+3    ...form,
+4    firstName: 'Taylor'
+5  });
+```
+
+_Caption:_ Updating objects and arrays in state
+
+**Bottom Left Code Snippet (Incorrect Initial State Creation):**
+
+```javascript
+1  function TodoList() {
+2    const [todos, setTodos] = useState(createInitialTodos());
+3    // ...
+4  }
+```
+
+_Caption:_ Avoiding recreating the initial state
+
+**Bottom Right Code Snippet (Correct Initial State Creation - Lazy Initialization):**
+
+```javascript
+1  function TodoList() {
+2    const [todos, setTodos] = useState(createInitialTodos);
+3    // ...
+4  }
+```
+
+_Caption:_ Avoiding recreating the initial state
+
+### useState - Troubleshooting.
+
+The image displays several code snippets related to troubleshooting common issues with `useState` in React.
+
+**Top Left Code Snippet (Stale Closure/Logging Old Value):**
+
+```javascript
+1  function handleClick() {
+2    console.log(count); // 0
+3    setCount(count + 1); // Request a re-render with 1
+4    console.log(count); // Still 0!
+5    setTimeout(() => {
+6      console.log(count); // Also 0!
+7    }, 5000);
+8  }
+```
+
+_Caption:_ I've updated the state, but logging gives me the old value
+
+**Middle Left Code Snippet (Mutating Objects in State):**
+
+```javascript
+1  obj.x = 10; // 🔴 Wrong: mutating existing object
+2  setObj(obj); // 🔴 Doesn't do anything
+3
+4  // ✅ Correct: creating a new object
+5  setObj({
+6    ...obj,
+7    x: 10
+8  });
+```
+
+_Caption:_ I've updated the state, but the screen doesn't update
+
+**Bottom Left Code Snippet (Calling Function on Render):**
+
+```javascript
+1  // 🔴 Wrong: calls the handler during render
+2  return <button onClick={handleClick()}>Click me</button>
+3
+4  // ✅ Correct: passes down the event handler
+5  return <button onClick={handleClick}>Click me</button>
+6
+7  // ✅ Correct: passes down an inline function
+8  return <button onClick={() => handleClick()}>Click me</button>
+```
+
+_Caption:_ I'm getting an error: "Too many re-renders"
+
+**Top Right Code Snippet (Mutable vs. Immutable):**
+
+```javascript
+1  // ❌ Mutable
+2  const [fns, setFns] = useState(someFunction);
+3
+4  function handleClick() {
+5    setFns(otherFunction);
+6  }
+7
+8  // ✅ Correct
+9  const [fns, setFns] = useState(() => someFunction);
+10
+11 function handleClick() {
+12   setFns(() => someOtherFunction);
+13 }
+```
+
+_Caption:_ I'm trying to set state to a function, but it gets called instead
+
+**Bottom Right Code Snippet (Re-initialization of State):**
+
+```javascript
+1  function TodoList() {
+2    // 🔴 This component function will run twice for every render.
+3    const [todos, setTodos] = useState(() => {
+4      // 🔴 This initializer function will run twice during initialization.
+5      return createTodos();
+6    });
+7
+8    function handleClick() {
+9      setTodos(prevTodos => {
+10       // 🔴 Mutates existing state
+11       prevTodos.push(createTodo());
+12       return prevTodos;
+13     });
+14
+15     setTodos(prevTodos => {
+16       // ✅ This updater function will run twice for every click.
+17       return [...prevTodos, createTodo()];
+18     });
+19   }
+20 }
+```
+
+_Caption:_ My initializer or updater function runs twice
+
+### useReducer - Reference/Usage.
+
+The image shows code examples for the `useReducer` Hook, covering its reference/usage and how to avoid recreating initial state.
+
+**Left Code Snippet (Basic useReducer Example):**
+
+```javascript
+1  import { useReducer } from 'react';
+2
+3  function reducer(state, action) {
+4    if (action.type === 'incremented_age') {
+5      return {
+6        age: state.age + 1
+7      };
+8    }
+9    throw Error('Unknown action.');
+10 }
+11
+12 export default function Counter() {
+13   const [state, dispatch] = useReducer(reducer, { age: 42 });
+14   return (
+15     <>
+16       <button onClick={() => {
+17         dispatch({ type: 'incremented_age' });
+18       }}>
+19         Increment age
+20       </button>
+21       <p>Hello! You are {state.age}.</p>
+22     </>
+23   );
+24 }
+```
+
+_Caption:_ `useReducer`
+
+**Right Top Code Snippet (Recreating Initial State - Incorrect):**
+
+```javascript
+1  function createInitialState(username) {
+2    // ...
+3  }
+4
+5  function TodoList({ username }) {
+6    const [state, dispatch] = useReducer(reducer, createInitialState(username));
+7    // ...
+8  }
+```
+
+_Caption:_ Avoiding recreating the initial state
+
+**Right Bottom Code Snippet (Lazy Initialization - Correct):**
+
+```javascript
+1  function createInitialState(username) {
+2    // ...
+3  }
+4
+5  function TodoList({ username }) {
+6    const [state, dispatch] = useReducer(reducer, username, createInitialState);
+7    // ...
+8  }
+```
+
+_Caption:_ Avoiding recreating the initial state
+
+### useReducer - Troubleshooting.
+
+The image displays common troubleshooting scenarios for the `useReducer` Hook in React.
+
+**Top Left Code Snippet (Stale Closure/Logging Old Value):**
+
+```javascript
+1  function handleClick() {
+2    console.log(state.age); // 42
+3
+4    dispatch({ type: 'incremented_age' }); // Request a re-render with 43
+5    console.log(state.age); // Still 42!
+6
+7    setTimeout(() => {
+8      console.log(state.age); // Also 42!
+9    }, 5000);
+10 }
+```
+
+_Caption:_ I've dispatched an action, but logging gives me the old state value
+
+**Top Right Code Snippet (Accessing Next State Immediately):**
+
+```javascript
+1  const action = { type: 'incremented_age' };
+2  dispatch(action);
+3
+4  const nextState = reducer(state, action);
+5  console.log(state); // { age: 42 }
+6  console.log(nextState); // { age: 43 }
+```
+
+_Caption:_ I've dispatched an action, but logging gives me the old state value
+
+**Bottom Left Code Snippet (Mutating State in Reducer):**
+
+```javascript
+1  function reducer(state, action) {
+2    switch (action.type) {
+3      case 'incremented_age': {
+4        // 🔴 wrong: mutating existing object
+5        state.age++;
+6        return state;
+7      }
+8      case 'changed_name': {
+9        // 🔴 wrong: mutating existing object
+10       state.name = action.nextName;
+11       return state;
+12     }
+13     // ...
+14   }
+15 }
+```
+
+_Caption:_ I've dispatched an action, but the screen doesn't update
+
+**Bottom Right Code Snippet (Correctly Updating State in Reducer - Immutability):**
+
+```javascript
+1  function reducer(state, action) {
+2    switch (action.type) {
+3      case 'incremented_age': {
+4        // ✅ Correct: creating a new object
+5        return {
+6          ...state,
+7          age: state.age + 1
+8        };
+9      }
+10     case 'changed_name': {
+11       // ✅ Correct: creating a new object
+12       return {
+13         ...state,
+14         name: action.nextName
+15       };
+15     }
+16     // ...
+17   }
+18 }
+```
+
+_Caption:_ I've dispatched an action, but the screen doesn't update
+
+### useReducer - Troubleshooting.
+
+The image provides further troubleshooting examples for the `useReducer` Hook, specifically addressing issues with undefined state after dispatching and reducer/initializer functions running twice.
+
+**Top Left Code Snippet (Reducer Returning Undefined - Incorrect):**
+
+```javascript
+1  function reducer(state, action) {
+2    switch (action.type) {
+3      case 'incremented_age': {
+4        // 🔴 wrong:
+5        return;
+6        age: state.age + 1
+7      };
+8      // ...
+9    }
+10 }
+```
+
+_Caption:_ A part of my reducer state becomes undefined after dispatching
+
+**Top Right Code Snippet (Reducer Returning Undefined - Correct):**
+
+```javascript
+1  function reducer(state, action) {
+2    switch (action.type) {
+3      case 'incremented_age': {
+4        // ✅ (correct)
+5        return {
+6          ...state, // Don't forget this!
+7          age: state.age + 1
+8        };
+9      }
+10     // ...
+11   }
+```
+
+_Caption:_ A part of my reducer state becomes undefined after dispatching
+
+**Bottom Left Code Snippet (Reducer Mutating State - Incorrect):**
+
+```javascript
+1  function reducer(state, action) {
+2    switch (action.type) {
+3      case 'added_todo': {
+4        // 🔴 Mistake: mutating state
+5        state.todos.push({ id: nextId++, text: action.text });
+6        return state;
+7      }
+8      // ...
+9    }
+10 }
+```
+
+_Caption:_ My reducer or initializer function runs twice
+
+**Bottom Right Code Snippet (Reducer Replacing State - Correct):**
+
+```javascript
+1  function reducer(state, action) {
+2    switch (action.type) {
+3      case 'added_todo': {
+4        // ✅ Correct: replacing with new state
+5        return {
+6          ...state,
+7          todos: [
+8            ...state.todos,
+9            { id: nextId++, text: action.text }
+10         ]
+11       };
+12     }
+13     // ...
+14   }
+15 }
+```
+
+_Caption:_ My reducer or initializer function runs twice
+
+### Context Hooks
+
+Here's an example of how to use the `useContext` Hook.
+
+```javascript
+1  function Button() {
+2    const theme = useContext(ThemeContext);
+3    // ...
+4  }
+```
+
+### Ref Hooks
+
+Here are two code examples demonstrating React's Ref Hooks, `useRef` and `useImperativeHandle`.
+
+**useRef Example:**
+
+```javascript
+1  function Form() {
+2    const inputRef = useRef(null);
+3    // ...
+4  }
+```
+
+**useImperativeHandle Example:**
+
+```javascript
+1  import { forwardRef, useImperativeHandle } from 'react';
+2
+3  const MyInput = forwardRef(function MyInput(props, ref) {
+4    useImperativeHandle(ref, () => {
+5      return {
+6        // ... your methods ...
+7      };
+8    }, []);
+9    // ...
+10 });
+```
+
+### useRef - Reference/Usage.
+
+The image provides two code examples demonstrating the usage of the `useRef` Hook in React.
+
+**Left Code Snippet (Using `useRef` for a Mutable Value):**
+
+```javascript
+1  import { useRef } from 'react';
+2
+3  export default function Counter() {
+4    let ref = useRef(0);
+5
+6    function handleClick() {
+7      ref.current = ref.current + 1;
+8      alert('You clicked ' + ref.current + ' times!');
+9    }
+10
+11   return (
+12     <button onClick={handleClick}>
+13       Click me!
+14     </button>
+15   );
+16 }
+```
+
+**Right Code Snippet (Using `useRef` for DOM Manipulation):**
+
+```javascript
+1  import { useRef } from 'react';
+2
+3  export default function Form() {
+4    const inputRef = useRef(null);
+5
+6    function handleClick() {
+7      inputRef.current.focus();
+8    }
+9
+10   return (
+11     <>
+12       <input ref={inputRef} />
+13       <button onClick={handleClick}>
+14         Focus the input
+15       </button>
+16     </>
+17   );
+18 }
+```
+
+### useRef - Troubleshooting.
+
+The image presents two common troubleshooting scenarios when using `useRef` in React: incorrect access during rendering and issues with custom components.
+
+**Top Left Code Snippet (Incorrect Access During Rendering):**
+
+```javascript
+1  function MyComponent() {
+2    // ...
+3    // 🔴 Don't write a ref during rendering
+4    myRef.current = 123;
+5
+6    // ...
+7    // 🔴 Don't read a ref during rendering
+8    return <h1>{myOtherRef.current}</h1>;
+9  }
+```
+
+_Caption:_ Do not write or read ref.current during rendering
+
+**Top Right Code Snippet (Correct Access During Rendering):**
+
+```javascript
+1  function MyComponent() {
+2    // ...
+3    useEffect(() => {
+4      // ✅ You can read or write refs in effects
+5      myRef.current = 123;
+6    });
+7
+8    // ...
+9    function handleClick() {
+10     // ✅ You can read or write refs in event handlers
+11     doSomething(myOtherRef.current);
+12   }
+13   // ...
+14 }
+```
+
+_Caption:_ Do not write or read ref.current during rendering
+
+**Bottom Left Code Snippet (Cannot Get Ref to Custom Component - Incorrect):**
+
+```javascript
+1  function MyComponent() {
+2    const inputRef = useRef(null);
+3    return (
+4      <MyInput ref={inputRef} /> // 🔴
+5    );
+6    // By default, your own components don't
+7    // expose refs to the DOM nodes inside them
+8    function MyInput({ value, onChange }) {
+9      return (
+10       <input
+11         value={value}
+12         onChange={onChange}
+13       />
+14     );
+15   }
+16 }
+```
+
+_Caption:_ I can't get a ref to a custom component
+
+**Bottom Right Code Snippet (Cannot Get Ref to Custom Component - Correct with `forwardRef`):**
+
+```javascript
+1  import { forwardRef, useRef } from 'react';
+2
+3  function MyComponent() {
+4    const inputRef = useRef(null);
+5    return (
+6      <MyInput ref={inputRef} /> // ✅
+7    );
+8  }
+9
+10 const MyInput = forwardRef(function MyInput({ value, onChange }, ref) {
+11   return (
+12     <input
+13       value={value}
+14       onChange={onChange}
+15       ref={ref}
+16     />
+17   );
+18 });
+```
+
+_Caption:_ I can't get a ref to a custom component
+
+**Console Warning:**
+
+```
+Warning: Function components cannot be given refs. Attempts to access this ref will fail.
+Did you mean to use React.forwardRef()?
+```
+
+### useImperativeHandle - Reference/Usage.
+
+The image displays two code examples illustrating the `useImperativeHandle` Hook, demonstrating a common pitfall and its correct usage.
+
+**Left Code Snippet (Incorrect Usage - Directly Exposing Ref):**
+
+```javascript
+1  import { useRef } from 'react';
+2  import MyInput from './MyInput.js';
+3
+4  export default function Form() {
+5    const ref = useRef(null);
+6
+7    function handleClick() {
+8      ref.current.focus();
+9      // This won't work because the DOM node isn't exposed:
+10     // ref.current.style.opacity = 0.5;
+11   }
+12
+13   return (
+14     <form>
+15       <MyInput label="Enter your name:" ref={ref} />
+16       <button type="button" onClick={handleClick}>
+17         Edit
+18       </button>
+19     </form>
+20   );
+21 }
+```
+
+**Right Code Snippet (Correct Usage with `forwardRef` and `useImperativeHandle`):**
+
+```javascript
+1  import { forwardRef, useRef, useImperativeHandle } from 'react';
+2
+3  const MyInput = forwardRef(function MyInput(props, ref) {
+4    const inputRef = useRef(null);
+5
+6    useImperativeHandle(ref, () => {
+7      return {
+8        focus() {
+9          inputRef.current.focus();
+10       },
+11       scrollIntoView() {
+12         inputRef.current.scrollIntoView();
+13       },
+14     };
+15   }, []);
+16
+17   return <input {...props} ref={inputRef} />;
+18 });
+19
+20 export default MyInput;
+```
+
+### Effect Hooks
+
+```javascript
+1  function ChatRoom({ roomId }) {
+2    useEffect(() => {
+3      const connection = createConnection(roomId);
+4      connection.connect();
+5      return () => connection.disconnect();
+6    }, [roomId]);
+7    // ...
+8  }
+```
+
+There are two rarely used variations of `useEffect` with differences in timing:
+
+- `useLayoutEffect` fires before the browser repaints the screen. You can measure layout here.
+- `useInsertionEffect` fires before React makes changes to the DOM. Libraries can insert dynamic CSS here.
+
+### useEffect - Reference/Usage.
+
+The image displays a code example for the `useEffect` Hook and lists several common use cases for it.
+
+```javascript
+1  import { useState, useEffect } from 'react';
+2  import { fetchBio } from './api.js';
+3
+4  export default function Page() {
+5    const [person, setPerson] = useState('Alice');
+6    const [bio, setBio] = useState(null);
+7
+8    useEffect(() => {
+9      let ignore = false;
+10     fetchBio(person).then(result => {
+11       if (!ignore) {
+12         setBio(result);
+13       }
+14     });
+15     return () => {
+16       ignore = true;
+17     };
+18   }, [person]);
+19
+20   // ...
+21 }
+```
+
+**Usage:**
+
+- Connecting to an external system
+- Wrapping Effects in custom Hooks
+- Controlling a non-React widget
+- Fetching data with Effects
+- Updating state based on previous state from an Effect
+- Displaying different content on the server and the client
+
+### useEffect - Reference/Usage.
+
+The image shows three different code examples illustrating various use cases for the `useEffect` Hook, including connecting to external systems, fetching data, and controlling non-React widgets.
+
+**Left Code Snippet (Connecting to an External System):**
+
+```javascript
+1  import { useEffect } from 'react';
+2  import { createConnection } from './chat.js';
+3
+4  function ChatRoom({ roomId, serverUrl }) {
+5    useEffect(() => {
+6      const connection = createConnection(serverUrl, roomId);
+7      connection.connect();
+8      return () => connection.disconnect();
+9    }, [roomId, serverUrl]);
+10 }
+```
+
+_Caption:_ Connecting to an external system
+
+**Bottom Left Code Snippet (Wrapping Effects in Custom Hooks):**
+
+```javascript
+1  import { useEffect } from 'react';
+2  import { createConnection } from './chat.js';
+3
+4  function useChatRoom({ roomId, serverUrl }) {
+5    useEffect(() => {
+6      const connection = createConnection(serverUrl, roomId);
+7      connection.connect();
+8      return () => connection.disconnect();
+9    }, [roomId, serverUrl]);
+10 }
+```
+
+_Caption:_ Wrapping Effects in custom Hooks
+
+**Middle Code Snippet (Fetching Data with Effects):**
+
+```javascript
+1  import { useState, useEffect } from 'react';
+2  import { fetchBio } from './api.js';
+3
+4  export default function Page() {
+5    const [person, setPerson] = useState('Alice');
+6    const [bio, setBio] = useState(null);
+7
+8    useEffect(() => {
+9      let ignore = false;
+10     fetchBio(person).then(result => {
+11       if (!ignore) {
+12         setBio(result);
+13       }
+14     });
+15     return () => {
+16       ignore = true;
+17     };
+18   }, [person]);
+19
+20   // ...
+21 }
+```
+
+**Right Code Snippet (Controlling a Non-React Widget):**
+
+```javascript
+1  import { useRef, useEffect } from 'react';
+2  import { MapWidget } from './map-widget.js';
+3
+4  export default function Map({ zoom }) {
+5    const containerRef = useRef(null);
+6    const mapRef = useRef(null);
+7
+8    useEffect(() => {
+9      if (mapRef.current === null) {
+10       mapRef.current = new MapWidget(containerRef.current);
+11     }
+12     const map = mapRef.current;
+13     map.setZoom(zoom);
+14   }, [zoom]);
+15
+16   return (
+17     <div
+18       style={{ width: 200, height: 200 }}
+19       ref={containerRef}
+20     />
+21   );
+22 }
+```
+
+_Caption:_ Controlling a non-React widget
+
+### useEffect - Reference/Usage.
+
+The image displays three code snippets demonstrating different dependency array configurations for the `useEffect` Hook in React, which control when the effect runs.
+
+**Top Left Code Snippet (No Dependency Array):**
+
+```javascript
+1  useEffect(() => {
+2    // Runs on every render
+3  });
+```
+
+**Top Right Code Snippet (Empty Dependency Array):**
+
+```javascript
+1  useEffect(() => {
+2    // Runs only on the first render
+3  }, []);
+```
+
+**Bottom Code Snippet (With Dependencies):**
+
+```javascript
+1  useEffect(() => {
+2    // Runs on the first render
+3    // And any time any dependency value changes
+3  }, [prop, state]);
+```
+
+### The Difference Between useEffect and useLayoutEffect
+
+`useEffect` runs _asynchronously_ and after a render is painted to the screen.
+
+So that looks like:
+
+1.  You cause a render somehow (change state, or the parent re-renders)
+2.  React renders your component (calls it)
+3.  The screen is visually updated
+4.  THEN `useEffect` runs
+
+`useLayoutEffect`, on the other hand, runs _synchronously_ after a render but before the screen is updated. That goes:
+
+1.  You cause a render somehow (change state, or the parent re-renders)
+2.  React renders your component (calls it)
+3.  `useLayoutEffect` runs, and React waits for it to finish.
+4.  The screen is visually updated
+
+### Performance Hooks
+
+Here are four code examples demonstrating React's Performance Hooks: `useMemo`, `useCallback`, `useTransition`, and `useDeferredValue`.
+
+**useMemo Example:**
+
+```javascript
+1  import { useMemo } from 'react';
+2
+3  function TodoList({ todos, tab }) {
+4    const visibleTodos = useMemo(
+5      () => filterTodos(todos, tab),
+6      [todos, tab]
+7    );
+8    // ...
+9  }
+```
+
+**useCallback Example:**
+
+```javascript
+1  import { useCallback } from 'react';
+2
+3  export default function ProductPage({ productId, referrer, theme }) {
+4    const handleSubmit = useCallback((orderDetails) => {
+5      post('/product/' + productId + '/buy', {
+6        referrer,
+7        orderDetails,
+8      });
+9    }, [productId, referrer]);
+10 }
+```
+
+**useTransition Example:**
+
+```javascript
+1  import { useTransition } from 'react';
+2
+3  function TabContainer() {
+4    const [isPending, startTransition] = useTransition();
+5    // ...
+6  }
+```
+
+**useDeferredValue Example:**
+
+```javascript
+1  import { useState, useDeferredValue } from 'react';
+2
+3  function SearchPage() {
+4    const [query, setQuery] = useState('');
+5    const deferredQuery = useDeferredValue(query);
+6    // ...
+7  }
+```
+
+### useMemo - Reference/Usage.
+
+The image outlines four key usages for the `useMemo` Hook:
+
+- Skipping expensive recalculations
+- Skipping re-rendering of components
+- Memoizing a dependency of another Hook
+- Memoizing a function
+
+### useMemo - Reference/Usage.
+
+The image shows a code comparison illustrating the use of `useMemo` to memoize a dependency of another Hook.
+
+#### Original Code (Left Panel):
+
+```javascript
+ 1  function Dropdown({ allItems, text }) {
+ 2    const searchOptions = { matchMode: 'Whole-word', text };
+ 3
+ 4    const visibleItems = useMemo(() => {
+ 5      return searchItems(allItems, searchOptions);
+ 6    }, [allItems, searchOptions]); // 🚩 Caution: Dependency on an object created in the component body
+ 7    // ...
+```
+
+- **Line 2**: `searchOptions` is an object created directly within the component body.
+- **Line 6**: `searchOptions` is listed as a dependency for `useMemo`. Because `searchOptions` is a new object on every render (even if its content is shallowly equal), this can cause `useMemo` to re-run unnecessarily.
+
+#### Improved Code (Right Panel):
+
+```javascript
+ 1  function Dropdown({ allItems, text }) {
+ 2    const visibleItems = useMemo(() => {
+ 3      const searchOptions = { matchMode: 'Whole-word', text };
+ 4      return searchItems(allItems, searchOptions);
+ 5    }, [allItems, text]); // ✅ Only changes when allItems or text changes
+ 6    // ...
+```
+
+- **Line 3**: The `searchOptions` object is now created _inside_ the `useMemo` callback function.
+- **Line 5**: The dependencies for `useMemo` are now `allItems` and `text`. Since `searchOptions` is derived solely from these props, and `allItems` and `text` are primitive values (or referentially stable objects), `useMemo` will only re-calculate `visibleItems` when `allItems` or `text` actually change, preventing unnecessary re-runs.
+
+### useMemo - Troubleshooting.
+
+This image displays common issues and their solutions when using the `useMemo` React hook.
+
+#### Issue 1: useMemo call is supposed to return an object, but returns `undefined`.
+
+**Incorrect Usage (Left Panel - Top):**
+
+```javascript
+1 // ❌ You can't return an object from an arrow function with () => {
+2 const searchOptions = useMemo(() => {
+3  matchMode: 'whole-word',
+4  text: text
+5 }, [text]);
+```
+
+- **Problem**: When using an arrow function with a block body (`{}`), you must explicitly use the `return` keyword to return an object. Without `return`, the object literal `{ matchMode: 'whole-word', text: text }` is interpreted as a block of code, and since nothing is explicitly returned, the function implicitly returns `undefined`.
+
+**Correct Usage (Right Panel - Top - Option 1: Implicit Return):**
+
+```javascript
+1 // ✅ This works, but is easy for someone to break again
+2 const searchOptions = useMemo(() => ({
+3  matchMode: 'whole-word',
+4  text: text
+5 }), [text]);
+```
+
+- **Solution**: Wrap the object literal in parentheses `()` to implicitly return it from the arrow function. This works but can be less readable for complex objects.
+
+**Correct Usage (Right Panel - Middle - Option 2: Explicit Return):**
+
+```javascript
+1 // ✅ This works and is explicit
+2 const searchOptions = useMemo(() => {
+3  return {
+4    matchMode: 'whole-word',
+5    text: text
+6  };
+7 }, [text]);
+```
+
+- **Solution**: Use the `return` keyword explicitly inside the arrow function's block body. This is generally more explicit and readable, especially for larger objects or more complex logic.
+
+#### Issue 2: Every time my component renders, the calculation in `useMemo` re-runs.
+
+**Incorrect Usage (Left Panel - Bottom):**
+
+```javascript
+1 function TodoList({ todos, tab }) {
+2  // 🔴 Recalculates every time: no dependency array
+3  const visibleTodos = useMemo(() => filterTodos(todos, tab));
+4  // ...
+```
+
+- **Problem**: If `useMemo` is called without a dependency array, it will re-run its calculation on every single render of the component, effectively defeating the purpose of memoization.
+
+**Correct Usage (Right Panel - Bottom):**
+
+```javascript
+1 function TodoList({ todos, tab }) {
+2  // ✅ Does not recalculate unnecessarily
+3  const visibleTodos = useMemo(() => filterTodos(todos, tab), [todos, tab]);
+4  // ...
+```
+
+- **Solution**: Provide a dependency array to `useMemo` that includes all values from the component's scope that are used within the `useMemo` callback (`todos` and `tab` in this case). This ensures the memoized value is only re-calculated when one of its dependencies changes.
+
+### useMemo - Troubleshooting.
+
+This image illustrates a common anti-pattern when using `useMemo` inside loops and provides the correct way to handle such scenarios.
+
+#### Issue: Calling useMemo for each list item in a loop is not allowed.
+
+**Incorrect Usage (Left Panel):**
+
+```javascript
+ 1  function ReportList({ items }) {
+ 2    return (
+ 3      <article>
+ 4        {items.map(item => {
+ 5          // 🔴 You can't call useMemo in a loop like this:
+ 6          const data = useMemo(() => calculateReport(item), [item]);
+ 7          return (
+ 8            <figure key={item.id}>
+ 9              <Chart data={data} />
+10            </figure>
+11          );
+12        })}
+13      </article>
+14    );
+15  }
+```
+
+- **Problem**: React Hooks (including `useMemo`) must be called at the top level of a function component. Calling `useMemo` inside a loop, a conditional statement, or a nested function breaks the Rules of Hooks, leading to unpredictable behavior and potential errors. This is because React relies on the consistent order of Hook calls across renders.
+
+**Correct Usage (Right Panel):**
+
+```javascript
+ 1  function ReportList({ items }) {
+ 2    return (
+ 3      <article>
+ 4        {items.map(item => (
+ 5          <ReportItem key={item.id} item={item} />
+ 6        ))}
+ 7      </article>
+ 8    );
+ 9  }
+10
+11  function ReportItem({ item }) {
+12    // ✅ Call useMemo at the top level:
+13    const data = useMemo(() => calculateReport(item), [item]);
+14    return (
+15      <figure>
+16        <Chart data={data} />
+17      </figure>
+18    );
+19  }
+```
+
+- **Solution**: Extract the logic that needs `useMemo` into a separate child component (`ReportItem` in this example). Each instance of `ReportItem` then becomes a distinct function component, allowing `useMemo` to be called at its top level, adhering to the Rules of Hooks. This way, `useMemo` correctly memoizes `data` for each individual `item` only when that specific `item` changes.
+
+### useCallback - Reference/Usage.
+
+The image provides an overview of `useCallback` usage and a code example.
+
+#### Usage:
+
+- Skipping re-rendering of components
+- Updating state from a memoized callback
+- Preventing an Effect from firing too often
+- Optimizing a custom Hook
+
+#### Code Example:
+
+```javascript
+1 import { useCallback } from 'react';
+2
+3 export default function ProductPage({ productId, referrer, theme }) {
+4   const handleSubmit = useCallback((orderDetails) => {
+5     post('/product/' + productId + '/buy', {
+6       referrer,
+7       orderDetails,
+8     });
+9   }, [productId, referrer]);
+```
+
+- **Line 1**: Imports the `useCallback` Hook from `react`.
+- **Line 3**: Defines a functional component `ProductPage` that receives `productId`, `referrer`, and `theme` as props.
+- **Line 4**: `handleSubmit` is memoized using `useCallback`. This means the `handleSubmit` function reference will remain the same between renders as long as its dependencies (`productId` and `referrer`) do not change.
+- **Lines 5-8**: The callback function itself makes a `post` request to a product buying endpoint, including the `productId`, `referrer`, and `orderDetails`.
+- **Line 9**: The dependency array `[productId, referrer]` tells `useCallback` to only re-create the `handleSubmit` function if `productId` or `referrer` changes. This is crucial for performance optimization, especially when passing this callback down to child components that might re-render unnecessarily if the function reference changes every time.
+
+### useCallback - Reference/Usage.
+
+This image demonstrates two common use cases for `useCallback`: updating state from a memoized callback and preventing an effect from firing too often.
+
+#### Use Case 1: Updating state from a memoized callback
+
+**Original Code (Left Panel - Top):**
+
+```javascript
+1  function TodoList() {
+2    const [todos, setTodos] = useState([]);
+3
+4    const handleAddTodo = useCallback((text) => {
+5      const newTodo = { id: nextId(), text };
+6      setTodos([...todos, newTodo]);
+7    }, [todos]); // 🔴 Problem: 'todos' dependency
+8    // ...
+```
+
+- **Problem**: In this scenario, `todos` is a dependency in `useCallback`. When `setTodos` is called, `todos` changes, which in turn causes `handleAddTodo` to be re-created on every render. This defeats the purpose of memoizing `handleAddTodo` if it's meant to be a stable function for child components.
+
+**Improved Code (Right Panel - Top):**
+
+```javascript
+1  function TodoList() {
+2    const [todos, setTodos] = useState([]);
+3
+4    const handleAddTodo = useCallback((text) => {
+5      const newTodo = { id: nextId(), text };
+6      setTodos(todos => [...todos, newTodo]); // ✅ No need for the todos dependency
+7    }, []);
+8    // ...
+```
+
+- **Solution**: By using the functional update form of `setTodos` (`setTodos(todos => [...todos, newTodo])`), you can access the latest `todos` state _inside_ the `setTodos` callback without needing `todos` as a dependency for `useCallback`. This allows `handleAddTodo` to have an empty dependency array (`[]`), ensuring it remains stable across renders.
+
+#### Use Case 2: Preventing an Effect from firing too often
+
+**Original Code (Left Panel - Bottom):**
+
+```javascript
+ 1  function ChatRoom({ roomId }) {
+ 2    const [message, setMessage] = useState('');
+ 3
+ 4    function createOptions() {
+ 5      return {
+ 6        serverUrl: 'https://localhost:1234',
+ 7        roomId: roomId
+ 8      };
+ 9    }
+10
+11    useEffect(() => {
+12      const options = createOptions();
+13      const connection = createConnection(options);
+14      connection.connect();
+15      return () => connection.disconnect();
+16    }, [createOptions]); // 🔴 Problem: This dependency changes on every render
+17    // ...
+```
+
+- **Problem**: `createOptions` is a function defined inside the component. Because functions are re-created on every render, `createOptions` changes on every render. When `createOptions` is listed as a dependency in `useEffect`, it causes the effect to re-run unnecessarily every time the component renders, leading to potential performance issues (e.g., re-connecting to a chat server).
+
+**Improved Code (Right Panel - Bottom):**
+
+```javascript
+ 1  function ChatRoom({ roomId }) {
+ 2    const [message, setMessage] = useState('');
+ 3
+ 4    const createOptions = useCallback(() => {
+ 5      return {
+ 6        serverUrl: 'https://localhost:1234',
+ 7        roomId: roomId
+ 8      };
+ 9    }, [roomId]); // ✅ Only changes when roomId changes
+10
+11    useEffect(() => {
+12      const options = createOptions();
+13      const connection = createConnection(options);
+14      connection.connect();
+15      return () => connection.disconnect();
+16    }, [createOptions]); // ✅ Only changes when createOptions changes
+17    // ...
+```
+
+- **Solution**: Wrap the `createOptions` function with `useCallback`. Now, `createOptions` itself is memoized and only re-created when its own dependency (`roomId`) changes. As a result, the `useEffect`'s dependency (`createOptions`) will only change when `roomId` changes, preventing the effect from unnecessarily re-running on every render.
+
+### useCallback - Troubleshooting.
+
+This image illustrates a common issue when using `useCallback` without a dependency array and its correct implementation.
+
+#### Issue: Every time my component renders, `useCallback` returns a different function.
+
+**Incorrect Usage (Left Panel):**
+
+```javascript
+1  function ProductPage({ productId, referrer }) {
+2    const handleSubmit = useCallback((orderDetails) => {
+3      post('/product/' + productId + '/buy', {
+4        referrer,
+5        orderDetails,
+6      });
+7    }); // 🔴 Returns a new function every time: no dependency array
+8    // ...
+```
+
+- **Problem**: When `useCallback` is called without a dependency array (the second argument), it will return a _new_ memoized function on every render. This defeats the purpose of `useCallback`, which is to memoize the function reference to prevent unnecessary re-renders of child components that receive this function as a prop, or to prevent effects from re-running.
+
+**Correct Usage (Right Panel):**
+
+```javascript
+1  function ProductPage({ productId, referrer }) {
+2    const handleSubmit = useCallback((orderDetails) => {
+3      post('/product/' + productId + '/buy', {
+4        referrer,
+5        orderDetails,
+6      });
+7    }, [productId, referrer]); // ✅ Does not return a new function unnecessarily
+8    // ...
+```
+
+- **Solution**: Provide a dependency array to `useCallback` that includes all values from the component's scope that are used within the callback function (`productId` and `referrer` in this example). By doing so, `useCallback` will only return a new function instance if any of its dependencies change. This ensures the function reference remains stable across renders, optimizing performance.
+
+### useCallback - Troubleshooting.
+
+This image addresses a common mistake of calling `useCallback` inside a loop and presents the correct way to handle such a scenario.
+
+#### Issue: Calling useCallback for each list item in a loop is not allowed.
+
+**Incorrect Usage (Left Panel):**
+
+```javascript
+ 1  function ReportList({ items }) {
+ 2    return (
+ 3      <article>
+ 4        {items.map(item => {
+ 5          // 🔴 You can't call useCallback in a loop like this:
+ 6          const handleClick = useCallback(() => {
+ 7            sendReport(item);
+ 8          }, [item]);
+ 9
+10          return (
+11            <figure key={item.id}>
+12              <Chart onClick={handleClick} />
+13            </figure>
+14          );
+15        })}
+16      </article>
+17    );
+18  }
+```
+
+- **Problem**: React Hooks (including `useCallback`) must be called at the top level of a function component. Calling `useCallback` inside a loop, a conditional statement, or a nested function violates the Rules of Hooks. This can lead to unpredictable behavior, bugs, and React being unable to correctly manage the state of your hooks across renders.
+
+**Correct Usage (Right Panel):**
+
+```javascript
+ 1  function ReportList({ items }) {
+ 2    return (
+ 3      <article>
+ 4        {items.map(item => (
+ 5          <Report key={item.id} item={item} />
+ 6        ))}
+ 7      </article>
+ 8    );
+ 9  }
+10
+11  function Report({ item }) {
+12    // ✅ Call useCallback at the top level:
+13    const handleClick = useCallback(() => {
+14      sendReport(item);
+15    }, [item]);
+16
+17    return (
+18      <figure>
+19        <Chart onClick={handleClick} />
+20      </figure>
+21    );
+22  }
+```
+
+- **Solution**: To use `useCallback` effectively for items within a list, extract the list item's rendering logic into a separate child component (`Report` in this example). This allows `handleClick` to be defined and memoized using `useCallback` at the top level of the `Report` component. Each `Report` instance will have its own stable `handleClick` function, preventing unnecessary re-renders of the `Chart` component.
+
+### useMemo vs useCallback
+
+This image compares the usage of `useMemo` and `useCallback` for memoizing functions within React components.
+
+#### useMemo for Memoizing a Function (Left Panel):
+
+```javascript
+ 1  export default function Page({ productId, referrer }) {
+ 2    const handleSubmit = useMemo(() => {
+ 3      return (orderDetails) => {
+ 4        post('/product/' + productId + '/buy', {
+ 5          referrer,
+ 6          orderDetails
+ 7        });
+ 8      };
+ 9    }, [productId, referrer]);
+10
+11    return <Form onSubmit={handleSubmit} />;
+12  }
+```
+
+- **Purpose**: `useMemo` is used to memoize a _value_. In this case, the _value_ being memoized is a function.
+- **Explanation**: `useMemo`'s first argument is a function that returns the value you want to memoize. Here, it returns another function (`(orderDetails) => { ... }`).
+- **Dependencies**: The dependency array `[productId, referrer]` tells `useMemo` to re-execute its first argument (and thus create a new `handleSubmit` function) only when `productId` or `referrer` changes.
+- **Syntax**: Notice the outer `() => { return ... }` structure, where the inner `return` explicitly returns the function to be memoized.
+
+#### useCallback for Memoizing a Function (Right Panel):
+
+```javascript
+ 1  export default function Page({ productId, referrer }) {
+ 2    const handleSubmit = useCallback((orderDetails) => {
+ 3      post('/product/' + productId + '/buy', {
+ 4        referrer,
+ 5        orderDetails
+ 6      });
+ 7    }, [productId, referrer]);
+ 8
+ 9    return <Form onSubmit={handleSubmit} />;
+10  }
+```
+
+- **Purpose**: `useCallback` is specifically designed to memoize a _function_. It directly returns the memoized function.
+- **Explanation**: `useCallback`'s first argument is the function you want to memoize.
+- **Dependencies**: Similar to `useMemo`, the dependency array `[productId, referrer]` dictates when the memoized `handleSubmit` function should be re-created.
+- **Syntax**: `useCallback` takes the function directly as its first argument, making the syntax more concise when the goal is to memoize a function.
+
+#### Key Difference:
+
+- **`useMemo`** memoizes the _result of a computation_, which can be anything, including a function.
+- **`useCallback`** specifically memoizes a _function definition_ itself.
+
+In essence, `useCallback(fn, deps)` is equivalent to `useMemo(() => fn, deps)`. For memoizing functions, `useCallback` is generally preferred because it's more semantically clear and often leads to slightly cleaner code. Both serve the purpose of preventing unnecessary re-creation of functions, which can help optimize performance by preventing child components from re-rendering if they receive memoized callbacks as props.
+
+### Other Hooks
+
+This image introduces several other React Hooks beyond `useMemo` and `useCallback`, along with their typical use cases.
+
+#### useId
+
+```javascript
+1 import { useId } from 'react';
+2
+3 function PasswordField() {
+4   const passwordHintId = useId();
+5   // ...
+```
+
+- **Purpose**: `useId` is a Hook for generating unique IDs that can be passed to accessibility attributes.
+- **Explanation**: In the `PasswordField` component, `useId()` is called to generate a unique `passwordHintId`. This ID can then be used to link a label to an input field, or to associate an input with a hint for screen readers, ensuring accessibility without conflicts when multiple instances of the component are rendered.
+
+#### useSyncExternalStore
+
+```javascript
+1 import { useSyncExternalStore } from 'react';
+2 import { todosStore } from './todoStore.js';
+3
+4 function TodosApp() {
+5   const todos = useSyncExternalStore(todosStore.subscribe, todosStore.getSnapshot);
+6   // ...
+7 }
+```
+
+- **Purpose**: `useSyncExternalStore` is a Hook for subscribing to an external store that is not managed by React's state. It ensures that the component re-renders when the external store changes, and that the value from the store is always consistent.
+- **Explanation**: In the `TodosApp` component, it subscribes to `todosStore`. `todosStore.subscribe` is the function that registers callbacks for store changes, and `todosStore.getSnapshot` is the function that reads the current value from the store. This hook ensures that the `todos` variable is always up-to-date with the external `todosStore`.
+
+#### useDebugValue
+
+```javascript
+1 import { useDebugValue } from 'react';
+2
+3 function useOnlineStatus() {
+4   // ...
+5   useDebugValue(isOnline ? 'Online' : 'Offline');
+6   // ...
+7 }
+```
+
+- **Purpose**: `useDebugValue` is a Hook that can be used to display a label for custom Hooks in React DevTools.
+- **Explanation**: In the `useOnlineStatus` custom Hook, `useDebugValue` is called with a string indicating whether the user is 'Online' or 'Offline' based on the `isOnline` state.
+- **DevTools Screenshot**: The accompanying screenshot of React DevTools shows how this debug value appears. Under the "hooks" section for a component using `useOnlineStatus`, it displays "OnlineStatus: " followed by the debug value ("Online" in this case), making it easier to inspect the state of custom hooks during development.
+
+### Custom Hooks
+
+```
+function useOnlineStatus() {
+  const [isOnline, setIsOnline] = useState(true);
+
+  useEffect(() => {
+    function handleOnline() {
+      setIsOnline(true);
+    }
+    function handleOffline() {
+      setIsOnline(false);
+    }
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  return isOnline;
+}
+```
+
+#### Usage:
+
+- Custom Hooks let you share logic between components.
+- Custom Hooks must be named starting with `use` followed by a capital letter.
+- Custom Hooks only share stateful logic, not state itself.
+- You can pass reactive values from one Hook to another, and they stay up-to-date.
+- All Hooks re-run every time your component re-renders.
+- The code of your custom Hooks should be pure, like your component’s code.
+- Wrap event handlers received by custom Hooks into Effect Events.
+- It’s up to you how and where to choose the boundaries of your code.
+
+### Custom Hooks
+
+#### 💡 Custom Hooks let you share stateful logic, not state itself
+
+```
+function StatusBar() {
+  const isOnline = useOnlineStatus();
+  // ...
+}
+
+function SaveButton() {
+  const isOnline = useOnlineStatus();
+  // ...
+}
+```
+
+#### 🔁 Without a Custom Hook (duplicated logic)
+
+```
+function StatusBar() {
+  const [isOnline, setIsOnline] = useState(true);
+  useEffect(() => {
+    // ...
+  }, []);
+  // ...
+}
+
+function SaveButton() {
+  const [isOnline, setIsOnline] = useState(true);
+  useEffect(() => {
+    // ...
+  }, []);
+  // ...
+}
+```

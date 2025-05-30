@@ -1,0 +1,910 @@
+# React API
+
+## Refs
+
+Refs provide a way to access DOM nodes or React elements created in the render method.
+
+In the typical React dataflow, `props` are the only way that parent components interact with their children. To modify a child, you re-render it with new props. However, there are a few cases where you need to imperatively modify a child outside of the typical dataflow. The child to be modified could be an instance of a React component, or it could be a DOM element. For both of these cases, React provides an escape hatch.
+
+### When to Use Refs
+
+There are a few good use cases for refs:
+
+- Managing focus, text selection, or media playback.
+- Triggering imperative animations.
+- Integrating with third-party DOM libraries.
+
+Avoid using refs for anything that can be done declaratively.
+
+For example, instead of exposing `open()` and `close()` methods on a Dialog component, pass an `isOpen` prop to it.
+
+### Creating Refs
+
+`useRef` is a React Hook that lets you reference a value that’s not needed for rendering.
+
+`initialValue`: The value you want the ref object’s `current` property to be initially. It can be a value of any type. This argument is ignored after the initial render.
+
+`useRef` returns an object with a single property: `current`. Initially, it’s set to the `initialValue` you have passed. You can later set it to something else. If you pass the ref object to React as a `ref` attribute to a JSX node, React will set its `current` property.
+
+```javascript
+const ref = useRef(initialValue);
+```
+
+### Examples
+
+**COUNTER COMPONENT**
+
+```javascript
+import { useRef } from 'react';
+
+export default function Counter() {
+  let ref = useRef(0);
+
+  function handleClick() {
+    ref.current = ref.current + 1;
+    alert('You clicked ' + ref.current + ' times!');
+  }
+
+  return <button onClick={handleClick}>Click me!</button>;
+}
+```
+
+**FOCUS INPUT ON BUTTON CLICK**
+
+```javascript
+import { useRef } from 'react';
+
+export default function Form() {
+  const inputRef = useRef(null);
+
+  function handleClick() {
+    inputRef.current.focus();
+  }
+
+  return (
+    <>
+      <input ref={inputRef} />
+      <button onClick={handleClick}>Focus the input</button>
+    </>
+  );
+}
+```
+
+### Forwarding Refs
+
+React `forwardRef` lets your component expose a DOM node to parent component with a ref.
+
+```javascript
+React.forwardRef(renderFunction);
+
+renderFunction = (props, ref) => (
+  <button ref={ref} className='FancyButton'>
+    {props.children}
+  </button>
+);
+```
+
+#### Why do we need `forwardRef`?
+
+**Forwarding Refs in React**
+
+This image depicts a conceptual diagram illustrating the relationship between a Parent Component and a Child Component when forwarding refs in React.
+
+- The outer red box represents the **Parent Component**.
+- The inner green box represents the **Child Component**.
+- Inside the Child Component, there is an input field labeled "Name:" and a button labeled "Click!".
+
+This diagram suggests a scenario where the Parent Component might need to interact directly with a DOM element (like the "Name" input field or the "Click!" button) that is rendered by the Child Component, which is precisely what `forwardRef` facilitates.
+
+```javascript
+const FancyButton = React.forwardRef((props, ref) => (
+  <button ref={ref} className='FancyButton'>
+    {props.children}
+  </button>
+));
+
+// You can now get a ref directly to the DOM button:
+const ref = React.createRef();
+<FancyButton ref={ref}>Click me!</FancyButton>;
+```
+
+This way, components using `FancyButton` can get a ref to the underlying `button` DOM node and access it if necessary—just like if they used a DOM button directly.
+
+Here is a step-by-step explanation of what happens in the above example:
+
+1. We create a React ref by calling `React.createRef` and assign it to a `ref` variable.
+2. We pass our `ref` down to `<FancyButton ref={ref}>` by specifying it as a JSX attribute.
+3. React passes the `ref` to the `(props, ref) => ...` function inside `forwardRef` as a second argument.
+4. We forward this `ref` argument down to `<button ref={ref}>` by specifying it as a JSX attribute.
+5. When the ref is attached, `ref.current` will point to the `<button>` DOM node.
+
+### Forwarding a ref through multiple components
+
+Instead of forwarding a ref to a DOM node, you can forward it to your own component like `MyInput`:
+
+```javascript
+function Form() {
+  const ref = useRef(null);
+
+  function handleClick() {
+    ref.current.focus();
+  }
+
+  return (
+    <form>
+      <FormField label='Enter your name:' ref={ref} isRequired={true} />
+      <button type='button' onClick={handleClick}>
+        Edit
+      </button>
+    </form>
+  );
+}
+```
+
+If that `MyInput` component forwards a ref to its `<input>`, a ref to `FormField` will give you that `<input>`:
+
+```javascript
+const FormField = forwardRef(function FormField(props, ref) {
+  // ...
+  return (
+    <>
+      <MyInput ref={ref} />
+    </>
+  );
+});
+```
+
+## Fragments
+
+A common pattern in React is for a component to return multiple elements. Fragments let you group a list of children without adding extra nodes to the DOM.
+
+`<Fragment>`, often used via `<>...</>` syntax, lets you group elements without a wrapper node.
+
+```javascript
+function Form() {
+  const ref = useRef(null);
+
+  function handleClick() {
+    ref.current.focus();
+  }
+
+  return (
+    <form>
+      <FormField label='Enter your name:' ref={ref} isRequired={true} />
+      <button type='button' onClick={handleClick}>
+        Edit
+      </button>
+    </form>
+  );
+}
+```
+
+```javascript
+const FormField = forwardRef(function FormField(props, ref) {
+  // ...
+  return (
+    <>
+      <MyInput ref={ref} />
+    </>
+  );
+});
+```
+
+### Key property in Fragments
+
+If you want to pass `key` to a Fragment, you can't use the `<>...</>` syntax. You have to explicitly import `Fragment` from 'react' and render `<Fragment key={yourKey}>...</Fragment>`.
+
+```javascript
+<Fragment key={yourKey}>...</Fragment>
+```
+
+## Portals
+
+Portals provide a first-class way to render children into a DOM node that exists outside the DOM hierarchy of the parent component.
+
+`createPortal` lets you render some children into a different part of the DOM.
+
+```javascript
+import { createPortal } from 'react-dom';
+
+// ...
+<div>
+  <p>This child is placed in the parent div.</p>
+  {createPortal(
+    <p>This child is placed in the document body.</p>, // children
+    document.body, // dom node
+  )}
+</div>;
+```
+
+### Portals usage
+
+You can use a portal to create a modal dialog that floats above the rest of the page, even if the component that contains the dialog is inside a container with `overflow: hidden` or other styles that interfere with the dialog.
+
+```javascript
+import { useState } from 'react';
+import { createPortal } from 'react-dom';
+import ModalContent from './ModalContent.js';
+
+export default function PortalExample() {
+  const [showModal, setShowModal] = useState(false);
+  return (
+    <>
+      <button onClick={() => setShowModal(true)}>
+        Show modal using a portal
+      </button>
+      {showModal &&
+        createPortal(
+          <ModalContent onClose={() => setShowModal(false)} />,
+          document.body,
+        )}
+    </>
+  );
+}
+```
+
+## Context
+
+Usually, you will pass information from a parent component to a child component via props. But passing props can become **verbose and inconvenient if you have to pass them through many components in the middle**, or if many components in your app need the same information. **Context lets the parent component make some information available to any component in the tree below it—no matter how deep—without passing it explicitly through props.**
+
+Passing props is a great way to explicitly pipe data through your UI tree to the components that use it. Passing props manually in depth of components can lead to a situation called "prop drilling".
+
+### Prop drilling
+
+The image on the right illustrates "Prop drilling" with a hierarchical diagram. Information flows down from a parent component through several layers of child components.
+
+### Context
+
+Context provides a way to pass data through the component tree without having to pass props down manually at every level.
+
+The image displays two diagrams comparing "prop drilling" and "context API" for data passing in a component tree:
+
+- **Prop drilling:** Data flows from a "Data" cloud to a "Container Component," which then explicitly passes props down to "Child Component"s, and further down to more "Child Component"s. This illustrates the manual, multi-level passing of data.
+- **Context API:** Data flows from a "Data" cloud to a "Container Component." An encompassing "Context" layer then allows the "Container Component" to make the data available to all "Child Component"s within its scope, regardless of their depth, without explicit prop passing at each level.
+
+### Context API
+
+This section describes the usage of the Context API in React.
+
+- `const MyContext = React.createContext(defaultValue);`
+  - `createContext` lets you create a context that components can provide or read.
+- `<MyContext.Provider value={/* some value */}></MyContext.Provider>`
+  - Wrap your components into a context provider to specify the value of this context for all components inside.
+- `<MyContext.Consumer>{value => /* render something based on the context value */}</MyContext.Consumer>`
+  - Before `useContext` existed, there was an older way to read context:
+  - Although this older way still works, but newly written code should read context with `useContext()` instead.
+- `const MyContext = React.createContext(/* some value */);`
+- `MyContext.displayName = 'MyDisplayName';`
+  - Used to distinguish components in dev tools.
+- `<MyContext.Provider> // "MyDisplayName.Provider" in DevTools`
+- `<MyContext.Consumer> // "MyDisplayName.Consumer" in DevTools`
+
+### useContext
+
+`useContext` is a React Hook that lets you read and subscribe to context from your component.
+
+`useContext` returns the context value for the context you passed. To determine the context value, React searches the component tree and finds the closest context provider above for that particular context.
+
+The image also provides code examples for `useContext`:
+
+```javascript
+import { useContext } from 'react';
+
+function Button() {
+  const theme = useContext(ThemeContext);
+  // ...
+}
+```
+
+This first example shows how to import and use `useContext` within a `Button` component to access a `ThemeContext`.
+
+```javascript
+function MyPage() {
+  return (
+    <ThemeContext.Provider value='dark'>
+      <Form />
+    </ThemeContext.Provider>
+  );
+}
+
+function Form() {
+  // ... renders buttons inside ...
+}
+```
+
+The second example illustrates a `MyPage` component providing a "dark" value to `ThemeContext.Provider`, and a `Form` component (which would contain buttons that might use this context) rendered within it.
+
+### useContext example
+
+```
+const themes = {
+  light: {
+    foreground: "#000000",
+    background: "#eeeeee"
+  },
+  dark: {
+    foreground: "#ffffff",
+    background: "#222222"
+  }
+};
+
+const ThemeContext = React.createContext(themes.light);
+
+function App() {
+  return (
+    <ThemeContext.Provider value={themes.dark}>
+      <Toolbar />
+    </ThemeContext.Provider>
+  );
+}
+
+function Toolbar(props) {
+  return (
+    <div>
+      <ThemedButton />
+    </div>
+  );
+}
+
+function ThemedButton() {
+  const theme = useContext(ThemeContext);
+  return (
+    <button style={{ background: theme.background, color: theme.foreground }}>
+      I am styled by theme context!
+    </button>
+  );
+}
+```
+
+### Without context
+
+Let's say you want multiple headings within the same Section to always have the same size.
+
+Currently, you pass the `level` prop to each `<Heading>` separately.
+
+It would be nice if you could pass the `level` prop to the `<Section>` component instead and remove it from the `<Heading>`. This way you could enforce that all headings in the same section have the same size.
+
+The image shows two code snippets illustrating this concept:
+
+The first, smaller snippet shows the current approach:
+
+```javascript
+<Section level={3}>
+  <Heading>About</Heading>
+  <Heading>Photos</Heading>
+  <Heading>Videos</Heading>
+</Section>
+```
+
+The second, larger snippet demonstrates a more complex component structure where `Heading` components within different `Section` components receive explicit `level` props:
+
+```javascript
+import Heading from './Heading.js';
+import Section from './Section.js';
+
+export default function Page() {
+  return (
+    <Section>
+      <Heading level={1}>Title</Heading>
+      <Section>
+        <Heading level={2}>Heading</Heading>
+        <Heading level={2}>Heading</Heading>
+        <Heading level={2}>Heading</Heading>
+        <Section>
+          <Heading level={3}>Sub-heading</Heading>
+          <Heading level={3}>Sub-heading</Heading>
+          <Heading level={3}>Sub-heading</Heading>
+          <Section>
+            <Heading level={4}>Sub-sub-heading</Heading>
+            <Heading level={4}>Sub-sub-heading</Heading>
+            <Heading level={4}>Sub-sub-heading</Heading>
+          </Section>
+        </Section>
+      </Section>
+    </Section>
+  );
+}
+```
+
+### With context
+
+First, you need to create the context. You'll need to export it from a file so that your components can use it:
+
+```javascript
+import { createContext } from 'react';
+
+export const LevelContext = createContext(1);
+```
+
+Wrap `Section` component with a context provider to provide the `LevelContext` to them:
+
+```javascript
+import { LevelContext } from './LevelContext.js';
+
+export default function Section({ level, children }) {
+  return (
+    <section className='section'>
+      <LevelContext.Provider value={level}>{children}</LevelContext.Provider>
+    </section>
+  );
+}
+```
+
+### With context
+
+Import the `useContext` Hook from React and your context:
+
+`useContext` tells React that the `Heading` component wants to read the `LevelContext`.
+
+The image provides a code example for a `Heading` component using `useContext`:
+
+```javascript
+import { useContext } from 'react';
+import { LevelContext } from './LevelContext.js';
+
+export default function Heading({ children }) {
+  const level = useContext(LevelContext);
+  switch (level) {
+    case 1:
+      return <h1>{children}</h1>;
+    case 2:
+      return <h2>{children}</h2>;
+    case 3:
+      return <h3>{children}</h3>;
+    case 4:
+      return <h4>{children}</h4>;
+    case 5:
+      return <h5>{children}</h5>;
+    case 6:
+      return <h6>{children}</h6>;
+    default:
+      throw Error('Unknown level: ' + level);
+  }
+}
+```
+
+In this code:
+
+- The `Heading` component imports `useContext` and `LevelContext`.
+- It then uses `useContext(LevelContext)` to get the `level` value from the nearest `LevelContext.Provider` above it in the component tree.
+- A `switch` statement is used to render the appropriate HTML heading tag (`<h1>` to `<h6>`) based on the `level` obtained from the context.
+- If an unknown `level` is encountered, it throws an error.
+
+### With context
+
+It's the same result as without context, but you did not need to pass the `level` prop to each `Heading` component! Instead, it "figures out" its heading level by asking the closest `Section` above.
+
+The image provides a code example for a `Page` component, demonstrating how nested `Section` components can implicitly control the heading levels of their child `Heading` components through context:
+
+```javascript
+import Heading from './Heading.js';
+import Section from './Section.js';
+
+export default function Page() {
+  return (
+    <Section level={1}>
+      <Heading>Title</Heading>
+      <Section level={2}>
+        <Heading>Heading</Heading>
+        <Heading>Heading</Heading>
+        <Heading>Heading</Heading>
+        <Section level={3}>
+          <Heading>Sub-heading</Heading>
+          <Heading>Sub-heading</Heading>
+          <Heading>Sub-heading</Heading>
+          <Section level={4}>
+            <Heading>Sub-sub-heading</Heading>
+            <Heading>Sub-sub-heading</Heading>
+            <Heading>Sub-sub-heading</Heading>
+          </Section>
+        </Section>
+      </Section>
+    </Section>
+  );
+}
+```
+
+In this structure, each `Section` component sets a `level` prop, and the `Heading` components within them automatically inherit and use this `level` from the context, without needing an explicit `level` prop passed to each individual `Heading`.
+
+### Use cases for context
+
+- **Theming** - if your app lets the user change its appearance (e.g. dark mode), you can put a context provider at the top of your app.
+- **Current account** - many components might need to know the currently logged in user. Putting it in context makes it convenient to read it anywhere in the tree.
+- **Routing** - most routing solutions use context internally to hold the current route. This is how every link "knows" whether it's active or not. If you build your own router, you might want to do it too.
+
+## Code Splitting
+
+### import()`
+
+The image illustrates "Code Splitting" with a comparison of code "Before" and "After" using dynamic `import()`.
+
+**Before:**
+
+```javascript
+import { add } from './math';
+console.log(add(16, 26));
+```
+
+This shows a static import of the `add` function from a local `./math` module, meaning the `math` module is loaded synchronously at the beginning.
+
+**After:**
+
+```javascript
+import('./math').then((math) => {
+  console.log(math.add(16, 26));
+});
+```
+
+This demonstrates dynamic import using `import("./math")`. This syntax returns a Promise that resolves to the module object, allowing the `math` module to be loaded asynchronously and on demand. This is a common technique for code splitting, where parts of an application are loaded only when needed.
+
+### Code Splitting
+
+`lazy` lets you defer loading component's code until it is rendered for the first time.
+
+### React.lazy
+
+The image illustrates `React.lazy` for code splitting with "Before" and "After" code examples.
+
+**Before:**
+
+```javascript
+import OtherComponent from './OtherComponent';
+```
+
+This shows a standard static import, where `OtherComponent` is loaded immediately when its containing file is processed.
+
+**After:**
+
+```javascript
+const OtherComponent = React.lazy(() => import('./OtherComponent'));
+```
+
+This demonstrates the use of `React.lazy`. Here, `OtherComponent` is assigned the result of `React.lazy()`, which takes a function that returns a dynamic `import()` call. This means `OtherComponent`'s code will only be loaded when it's rendered for the first time, enabling lazy loading and improving initial load performance.
+
+### Lazy-loading components with Suspense
+
+When your component's code loads on demand, you also need to specify what should be displayed while it is loading. You can do this by wrapping the lazy component or any of its parents into a `<Suspense>` boundary:
+
+```javascript
+<Suspense fallback={<Loading />}>
+  <h2>Preview</h2>
+  <MarkdownPreview />
+</Suspense>
+```
+
+### React.lazy example
+
+The image provides a code example demonstrating the use of `React.lazy` and `Suspense` for lazy loading components in a React application:
+
+```javascript
+import React, { Suspense } from 'react';
+import Tabs from './Tabs';
+import Glimmer from './Glimmer';
+
+const Comments = React.lazy(() => import('./Comments'));
+const Photos = React.lazy(() => import('./Photos'));
+
+function MyComponent() {
+  const [tab, setTab] = React.useState('photos');
+
+  function handleTabSelect(tab) {
+    setTab(tab);
+  }
+
+  return (
+    <div>
+      <Tabs onTabSelect={handleTabSelect} />
+      <Suspense fallback={<Glimmer />}>
+        {tab === 'photos' ? <Photos /> : <Comments />}
+      </Suspense>
+    </div>
+  );
+}
+```
+
+In this example:
+
+- `Comments` and `Photos` components are lazy-loaded using `React.lazy()`. This means their code will only be fetched when they are actually rendered.
+- `MyComponent` manages a `tab` state, which determines whether to show `Photos` or `Comments`.
+- The `Suspense` component wraps the conditional rendering of `Photos` and `Comments`.
+- While either `Photos` or `Comments` is being loaded (i.e., its code is being fetched), the `fallback` prop of `Suspense` will display the `Glimmer` component. Once the respective component's code is loaded, it will be rendered.
+- A `Tabs` component (imported from `./Tabs`) is used to change the `tab` state, demonstrating how user interaction can trigger the loading of different lazy components.
+
+### React.lazy, Route-based code splitting
+
+The image displays a code example demonstrating route-based code splitting in a React application using `React.lazy` and `Suspense` along with `react-router-dom`.
+
+```javascript
+import React, { Suspense, lazy } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+const Home = lazy(() => import('./routes/Home'));
+const About = lazy(() => import('./routes/About'));
+
+const App = () => (
+  <Router>
+    <Suspense fallback={<div>Loading...</div>}>
+      <Routes>
+        <Route path='/' element={<Home />} />
+        <Route path='/about' element={<About />} />
+      </Routes>
+    </Suspense>
+  </Router>
+);
+```
+
+In this setup:
+
+- `Home` and `About` components are defined using `lazy(() => import(...))`. This ensures that the code for these components is only loaded when they are actually needed (i.e., when their respective routes are accessed).
+- The `App` component uses `BrowserRouter` (aliased as `Router`) to enable client-side routing.
+- A `Suspense` component wraps the `Routes` component. This `Suspense` boundary catches the Suspense thrown by `lazy` components while they are loading.
+- The `fallback` prop of `Suspense` provides a simple `<div>Loading...</div>` message to be displayed while the route components are being loaded.
+- `Routes` and `Route` from `react-router-dom` define the routing configuration. When the path is `/`, the `Home` component will be rendered, and when the path is `/about`, the `About` component will be rendered. Due to `React.lazy`, the code for `Home` or `About` will only be fetched and loaded when the user navigates to their respective routes.
+
+### memo
+
+`memo` lets you skip re-rendering a component when its props are unchanged.
+
+**Parameters:**
+
+- **Component:** The component that you want to memoize. The `memo` does not modify this component, but returns a new, memoized component instead. Any valid React component, including functions and `forwardRef` components, is accepted.
+- **optional `arePropsEqual`:** A function that accepts two arguments: the component's previous props, and its new props. It should return `true` if the old and new props are equal; that is, if the component will render the same output and behave in the same way with the new props as with the old. Otherwise, it should return `false`. Usually, you will not specify this function. By default, React will compare each prop with `Object.is`.
+
+The image also shows a code snippet demonstrating the usage of `memo`:
+
+```javascript
+const MemoizedComponent = memo(SomeComponent, arePropsEqual?);
+```
+
+React normally re-renders a component whenever its parent re-renders. With `memo`, you can create a component that React will not re-render when its parent re-renders so long as its new props are the same as the old props. Such a component is said to be memoized. To memoize a component, wrap it in `memo` and use the value that it returns in place of your original component:
+
+```javascript
+const Greeting = memo(function Greeting({ name }) {
+  return <h1>Hello, {name}!</h1>;
+});
+
+export default Greeting;
+```
+
+A React component should always have pure rendering logic. This means that it must return the same output if its props, state, and context haven't changed. By using `memo`, you are telling React that your component complies with this requirement, so React doesn't need to re-render as long as its props haven't changed. Even with `memo`, your component will re-render if its own state changes or if a context that it's using changes.
+
+Optimizing with `memo` is only valuable when your component re-renders often with the same exact props, and its re-rendering logic is expensive. If there is no perceptible lag when your component re-renders, `memo` is unnecessary. Keep in mind that `memo` is completely useless if the props passed to your component are always different, such as if you pass an object or a plain function defined during rendering.
+
+## Styling
+
+### Inline Styles
+
+Inline styles are the easiest approach to styling a React app, as users don't need to create an external stylesheet. The CSS styling is applied directly to the React code.
+
+The image shows a code example of inline styling in React:
+
+```javascript
+const Header = () => {
+  return (
+    <>
+      <h1 style={{ backgroundColor: 'red' }}>Hello World!!!!</h1>
+      <h2>Add a little style!</h2>
+    </>
+  );
+};
+```
+
+This code snippet defines a functional component `Header` that returns two heading elements. The `<h1>` element has an inline style applied to it, setting its `backgroundColor` to `'red'`. The style is passed as a JavaScript object to the `style` prop.
+
+### Importing External Stylesheets
+
+You can write CSS in an external file and import it to the React app. This approach is comparable to importing a CSS file in an HTML document's `<head>` tag.
+
+The image provides a code example demonstrating how to import an external stylesheet in a React component:
+
+```javascript
+import './styles.css';
+
+const Header = () => {
+  return (
+    <>
+      <h1 className='header'>Hello World!!!!!</h1>
+      <h2>Add a little style!</h2>
+    </>
+  );
+};
+```
+
+In this example:
+
+- `import './styles.css';` at the top of the file imports an external CSS stylesheet named `styles.css` into the React component.
+- The `<h1>` element has a `className` of "header", which would correspond to a CSS rule defined in `styles.css` to apply styling.
+
+### Use CSS Modules
+
+React apps can get really big. CSS animation names and class names are, by default, scoped globally. This setting can be problematic when dealing with large style sheets, as one style can override another.
+
+The image provides a code example demonstrating the use of CSS Modules for styling in a React component:
+
+```javascript
+import styles from './styles.module.css';
+
+const Header = () => {
+  return (
+    <>
+      <h1 className={styles.header}>Hello World!!!!!</h1>
+      <h2>Add a little style!</h2>
+    </>
+  );
+};
+```
+
+In this example:
+
+- `import styles from './styles.module.css';` imports a CSS Module file. When using CSS Modules, the import statement imports an object (`styles` in this case) whose keys are the class names defined in the CSS file, and whose values are unique, locally-scoped class names.
+- The `<h1>` element's `className` is set to `styles.header`. This ensures that the `header` class from `styles.module.css` is applied, and because of CSS Modules, this class name will be automatically transformed into a unique name to prevent global scoping issues and style conflicts.
+
+### Styled-Components
+
+Styled Components allow developers to create components using CSS in JavaScript code. A styled component acts as a React component that comes with styles. Styled Components offer dynamic styling and unique class names.
+
+To start using Styled Components, you should install the `styled-components` package:
+
+`npm install styled-components`
+
+The image provides a code example demonstrating the usage of `styled-components`:
+
+```javascript
+import styled from 'styled-components';
+
+const Layout = styled.div`
+  background-color: green;
+`;
+
+const Title = styled.h1`
+  background-color: rgb(219, 112, 147);
+  color: white;
+  padding: 5px 20px;
+`;
+
+const App = () => (
+  <Layout>
+    <Title>Some Title</Title>
+  </Layout>
+);
+```
+
+In this example:
+
+- `import styled from 'styled-components';` imports the `styled` object from the library.
+- `Layout` is a styled `div` component, with a `background-color` of `green`.
+- `Title` is a styled `h1` component, with a `background-color` of `rgb(219, 112, 147)`, `color` of `white`, and `padding` of `5px 20px`.
+- The `App` functional component then uses these `Layout` and `Title` styled components as regular React components, encapsulating their styles within their definitions.
+
+## Events
+
+### SyntheticEvent
+
+In ReactJS, there are events by which a user interacts with an application UI. React listens to events at the document level; after receiving events from the browser, React wraps these events with a wrapper that has a similar interface as the local browser event, which helps us to use methods like `preventDefault()`.
+
+**Why use such a wrapper?**
+
+So, often we use different browsers where the same event has different names. Here the wrapper triggers all the different names for the same event effect. Therefore, whenever we are triggering an event in a ReactJS, we are not actually trying to trigger the real DOM event; instead, we are using the ReactJS custom event type, which is the synthetic event.
+
+The examples of the synthetic events are `onClick()`, `onBlur()` and `onChange()`. These all are not real DOM events but React synthetic events.
+
+**Benefits of using synthetic events:**
+
+- Cross-browser applications are easy to implement.
+- Synthetic events are that ReactJS reuses these events objects by pooling them, which increases performance.
+
+### Javascript basic events
+
+- Click (`onclick`)
+- Double Click (`ondblclick`)
+- Right Click (`oncontextmenu`)
+- Mouse Hover (`onmouseenter`)
+- Mouse Out (`onmouseout`)
+- Mouse Down (`onmousedown`)
+- Mouse Up (`onmouseup`)
+- Key Press (`onkeypress`)
+- Key Up (`onkeyup`)
+- Load (`onload`)
+- Unload (`onunload`)
+- Resize (`onresize`)
+- Scroll (`onscroll`)
+
+### SyntheticEvent
+
+- `e.preventDefault()` prevents all the default behavior by the browser.
+
+```javascript
+e.preventDefault();
+```
+
+- `e.stopPropagation()` prevents the call to the parent component whenever a child component gets called.
+
+```javascript
+e.stopPropagation();
+```
+
+**Note:** Here 'e' is a synthetic event, a cross-browser object. It is made with a wrapper around the actual event of the browser.
+
+Some of the attributes are:
+
+- **bubbles:** Return true or false indicates event is a bubbling event or not.
+- **cancelable:** Return true or false indicates if the event can be canceled or not.
+- **currentTarget:** Indicates the element to which the handler is attached.
+- **defaultPrevented:** Return true or false, indicates whether the event has been canceled by `preventDefault()`.
+- **eventPhase:** Returns number, indicates the phase.
+- **isTrusted:** Return true when the event is generated by the user and false when by the browser/script.
+- **type:** Returns string, it indicates the type of the event.
+
+### Keyboard Events
+
+**Event names:**
+
+`onKeyDown onKeyPress onKeyUp`
+
+**Properties:**
+
+- `boolean altKey`
+- `number charCode`
+- `boolean ctrlKey`
+- `boolean getModifierState(key)`
+- `string key`
+- `number keyCode`
+- `string locale`
+- `number location`
+- `boolean metaKey`
+- `boolean repeat`
+- `boolean shiftKey`
+- `number which`
+
+### Clipboard Events
+
+**Event names:**
+
+`onCopy onCut onPaste`
+
+**Properties:**
+
+`DOMDataTransfer clipboardData`
+
+### Focus Events
+
+**Event names:**
+
+`onFocus onBlur`
+
+These focus events work on all elements in the React DOM, not just form elements.
+
+**Properties:**
+
+`DOMEventTarget relatedTarget`
+
+### Form Events
+
+**Event names:**
+
+`onChange onInput onInvalid onReset onSubmit`
+
+### Mouse Events
+
+**Event names:**
+
+`onClick onContextMenu onDoubleClick onDrag onDragEnd onDragEnter onDragExit onDragLeave onDragOver onDragStart onMouseDown onMouseEnter onMouseLeave onMouseMove onMouseOut onMouseOver onMouseUp`
+
+The `onMouseEnter` and `onMouseLeave` events propagate from the element being left to the one being entered instead of ordinary bubbling and do not have a capture phase.
+
+**Properties:**
+
+- `boolean altKey`
+- `number button`
+- `number buttons`
+- `number clientX`
+- `number clientY`
+- `boolean ctrlKey`
+- `boolean getModifierState(key)`
+- `boolean metaKey`
+- `number pageX`
+- `number pageY`
+- `DOMEventTarget relatedTarget`
+- `number screenX`
+- `number screenY`
+- `boolean shiftKey`

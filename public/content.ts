@@ -28,4 +28,7 @@ export const block_2 = [
 
 export const block_3 = [
   { name: 'React basics', href: '/block-three/react-basics' },
+  { name: 'React UI', href: '/block-three/react-ui' },
+  { name: 'React Hooks', href: '/block-three/react-hooks' },
+  { name: 'React API', href: '/block-three/react-api' },
 ];
