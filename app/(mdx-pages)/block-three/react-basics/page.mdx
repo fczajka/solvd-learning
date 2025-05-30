@@ -1,0 +1,762 @@
+# React basics
+
+## Intro to raw React APIs
+
+We will need two JavaScript files to write React apps for web:
+
+- **React**: responsible for creating React elements (kinda like `document.createElement()`)
+- **ReactDOM**: responsible for rendering React elements to the DOM (kinda like `rootElement.append()`)
+
+### Create Root
+
+Call `createRoot` to create a React root for displaying content inside a browser DOM element.
+
+```
+import { createRoot } from 'react-dom/client';
+
+const domNode = document.getElementById('root');
+const root = createRoot(domNode);
+```
+
+React will create a root for the `domNode`, and take over managing the DOM inside it. After you've created a root, you need to call `root.render` to display a React component inside of it.
+
+`createRoot` returns an object with two methods: `render` and `unmount`.
+
+```
+import { createRoot } from 'react-dom/client';
+import App from './App.js';
+import './styles.css';
+
+const root = createRoot(document.getElementById('root'));
+root.render(<App />);
+```
+
+### `React.createElement`
+
+For create React element we can use `createElement`:
+
+- `type` — can be either a tag name string (such as 'div' or 'span'), a React component type (a class or a function), or a React fragment type.
+- `props` — element attributes
+- `children` — content or children element for type
+
+```javascript
+React.createElement(type, [props], [...children]);
+```
+
+### Example
+
+The children are optional, and you can pass as many as you need (the example at the right has three children). This code will display a `<h1>` header with a greeting.
+
+```javascript
+import { createElement } from 'react';
+
+function Greeting({ name }) {
+  return createElement(
+    'h1', // type
+    { className: 'greeting' }, // props
+    'Hello ', // children
+    createElement('i', null, name), // children
+    '. Welcome!', // children
+  );
+}
+```
+
+For comparison, here is the same example rewritten with JSX:
+
+```javascript
+function Greeting({ name }) {
+  return (
+    <h1 className='greeting'>
+      Hello <i>{name}</i>. Welcome!
+    </h1>
+  );
+}
+```
+
+### What is JSX?
+
+- JSX stands for JavaScript XML.
+- JSX allows us to write HTML in React.
+- JSX makes it easier to write and add HTML in React.
+- JSX allows us to write HTML elements in JavaScript and place them in the DOM without any `createElement()` and/or `appendChild()` methods.
+- JSX converts HTML tags into react elements.
+- You are not required to use JSX, but JSX makes it easier to write React applications.
+- Require to use Babel
+
+### Using JSX
+
+Example:
+
+```javascript
+const ui = <h1 id='greeting'>Hey there</h1>;
+
+// This compiles to:
+
+const ui = React.createElement('h1', { id: 'greeting' }, 'Hey there');
+```
+
+If you'd like to see how JSX gets compiled to JavaScript you can open [online babel REPL](https://babeljs.io/repl).
+
+### JSX compilation example
+
+```javascript
+const Container = () => {
+  return <div></div>;
+};
+
+<Container />;
+```
+
+becomes
+
+```javascript
+var Container = function Container() {
+  return React.createElement('div', null);
+};
+
+React.createElement(Container, null);
+```
+
+### Can be saved as a variable
+
+```javascript
+const animal = <span>Elefant</span>;
+```
+
+becomes
+
+```javascript
+var animal = React.createElement('span', null, 'Elefant');
+```
+
+### Can handle a variable inside
+
+```javascript
+const animalName = 'Elefant';
+const animal = <span>This is {animalName}</span>;
+```
+
+becomes
+
+```javascript
+var animalName = 'Elefant';
+var animal = React.createElement('span', null, 'This is ', animalName);
+```
+
+### Can handle a variable inside
+
+```html
+<span>This is {true ? 'Bob' : 'Alice'} car</span>
+```
+
+becomes
+
+```javascript
+React.createElement('span', null, 'This is ', true ? 'Bob' : 'Alice', ' car');
+```
+
+### Composition vs Inheritance
+
+React has a powerful composition model, and we recommend using composition instead of inheritance to reuse code between components.
+
+```javascript
+function Dialog(props) {
+  return (
+    <FancyBorder color='blue'>
+      <h1 className='Dialog-title'>{props.title}</h1>
+      <p className='Dialog-message'>{props.message}</p>
+    </FancyBorder>
+  );
+}
+
+function WelcomeDialog() {
+  return (
+    <Dialog title='Welcome' message='Thank you for visiting our spacecraft!' />
+  );
+}
+```
+
+### Real DOM
+
+```html
+<!DOCTYPE html>
+<html>
+  <body>
+    <h1>Hey, this is react</h1>
+    <p>I am a virtual DOM doing real things.</p>
+  </body>
+</html>
+```
+
+```
+- DOCTYPE: html
+  - HTML
+    - HEAD
+    - BODY
+      - H1
+        - #text: Hey, this is react
+      - P
+        - #text: I am a virtual DOM doing real things.
+```
+
+### Disadvantage
+
+DOM manipulation APIs are slow
+
+### Surprisingly 😲
+
+All the frameworks do this on every update
+
+### Virtual DOM
+
+We can imagine it something like:
+
+(Image shows a tree structure representing a DOM, with nodes like `document`, `<html>`, `<body>`, `<h1>`, `<ul>`, `<li>`, `<a>`, `<title>`, `<meta>`, and "text" nodes.)
+
+### Virtual DOM
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Document</title>
+  </head>
+  <body>
+    <ul>
+      <li>Bob</li>
+      <li>Alice</li>
+    </ul>
+  </body>
+</html>
+```
+
+This HTML structure is represented as a JavaScript object:
+
+```javascript
+{
+  tagName: 'html',
+  children: [
+    {
+      tagName: 'head',
+      children: [
+        {
+          tagName: 'title',
+          children: 'Document'
+        }
+      ]
+    },
+    {
+      tagName: 'body',
+      children: [
+        {
+          tagName: 'ul',
+          children: [
+            {
+              tagName: 'li',
+              children: 'Bob'
+            },
+            {
+              tagName: 'li',
+              children: 'Alice'
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+### React's Virtual DOM Strategy
+
+(Image shows a diagram illustrating the Virtual DOM strategy: An "Update in React Component" (a small tree with a red node) leads to the creation of a "New Virtual DOM Subtree" (a green tree with a red node). This is then "Diffed" against the "Actual DOM" (another green tree), resulting in a "Diff" (a small red tree representing changes) that is applied to update the Actual DOM.)
+
+On every update to component:
+
+- React Builds New Virtual DOM Subtree
+- Diff with the actual DOM
+- Computes minimal DOM mutation
+- Batch executes updates
+
+### Benefits of Virtual DOM
+
+- Minimal DOM manipulation calls
+- Batch execution saves a lot of computation
+- Super Fast Performance
+- Optimal CPU and Memory usage
+
+## Reconciliation
+
+- Two elements of different types will produce different trees.
+- The developer can hint at which child elements may be stable across different renders with a `key` prop.
+
+My apologies! I did overlook the Markdown formatting for the code blocks in my previous response.
+
+Here are the code blocks with the proper Markdown formatting for code:
+
+```html
+<div>
+  <Counter />
+</div>
+```
+
+➡️
+
+```html
+<section>
+  <Counter />
+</section>
+```
+
+### Reconciliation
+
+```html
+<section
+  className='container'
+  data-user='{{ id: 1, type: 'admin' }}'
+>
+  <Counter />
+</section>
+```
+
+➡️
+
+```html
+<section
+  className='wrapper'
+  data-user='{{ id: 2, type: 'admin' }}'
+>
+  <Counter />
+</section>
+```
+
+### Reconciliation
+
+```html
+<section>
+  <Counter count="{0}" />
+</section>
+```
+
+➡️
+
+```html
+<section>
+  <Counter count="{1}" />
+</section>
+```
+
+### Reconciliation
+
+```html
+<ul>
+  <li>Alice</li>
+  <li>Bob</li>
+</ul>
+```
+
+➡️
+
+```html
+<ul>
+  <li>Alice</li>
+  <li>Bob</li>
+  <li>Chuck</li>
+</ul>
+```
+
+```html
+<ul>
+  <li>Chuck</li>
+  <li>Alice</li>
+  <li>Bob</li>
+</ul>
+```
+
+### Reconciliation
+
+```
+<ul>
+  <li>Alice</li>
+  <li>Bob</li>
+</ul>
+```
+
+➡️
+
+```
+<ul>
+  <li>Chuck</li>
+  <li>Alice</li>
+  <li>Bob</li>
+</ul>
+```
+
+### Keys in React
+
+Keys help React identify which items have changed, are added, or are removed. Keys should be given to the elements inside the array to give the elements a stable identity:
+
+```javascript
+const numbers = [1, 2, 3, 4, 5];
+const listItems = numbers.map((number) => (
+  <li key={number.toString()}>{number}</li>
+));
+```
+
+The best way to pick a key is to use a string that uniquely identifies a list item among its siblings. Most often you would use IDs from your data as keys:
+
+```javascript
+const todoItems = todos.map((todo) => <li key={todo.id}>{todo.text}</li>);
+```
+
+### Keys in React
+
+When you don't have stable IDs for rendered items, you may use the item index as a key as a last resort:
+
+```javascript
+const todoItems = todos.map((todo, index) => (
+  // Only do this if items have no stable IDs
+  <li key={index}>{todo.text}</li>
+));
+```
+
+We don't recommend using indexes for keys if the order of items may change. This can negatively impact performance and may cause issues with component state. Check out Robin Pokorny's article for an [in-depth explanation on the negative impacts of using an index as a key](link to article if available). If you choose not to assign an explicit key to list items then React will default to using indexes as keys.
+
+Warning: Each child in an array or iterator should have a unique "key" prop.
+
+### Components
+
+Components are one of the core concepts of React. They are the foundation upon which you build user interfaces (UI), which makes them the perfect place to start your React journey!
+
+The image displays two types of React components:
+
+- **Function Component**
+
+  ```javascript
+  import React, { useState, useEffect } from 'react';
+
+  function Example() {
+    const [count, setCount] = useState(0);
+
+    useEffect(() => {
+      console.log(`count updated`);
+    }, [count]);
+
+    const handleClick = () => {
+      setCount((prevCount) => prevCount + 1);
+    };
+
+    return (
+      <div>
+        <p>You clicked {count} times</p>
+        <button onClick={handleClick}>Click me</button>
+      </div>
+    );
+  }
+  ```
+
+- **Class Component**
+
+  ```javascript
+  import React, { Component } from 'react';
+
+  class Example extends Component {
+    state = {
+      count: 0,
+    };
+
+    componentDidUpdate(prevProps, prevState) {
+      if (prevState.count !== this.state.count) {
+        console.log('count updated');
+      }
+    }
+
+    handleClick = () => {
+      this.setState((prevState) => ({
+        count: prevState.count + 1,
+      }));
+    };
+
+    render() {
+      return (
+        <div>
+          <p>You clicked {this.state.count} times</p>
+          <button onClick={this.handleClick}>Click me</button>
+        </div>
+      );
+    }
+  }
+  ```
+
+  **FOR LEARNING PURPOSE ONLY!**
+  **CLASS COMPONENTS ARE OBSOLETE**
+
+### Components CLASS VS FUNCTIONAL
+
+- **Definition**
+  - **Function Components:** JavaScript function that returns a JSX element
+  - **Class Components:** JavaScript class that extends React.Component and has a `render()` method that returns a JSX element
+- **State**
+  - **Function Components:** Uses React Hooks to manage state
+  - **Class Components:** Has built-in state management using `this.state`
+- **Lifecycle Methods**
+  - **Function Components:** Uses React Hooks to handle lifecycle events like `useState`, `useEffect`, `useMemo`
+  - **Class Components:** Uses class lifecycle methods like `componentDidMount`, `componentDidUpdate`, and `componentWillUnmount`
+- **Props**
+  - **Function Components:** Props are passed as a parameter to the function
+  - **Class Components:** Props are accessed through `this.props`
+- **Render**
+  - **Function Components:** The component is defined within the function body and returned as a JSX element
+  - **Class Components:** The `render()` method is required and returns a JSX element
+- **Code Clarity**
+  - **Function Components:** Simple and concise
+  - **Class Components:** More verbose and harder to read
+- **Performance**
+  - **Function Components:** Sets you up to follow best practices
+  - **Class Components:** Easier to cause performance issues
+
+### Class components
+
+Nowadays, if you think about the need to study class components, the answer is no.
+
+When you start learning React, you'll come across a concept called class components, which are built on traditional JavaScript classes. While it's not mandatory to learn class components to be proficient in React, it can still be advantageous. Since the introduction of React hooks in 2018, developers have shifted towards using function components, which are constructed using JavaScript functions.
+
+Although class components are still part of React and used in actual production code for specific purposes (such as error boundaries), you don't have to learn them to be an expert in React. In reality, we hardly come across class components unless we are reviewing an older codebase. Most of them have been converted to function components and React hooks by now.
+
+### Props
+
+- Props are arguments passed into React components.
+- Props are passed to components via HTML attributes.
+
+### Props
+
+The simplest way to define a component is to write a JavaScript function:
+
+```javascript
+function Welcome(props) {
+  return <h1>Hello, {props.name}</h1>;
+}
+```
+
+This function is a valid React component because it accepts a single "props" (which stands for properties) object argument with data and returns a React element. We call such components "function components" because they are literally JavaScript functions.
+
+You can also use an ES6 class to define a component:
+
+```javascript
+class Welcome extends React.Component {
+  render() {
+    return <h1>Hello, {this.props.name}</h1>;
+  }
+}
+```
+
+### State
+
+- React components has a built-in state object.
+- The state object is where you store property values that belongs to the component.
+- When the state object changes, the component re-renders.
+
+### State
+
+For learning purpose only!
+
+CLASSES are obsolete
+
+Use function components instead!
+
+```javascript
+class Clock extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { date: new Date() };
+  }
+
+  componentDidMount() {
+    this.timerID = setInterval(() => this.tick(), 1000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.timerID);
+  }
+
+  tick() {
+    this.setState({
+      date: new Date(),
+    });
+  }
+
+  render() {
+    return (
+      <div>
+        <h1>Hello, world!</h1>
+        <h2>It is {this.state.date.toLocaleTimeString()}.</h2>
+      </div>
+    );
+  }
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<Clock />);
+```
+
+### State
+
+#### Do Not Modify State Directly
+
+For example, this will not re-render a component:
+
+```javascript
+// Wrong
+this.state.comment = 'Hello';
+```
+
+Instead, use `setState()`:
+
+```javascript
+// Correct
+this.setState({ comment: 'Hello' });
+```
+
+The only place where you can assign `this.state` is the constructor.
+
+### State
+
+#### State Updates May Be Asynchronous
+
+React may batch multiple `setState()` calls into a single update for performance.
+
+Because `this.props` and `this.state` may be updated asynchronously, you should not rely on their values for calculating the next state.
+
+For example, this code may fail to update the counter:
+
+```javascript
+// Wrong
+this.setState({
+  counter: this.state.counter + this.props.increment,
+});
+```
+
+To fix it, use a second form of `setState()` that accepts a function rather than an object. That function will receive the previous state as the first argument, and the props at the time the update is applied as the second argument:
+
+```javascript
+// Correct
+this.setState((state, props) => ({
+  counter: state.counter + props.increment,
+}));
+```
+
+### State
+
+#### State Updates are Merged
+
+When you call `setState()`, React merges the object you provide into the current state.
+
+For example, your state may contain several independent variables:
+
+```javascript
+constructor(props) {
+  super(props);
+  this.state = {
+    posts: [],
+    comments: []
+  };
+}
+```
+
+Then you can update them independently with separate `setState()` calls:
+
+```javascript
+componentDidMount() {
+  fetchPosts().then(response => {
+    this.setState({
+      posts: response.posts
+    });
+  });
+
+  fetchComments().then(response => {
+    this.setState({
+      comments: response.comments
+    });
+  });
+}
+```
+
+The merging is shallow, so `this.setState({comments})` leaves `this.state.posts` intact, but completely replaces `this.state.comments`.
+
+### Refs
+
+Refs provide a way to access DOM nodes or React elements created in the render method.
+
+In the typical React dataflow, `props` are the only way that parent components interact with their children. To modify a child, you re-render it with new props. However, there are a few cases where you need to imperatively modify a child outside of the typical dataflow. The child to be modified could be an instance of a React component, or it could be a DOM element. For both of these cases, React provides an escape hatch.
+
+#### When to Use Refs
+
+There are a few good use cases for refs:
+
+- Managing focus, text selection, or media playback.
+- Triggering imperative animations.
+- Integrating with third-party DOM libraries.
+
+Avoid using refs for anything that can be done declaratively.
+
+For example, instead of exposing `open()` and `close()` methods on a Dialog component, pass an `isOpen` prop to it.
+
+### Creating Refs
+
+`useRef` is a React Hook that lets you reference a value that's not needed for rendering.
+
+`initialValue`: The value you want the ref object's current property to be initially. It can be a value of any type. This argument is ignored after the initial render.
+
+`useRef` returns an object with a single property: current. Initially, it's set to the `initialValue` you have passed. You can later set it to something else. If you pass the ref object to React as a ref attribute to a JSX node, React will set its current property.
+
+```javascript
+const ref = useRef(initialValue);
+```
+
+### Examples
+
+**Counter Component**
+
+```javascript
+1  import { useRef } from 'react';
+2
+3  // COUNTER COMPONENT
+4  export default function Counter() {
+5    let ref = useRef(0);
+6
+7    function handleClick() {
+8      ref.current = ref.current + 1;
+9      alert('You clicked ' + ref.current + ' times!');
+10   }
+11
+12   return (
+13     <button onClick={handleClick}>
+14       Click me!
+15     </button>
+16   );
+17 }
+```
+
+**Focus Input on Button Click**
+
+```javascript
+1  import { useRef } from 'react';
+2
+3  // FOCUS INPUT ON BUTTON CLICK
+4  export default function Form() {
+5    const inputRef = useRef(null);
+6
+7    function handleClick() {
+8      inputRef.current.focus();
+9    }
+10
+11   return (
+12     <>
+13       <input ref={inputRef} />
+14       <button onClick={handleClick}>
+15         Focus the input
+16       </button>
+17     </>
+18   );
+19 }
+```
