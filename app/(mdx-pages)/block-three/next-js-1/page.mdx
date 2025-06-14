@@ -1,0 +1,208 @@
+# Next JS, part 1
+
+## Overview of Web Application. Key points. Next.js.
+
+### Web Application
+
+[Next.js](https://nextjs.org) is a flexible **React framework** that gives you building blocks to create fast web applications.
+
+But what exactly do we mean by this? Let’s spend some time expanding on what React and [Next.js](https://nextjs.org) are and how they can help.
+
+A **web application (web app)** is an application program that is stored on a remote server and delivered over the internet through a browser interface.
+
+### Building Blocks of a Web Application
+
+There are a few things you need to consider when building modern applications. Such as:
+
+- **User Interface** – how users will consume and interact with your application.
+- **Routing** – how users navigate between different parts of your application.
+- **Data Fetching** – where your data lives and how to get it.
+- **Rendering** – when and where you render static or dynamic content.
+- **Integrations** – what third-party services you use (CMS, auth, payments, etc) and how you connect to them.
+- **Infrastructure** – where you deploy, store, and run your application code (Serverless, CDN, Edge, etc).
+- **Performance** – how to optimize your application for end-users.
+- **Scalability** – how your application adapts as your team, data, and traffic grow.
+- **Developer Experience** – your team’s experience building and maintaining your application.
+
+For each part of your application, you will need to decide whether you will build a solution yourself or use other tools such as libraries and frameworks.
+
+### What is React?
+
+**React** is a JavaScript library for building interactive user interfaces. By user interfaces, we mean the elements that users see and interact with on-screen.
+
+By library, we mean React provides helpful functions to build UI, but leaves it up to the developer where to use those functions in their application. It also means, however, that building a complete React application from the ground up requires some effort. Developers need to spend time configuring tools and reinventing solutions for common application requirements.
+
+### What is Next.js?
+
+**Next.js** is a React framework that gives you building blocks to create web applications. by framework, we mean Next.js handles the tooling and configuration needed for React, and provides additional structure, features, and optimizations for your application.
+
+You can use React to build your UI, then incrementally adopt Next.js features to solve commont application requirements such as routing, data fetching, integrations - all while improving the developer and end-user experience.
+
+### How Next.js Works.
+
+Before you learn more advanced Next.js features, it would be helpful to understand the basics of how Next.js works.
+
+In the next sections, we'll look at what happens to your application code during these different stages:
+
+- The environment where your code runs: Development vs. Production
+- When your code runs: Build Time vs. Runtime
+- Where rendering happens: Client vs. Server
+
+### How Next.js Works.
+
+##### Development and Production Environments
+
+You can think of environments as the context in which your code is running. Next.js provides features for both the development and production stages of an application. For example:
+
+- In the development stage, Next.js optimizes for the developer and their experience building the application. It comes with features that aim to improve the Developer Experience such the TypeScript and ESLint integration, Fast Refresh, and more.
+- In the production stage, Next.js optimizes for the end-users, and their experience using the application. It aims to transform the code to make it performant and accessible.
+
+### Next.js. The Compiler.
+
+Next.js handles much of these code transformations and underlying infrastructure to make it easier for your application to go to production.
+
+This is made possible because Next.js has a compiler written in Rust, a low-level programming language, and SWC, a platform that can be used for compilation, minification, bundling, and more. SWC replaced two toolchains used in Next.js: Babel for individual files and Terser for minifying of output bundles.
+
+### Next.js. What is Compiling?
+
+Developers write code in languages that are more developer-friendly such as JSX, TypeScript, and modern versions of JavaScript. While these languages improve the efficiency and confidence of developers, they need to be compiled into JavaScript before browsers can understand them.
+
+Compiling refers to the process of taking code in one language and outputting it in another language or another version of that language.
+
+In Next.js, compilation happens during the development stage as you edit your code, and as part of the build step to prepare your application for production.
+
+### Next.js. What is Minifying?
+
+Developers write code that is optimized for human readability. This code might contain extra information that is not necessary for the code to run, such as comments, spaces, indents, and multiple lines.
+
+Minification is the process of removing unnecessary code formatting and comments without changing the code's functionality. The goal is to improve the application's performance by decreasing file sizes.
+
+In Next.js, JavaScript and CSS files are automatically minified for production.
+
+### Next.js. What is Bundling?
+
+Developers break up their application into modules, components, and functions that can be used to build larger pieces of their application. Exporting and importing these internal modules, as well as external third-party packages, creates a complex web of file dependencies.
+
+Bundling is the process of resolving the web of dependencies and merging (or 'packaging') the files (or modules) into optimized bundles for the browser, with the goal of reducing the number of requests for files when a user visits a web page.
+
+### Next.js. What is Code Splitting?
+
+Developers usually split their applications into multiple pages that can be accessed from different URLs. Each of these pages becomes a unique entry point into the application.
+
+Code-splitting is the process of splitting the application's bundle into smaller chunks required by each entry point. The goal is to improve the application's initial load time by only loading the code required to run that page.
+
+Next.js has built-in support for code splitting. Each file inside your `pages/` directory will be automatically code split into its own JavaScript bundle during the build step.
+
+### Next.js. Build time and Runtime.
+
+**Build time** (or build step) is the name given to a series of steps that prepare your application code for production.
+
+When you build your application, Next.js will transform your code into production-optimized files ready to be deployed to servers and consumed by users. These files include:
+
+- HTML files for statically generated pages
+- JavaScript code for rendering pages on the server
+- JavaScript code for making pages interactive on the client
+- CSS files
+
+**Runtime** (or request time) refers to the period of tyime when your application runs in response to a user's request, after your application has been built and deployed.
+
+### Next.js. Client and Server.
+
+In the context of web applications, the **client** refers to the browser on a user's device that sends a request to a server for your application code. It then turns the response it receives from the server into an interface the user can interact with.
+
+**Server** refers to the computer in a data center that stores your application code, receives requests from a client, does some computation, and sends back an appropriate response.
+
+### Next.js. What is Rendering?
+
+There is an unavoidable unit of work to convert the code you write in React into the HTML representation of your UI. This process is called **rendering**.
+
+Rendering can take place on the server or on the client. It can happen either ahead of time at build time, or on every request at runtime.
+
+With Next.js, three types of rendering methods are available:
+
+1.  Server-Side Rendering
+2.  Static Site Generation
+3.  Client-Side Rendering.
+
+### Next.js. Pre-rendering.
+
+Before we talk about data fetching, let's talk about one of the most important concepts in Next.js: **Pre-rendering**.
+
+By default, Next.js pre-renders every page. This means that Next.js generates HTML for each page in advance, instead of having it all done by client-side JavaScript. Pre-rendering can result in better performance and SEO.
+
+Each generated HTML is associated with minimal JavaScript code necessary for that page. When a page is loaded by the browser, its JavaScript code runs and makes the page fully interactive. (This process is called **hydration**.)
+
+### Next.js. Forms of pre-rendering.
+
+Next.js has two forms of pre-rendering: Static Generation and Server-side Rendering. The difference is in when it generates the HTML for a page.
+
+- **Static Generation** is the pre-rendering method that generates the HTML at **build time**. The pre-rendered HTML is then reused on each request.
+- **Server-side Rendering** is the pre-rendering method that generates the HTML on **each request**.
+- In development mode (when you run `npm run dev` or `yarn dev`), pages are pre-rendered on every request. This also applies to Static Generation to make it easier to develop. When going to production, Static Generation will happen once, at build time, and not on every request.
+
+### Next.js. Per-page Basis.
+
+Importantly, Next.js lets you choose which pre-rendering form to use for each page. You can create a "hybrid" Next.js app by using Static Generation for most pages and using Server-side Rendering for others.
+
+### Next.js: When to use SSG vs SSR
+
+We recommend using Static Generation (with and without data) whenever possible. This is because your page can be built once and served by a CDN, which makes it much faster than having a server render the page on every request.
+
+You can use Static Generation for many types of pages, including:
+
+- Marketing pages
+- Blog posts
+- E-commerce product listings
+- Help and documentation
+
+You should ask yourself: "Can I pre-render this page ahead of a user's request?" If the answer is yes, then you should choose Static Generation.
+
+On the other hand, Static Generation is not a good idea if you cannot pre-render a page ahead of a user's request. This might be the case if your page shows frequently updated data, and the page content changes on every request.
+
+In that case, you can use Server-side Rendering. It will be slower, but the pre-rendered page will always be up-to-date. Alternatively, you can skip pre-rendering and use client-side JavaScript to populate frequently updated data.
+
+### Next.js. SSG without data.
+
+Static Generation can be done with and without data.
+
+So far, all the pages we've created do not require fetching external data. Those pages will automatically be statically generated when the app is built for production.
+
+### Next.js. SSG with data.
+
+However, for some pages, you might not be able to render the HTML without first fetching some external data. Maybe you need to access the file system, fetch external API, or query your database at build time. Next.js supports this case — Static Generation with data — out of the box.
+
+### Next.js. SSR.
+
+If you need to fetch data at request time instead of at build time, you can try Server-side Rendering. you need to export getServerSideProps instead of getStaticProps from your page.
+
+Because getServerSideProps is called at request time, its parameter (context) contains request specific parameters.
+
+You should use getServerSideProps only if you need to pre-render a page whose data must be fetched at request time. Time to first byte (TTFB) will be slower than getStaticProps because the server must compute the result on every request, and the result cannot be cached by a CDN without extra configuration.
+
+### Next.js. CSR Strategy.
+
+In a standard React application, the browser receives an empty HTML shell from the server along with the JavaScript instructions to construct the UI. This is called client-side rendering because the initial rendering work happens on the user's device.
+
+You can opt to use client-side rendering for specific components in your Next.js application by choosing to fetch data with React's useEffect() or a data fetching hook such as useSWR.
+
+### Next.js. CSR Strategy.
+
+If you do not need to pre-render the data, you can also use the following strategy (called Client-side Rendering):
+
+- Statically generate (pre-render) parts of the page that do not require external data.
+- When the page loads, fetch external data from the client using JavaScript and populate the remaining parts.
+
+This approach works well for user dashboard pages, for example. Because a dashboard is a private, user-specific page, SEO is not relevant, and the page doesn't need to be pre-rendered. The data is frequently updated, which requires request-time data fetching.
+
+### Next.js. ISR.
+
+Next.js allows you to create or update static pages after you've built your site. Incremental Static Regeneration (ISR) enables you to use static-generation on a per-page basis, without needing to rebuild the entire site. With ISR, you can retain the benefits of static while scaling to millions of pages. To use ISR, add the revalidate prop to getStaticProps.
+
+When a request is made to a page that was pre-rendered at build time, it will initially show the cached page.
+
+- Any requests to the page after the initial request and before 10 seconds are also cached and instantaneous.
+- After the 10-second window, the next request will still show the cached (stale) page.
+- Next.js triggers a regeneration of the page in the background.
+- Once the page generates successfully, Next.js will invalidate the cache and show the updated page. If the background regeneration fails, the old page would still be unaltered.
+
+When a request is made to a path that hasn't been generated, Next.js will server-render the page on the first request. Future requests will serve the static file from the cache.
