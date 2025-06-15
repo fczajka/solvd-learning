@@ -33,4 +33,5 @@ export const block_3 = [
   { name: 'React API', href: '/block-three/react-api' },
   { name: 'Next JS, part 1', href: '/block-three/next-js-1' },
   { name: 'Next JS, part 2', href: '/block-three/next-js-2' },
+  { name: 'Next JS, part 3', href: '/block-three/next-js-3' },
 ];
