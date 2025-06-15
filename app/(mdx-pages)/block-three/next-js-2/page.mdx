@@ -1,0 +1,1274 @@
+# Next JS, part 2
+
+## Key features of Next.JS
+
+### Next.js. Routing.
+
+Next.js has two different routers: the **App Router** and the **Pages Router**.
+
+- The App Router is a newer router that allows you to use React's latest features, such as Server Components and Streaming.
+- The Pages Router is the original Next.js router, which allowed you to build server-rendered React applications and continues to be supported for older Next.js applications.
+
+At the top of the sidebar, you'll notice a dropdown menu that allows you to switch between the App Router and the Pages Router features. Since there are features that are unique to each directory, it's important to keep track of which tab is selected.
+
+### Next.js. Routing. Pages.
+
+The **Pages Router** has a file-system based router built on the concept of pages. When a file is added to the `pages` directory, it's automatically available as a route.
+
+In Next.js, a **page** is a React Component exported from a `.js`, `.jsx`, `.ts`, or `.tsx` file in the `pages` directory. Each page is associated with a route based on its file name.
+
+#### Index routes
+
+The router will automatically route files named `index` to the root of the directory.
+
+- `pages/index.js` → `/`
+- `pages/blog/index.js` → `/blog`
+
+#### Nested routes
+
+The router supports nested files. If you create a nested folder structure, files will automatically be routed in the same way still.
+
+- `pages/blog/first-post.js` → `/blog/first-post`
+- `pages/dashboard/settings/username.js` → `/dashboard/settings/username`
+
+Absolutely, I can reformat the previous response to avoid tables. Here it is:
+
+### Next.js. Routing. Dynamic Pages.
+
+For example, a blog could include the following route `pages/blog/[slug].js` where `[slug]` is the Dynamic Segment for blog posts.
+
+```javascript
+import { useRouter } from 'next/router';
+
+export default function Page() {
+  const router = useRouter();
+  return <p>Post: {router.query.slug}</p>;
+}
+```
+
+This setup means:
+
+- The route `pages/blog/[slug].js` with `Example URL: /blog/a` would have `params: { slug: 'a' }`.
+- The route `pages/blog/[slug].js` with `Example URL: /blog/b` would have `params: { slug: 'b' }`.
+- The route `pages/blog/[slug].js` with `Example URL: /blog/c` would have `params: { slug: 'c' }`.
+
+#### Catch-all Segments
+
+Dynamic Segments can be extended to **catch-all** subsequent segments by adding an ellipsis inside the brackets `[...folderName]`.
+
+For example, `pages/shop/[...slug].js` will match `/shop/clothes`, but also `/shop/clothes/tops`, `/shop/clothes/tops/t-shirts`, and so on.
+
+This implies:
+
+- For `pages/shop/[...slug].js`, an `Example URL: /shop/a` would result in `params: { slug: ['a'] }`.
+- For `pages/shop/[...slug].js`, an `Example URL: /shop/a/b` would result in `params: { slug: ['a', 'b'] }`.
+- For `pages/shop/[...slug].js`, an `Example URL: /shop/a/b/c` would result in `params: { slug: ['a', 'b', 'c'] }`.
+
+#### Optional Catch-all Segments
+
+Catch-all Segments can be made **optional** by including the parameter in double square brackets: `[[...folderName]]`.
+
+For example, `pages/shop/[[...slug]].js` will also match `/shop`, in addition to `/shop/clothes`, `/shop/clothes/tops`, `/shop/clothes/tops/t-shirts`.
+
+The difference between **catch-all** and **optional catch-all** segments is that with optional, the route without the parameter is also matched (`/shop` in the example above).
+
+This means:
+
+- For `pages/shop/[[...slug]].js`, an `Example URL: /shop` would result in `params: {}`.
+- For `pages/shop/[[...slug]].js`, an `Example URL: /shop/a` would result in `params: { slug: ['a'] }`.
+- For `pages/shop/[[...slug]].js`, an `Example URL: /shop/a/b` would result in `params: { slug: ['a', 'b'] }`.
+- For `pages/shop/[[...slug]].js`, an `Example URL: /shop/a/b/c` would result in `params: { slug: ['a', 'b', 'c'] }`.
+
+### Next.js. Routing. Linking and Navigating.
+
+The Next.js router allows you to do client-side route transitions between pages, similar to a single-page application. A React component called `Link` is provided to do this client-side route transition.
+
+**Linking and Navigating with `Link` component:**
+
+Example 1:
+
+```javascript
+import Link from 'next/link';
+
+function Home() {
+  return (
+    <ul>
+      <li>
+        <Link href='/'>Home</Link>
+      </li>
+      <li>
+        <Link href='/about'>About Us</Link>
+      </li>
+      <li>
+        <Link href='/blog/hello-world'>Blog Post</Link>
+      </li>
+    </ul>
+  );
+}
+
+export default Home;
+```
+
+Example 2 (Programmatic Link generation):
+
+```javascript
+import Link from 'next/link';
+
+function Posts({ posts }) {
+  return (
+    <ul>
+      {posts.map((post) => (
+        <li key={post.id}>
+          <Link href={`/blog/${encodeURIComponent(post.title)}`}>
+            {post.title}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export default Posts;
+```
+
+Example 3 (Using `pathname` and `query` with `Link`):
+
+```javascript
+import Link from 'next/link';
+
+function Posts({ posts }) {
+  return (
+    <ul>
+      {posts.map((post) => (
+        <li key={post.id}>
+          <Link pathname='/blog/[slug]' query={{ slug: post.slug }}>
+            {post.title}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export default Posts;
+```
+
+**Imperative Routing:**
+
+You can also navigate programmatically using the `useRouter` hook.
+
+```javascript
+import { useRouter } from 'next/router';
+
+export default function ReadMore() {
+  const router = useRouter();
+
+  return (
+    <button onClick={() => router.push('/about')}>
+      Click here to read more
+    </button>
+  );
+}
+```
+
+### Next.js. Routing. Layout Pattern.
+
+The React model allows us to deconstruct a page into a series of components. Many of these components are often reused between pages.
+
+If you need **multiple layouts**, you can add a property `getLayout` to your page, allowing you to return a React component for the layout. This allows you to define the layout on a per-page basis. Since we're returning a function, we can have complex nested layouts if desired.
+
+**Example: `component/layout.js`**
+
+```javascript
+import Navbar from './navbar';
+import Footer from './footer';
+
+export default function Layout({ children }) {
+  return (
+    <>
+      <Navbar />
+      <main>{children}</main>
+      <Footer />
+    </>
+  );
+}
+```
+
+**Example: `pages/_app.js` with multiple layouts**
+
+```javascript
+import Layout from '../components/layout';
+
+export default function MyApp({ Component, pageProps }) {
+  return (
+    <Layout>
+      <Component {...pageProps} />
+    </Layout>
+  );
+}
+```
+
+**Example: `pages/index.js` with nested layouts**
+
+```javascript
+import Layout from '../components/layout';
+import NestedLayout from '../components/nested-layout';
+
+export default function Page() {
+  return (
+    // Your content here
+    <>
+      <p>This is the page content</p>
+    </>
+  );
+}
+
+Page.getLayout = function getLayout(page) {
+  return (
+    <Layout>
+      <NestedLayout>{page}</NestedLayout>
+    </Layout>
+  );
+};
+```
+
+If you only have **one layout** for your entire application, you can create a `Custom App` and wrap your application with the layout. Since the `<Layout />` component is re-used when changing pages, its component state will be preserved (e.g. input values).
+
+**Example: `pages/_app.js` with a single custom layout**
+
+```javascript
+export default function MyApp({ Component, pageProps }) {
+  // Use the layout defined at the page level, if available
+  const getLayout = Component.getLayout || ((page) => page);
+
+  return getLayout(<Component {...pageProps} />);
+}
+```
+
+### Next.js. Routing. Custom Pages.
+
+#### Customizing The 404 Page
+
+To create a custom 404 page you can create a `pages/404.js` file. This file is statically generated at build time.
+
+```javascript
+// pages/404.js
+export default function Custom404() {
+  return <h1>404 - Page Not Found</h1>;
+}
+```
+
+Good to know: You can use `getStaticProps` inside this page if you need to fetch data at build time.
+
+#### Customizing The 500 Page
+
+To customize the 500 page you can create a `pages/500.js` file. This file is statically generated at build time.
+
+```javascript
+// pages/500.js
+import React from 'react';
+
+export default function Custom500() {
+  return <h1>500 - Server-side error occurred</h1>;
+}
+```
+
+Good to know: You can use `getStaticProps` inside this page if you need to fetch data at build time.
+
+#### More Advanced Error Page Customizing
+
+500 errors are handled both client-side and server-side by the `Error` component. If you wish to override it, define the file `pages/_error.js` and add the following code:
+
+```javascript
+// pages/_error.js
+function Error({ statusCode }) {
+  return (
+    <p>
+      {statusCode
+        ? `An error ${statusCode} occurred on server`
+        : 'An error occurred on client'}
+    </p>
+  );
+}
+
+Error.getInitialProps = ({ res, err }) => {
+  const statusCode = res ? res.statusCode : err ? err.statusCode : 404;
+  return { statusCode };
+};
+
+export default Error;
+```
+
+`pages/_error.js` is only used in production. In development you'll get an error with the call stack to show where the error originated from.
+
+#### Custom App
+
+To override the default `App`, create the file `pages/_app.js` as shown below:
+
+```javascript
+// pages/_app.js
+import React from 'react';
+
+export default function MyApp({ Component, pageProps }) {
+  return <Component {...pageProps} />;
+}
+```
+
+#### Custom Document
+
+A custom Document can update the `<html>` and `<body>` tags used to render a `Page`.
+
+To override the default Document, create the file `pages/_document.js` as shown below:
+
+```javascript
+// pages/_document.js
+import { Html, Head, Main, NextScript } from 'next/document';
+
+export default function Document() {
+  return (
+    <Html>
+      <Head />
+      <body>
+        <Main />
+        <NextScript />
+      </body>
+    </Html>
+  );
+}
+```
+
+Good to know:
+
+- `_document` is only rendered on the server, so event handlers like `onClick` cannot be used in this file.
+- `html`, `head`, `main`, and `nextScript` are required for the page to be properly rendered.
+
+### Next.js. API Routes.
+
+**API routes** provide a solution to build a public API with Next.js.
+
+Any file inside the folder `pages/api` is mapped to `/api/*` and will be treated as an API endpoint instead of a page. They are server-side only bundles and won't increase your client-side bundle size.
+
+**Example 1: A simple API route**
+
+```javascript
+// pages/api/hello.js
+export default function handler(req, res) {
+  res.status(200).json({ message: 'Hello from Next.js!' });
+}
+```
+
+**Example 2: Dynamic API route with a single parameter**
+
+```javascript
+// pages/api/post/[pid].js
+export default function handler(req, res) {
+  const { pid } = req.query;
+  res.end(`Post: ${pid}`);
+}
+```
+
+**Example 3: Dynamic API route with catch-all segments**
+
+```javascript
+// pages/api/post/[...slug].js
+export default function handler(req, res) {
+  const { slug } = req.query;
+  res.end(`Post: ${slug.join(', ')}`);
+}
+```
+
+### Next.js. API Routes.
+
+**HTTP Methods**
+
+```typescript
+import type { NextApiRequest, NextApiResponse } from 'next';
+
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '1mb',
+    },
+    // Specifies the maximum allowed duration for this function to execute (in seconds)
+    maxDuration: 5,
+  },
+};
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method === 'POST') {
+    // Process a POST request
+  } else {
+    // Handle any other HTTP method
+  }
+}
+```
+
+### Next.js. i18n Routing.
+
+Next.js has built-in support for **internationalized (i18n) routing** since v10.0.0. You can provide a list of locales, the default locale, and domain-specific locales and Next.js will automatically handle the routing. The i18n routing support is currently meant to complement existing i18n library solutions like react-intl, react-i18next, lingui, rosetta, next-intl, next-translate, next-multilingual, typesafe-i18n, tolgee, and others by streamlining the routes and locale parsing. There are two locale handling strategies: Sub-path Routing and Domain Routing.
+
+#### Sub-path Routing
+
+Sub-path Routing puts the locale in the URI path.
+
+**Example `next.config.js` for Sub-path Routing:**
+
+```javascript
+// next.config.js
+module.exports = {
+  i18n: {
+    locales: ['en-US', 'fr', 'nl-NL'],
+    defaultLocale: 'en-US',
+  },
+};
+```
+
+#### Domain Routing
+
+By using domain routing you can configure locales to be served from different domains.
+
+**Example `next.config.js` for Domain Routing:**
+
+```javascript
+// next.config.js
+module.exports = {
+  i18n: {
+    locales: ['en-US', 'fr', 'nl-NL'],
+    defaultLocale: 'en-US',
+    domains: [
+      {
+        // Note: subdomains must be included in the domain value to be matched
+        // e.g. www.example.com should be used if that is the expected host
+        domain: 'example.com',
+        defaultLocale: 'en-US',
+      },
+      {
+        domain: 'example.fr',
+        defaultLocale: 'fr',
+      },
+      {
+        domain: 'example.nl',
+        defaultLocale: 'nl-NL',
+        // optionally specify other locales that should be redirected
+        // from this domain
+        locales: ['nl-BE'],
+      },
+    ],
+  },
+};
+```
+
+### Next.js. i18n Routing.
+
+#### Transition between locales
+
+```javascript
+import Link from 'next/link';
+
+export default function IndexPage(props) {
+  return (
+    <Link href='/another' locale='fr'>
+      To /fr/another
+    </Link>
+  );
+}
+```
+
+#### Dynamic Routes and getStaticProps Pages
+
+```javascript
+export const getStaticPaths = ({ locales }) => {
+  return {
+    paths: [
+      // If no 'locale' is provided only the defaultLocale will be generated
+      { params: { slug: 'post-1' }, locale: 'en-US' },
+      { params: { slug: 'post-1' }, locale: 'fr' },
+    ],
+    fallback: true,
+  };
+};
+```
+
+### Next.js. Middleware.
+
+Middleware allows you to run code before a request is completed. Then, based on the incoming request, you can modify the response by rewriting, redirecting, modifying the request or response headers, or responding directly.
+
+```javascript
+// middleware.js
+import { NextResponse } from 'next/server';
+
+// This function can be marked `async` if using `await` inside
+export function middleware(request) {
+  return NextResponse.redirect(new URL('/home', request.url));
+}
+
+// See "Matching Paths" below to learn more
+export const config = {
+  matcher: '/about/:path*',
+};
+```
+
+#### Matching Paths
+
+Middleware will be invoked for every route in your project. The following is the execution order:
+
+1.  headers from `next.config.js`
+2.  redirects from `next.config.js`
+3.  Middleware (rewrites, redirects, etc.)
+4.  `beforeFiles` (rewrites) from `next.config.js`
+5.  Filesystem routes (`public/`, `_next/static/`, `pages/`, `app/`, etc.)
+6.  `afterFiles` (rewrites) from `next.config.js`
+7.  Dynamic Routes (`/blog/[slug]`)
+8.  `fallback` (rewrites) from `next.config.js`
+
+### Next.js. Data Fetching. `getStaticPaths`.
+
+If a page has **Dynamic Routes** and uses `getStaticProps`, it needs to define a list of paths to be statically generated. When you export a function called `getStaticPaths` (Static Site Generation) from a page that uses dynamic routes, Next.js will statically **pre-render all the paths** specified by `getStaticPaths`.
+
+```javascript
+// pages/posts/[id].js
+export async function getStaticPaths() {
+  return {
+    paths: [
+      {
+        params: {
+          id: 'next-js',
+        },
+      },
+    ],
+    // See the "paths" section below
+    fallback: true, // or "blocking"
+  };
+}
+
+export async function getStaticProps() {
+  // Assuming 'res' is fetched from an API
+  const res = await fetch('https://api.github.com/repos/vercel/next.js');
+  const repo = await res.json();
+  return { props: { repo } };
+}
+
+export default function Page({ repo }) {
+  return <p>Next.js stars: {repo.stargazers_count}</p>;
+}
+```
+
+#### When should I use getStaticPaths?
+
+You should use `getStaticPaths` if you're statically pre-rendering pages that use dynamic routes and:
+
+- The data comes from a headless CMS
+- The data comes from a database
+- The data comes from the filesystem
+- The data can be publicly cached (not user-specific)
+- The page must be pre-rendered (for SEO) and be very fast — `getStaticProps` generates HTML and JSON files, both of which can be cached by a CDN for performance.
+
+#### When does getStaticPaths run?
+
+`getStaticPaths` will only run during build in production. It will not be called during runtime. You can validate code written inside `getStaticPaths` is removed from the client-side bundle with this tool.
+
+**How does getStaticPaths run with regards to getStaticProps?**
+
+- `getStaticProps` runs during `next build` for any `paths` returned during build.
+- `getStaticProps` runs in the background when using `fallback: true`.
+- `getStaticProps` is called before initial render when using `fallback: blocking`.
+
+#### Where can I use getStaticPaths?
+
+- `getStaticPaths` **must be used with** `getStaticProps`.
+- You **cannot** use `getStaticPaths` with `getServerSideProps`.
+- You can export `getStaticPaths` from a **Dynamic Route** that also uses `getStaticProps`.
+- You **cannot** export `getStaticPaths` from non-page file (e.g. your `components` folder).
+- You must export `getStaticPaths` as a standalone function, and not a property of the page component.
+
+### Next.js. Data Fetching. `getStaticProps`.
+
+If you export a function called `getStaticProps` (Static Site Generation) from a page, Next.js will **pre-render** this page at build time using the props returned by `getStaticProps`.
+
+```javascript
+// pages/index.js
+export async function getStaticProps() {
+  const res = await fetch('https://api.github.com/repos/vercel/next.js');
+  const repo = await res.json();
+  return { props: { repo } };
+}
+
+export default function Page({ repo }) {
+  return repo.stargazers_count;
+}
+```
+
+#### When should I use getStaticProps?
+
+You should use `getStaticProps` if:
+
+- The data required to render the page is available at build time ahead of a user's request.
+- The data comes from a headless CMS.
+- The page must be pre-rendered (for SEO) and be very fast — `getStaticProps` generates HTML and JSON files, both of which can be cached by a CDN for performance.
+- The data can be publicly cached (not user-specific). This condition can be bypassed in certain specific situation by using a Middleware to rewrite the path.
+
+#### When does getStaticProps run?
+
+`getStaticProps` always runs on the server and never on the client. You can validate code written inside `getStaticProps` is removed from the client-side bundle with this tool.
+
+- `getStaticProps` always runs during `next build`.
+- `getStaticProps` runs in the background when using `fallback: true`.
+- `getStaticProps` is called before initial render when using `fallback: blocking`.
+- `getStaticProps` runs in the background when using `revalidate`.
+- `getStaticProps` runs on-demand in the background when using `revalidate()`.
+
+#### Where can I use getStaticProps?
+
+`getStaticProps` can only be exported from a **page**. You **cannot** export it from non-page files, `_app`, `_document`, or `_error`.
+
+### Next.js. Data Fetching. `getServerSideProps`.
+
+If you export a function called `getServerSideProps` (Server-Side Rendering) from a page, Next.js will **pre-render** this page on each request using the data returned by `getServerSideProps`.
+
+```javascript
+// pages/index.js
+export async function getServerSideProps() {
+  const res = await fetch('https://api.github.com/repos/vercel/next.js');
+  const repo = await res.json();
+  return { props: { repo } };
+}
+
+export default function Page({ repo }) {
+  return repo.stargazers_count;
+}
+```
+
+#### When does getServerSideProps run?
+
+`getServerSideProps` only runs on server-side and never runs on the browser. If a page uses `getServerSideProps`, then:
+
+- When you request this page directly, `getServerSideProps` runs at request time, and this page will be pre-rendered with the returned props.
+- When you request this page on client-side page transitions through `next/link` or `next/router`, Next.js sends an API request to the server, which runs `getServerSideProps`.
+
+`getServerSideProps` returns JSON which will be used to render the page. All this work will be handled automatically by Next.js, so you don't need to do anything extra as long as you have `getServerSideProps` defined.
+
+#### When should I use getServerSideProps?
+
+You should use `getServerSideProps` only if you need to render a page whose data must be fetched at request time. This could be due to the nature of the data or properties of the request (such as `authorization` headers or geo-location). Pages using `getServerSideProps` will be server-side rendered at request time and only be cached if `cache-control` headers are configured.
+
+If you do not need to render the data during the request, then you should consider fetching data on the `client side` or `getStaticProps`.
+
+### Next.js. Data Fetching. ISR.
+
+Next.js allows you to create or update static pages after you've built your site. Incremental Static Regeneration (ISR) enables you to use static-generation on a per-page basis, **without needing to rebuild the entire site**. With ISR, you can retain the benefits of static while scaling to millions of pages.
+
+```javascript
+// pages/index.js
+// 1 // This function calls at build time on server-side.
+// 2 // It may be called again, on a serverless function, if
+// 3 // revalidation is enabled and a new request comes in
+export async function getStaticProps() {
+  const res = await fetch('https://.../posts');
+  const posts = await res.json();
+
+  return {
+    props: {
+      posts,
+    },
+    // 11 // Next.js will attempt to re-generate the page:
+    // 12 // - When a request comes in
+    // 13 // - At most once every 10 seconds
+    revalidate: 10, // In seconds
+  };
+}
+```
+
+When a request is made to a page that was pre-rendered at build time, it will initially show the cached page.
+
+- Any requests to the page after the initial request and before 10 seconds are also cached and instantaneous.
+- After the 10-second window, the next request will still show the cached (stale) page.
+- Next.js triggers a regeneration of the page in the background.
+- Once the page generates successfully, Next.js will invalidate the cache and show the updated page. If the background regeneration fails, the old page would still be unaltered.
+
+When a request is made to a path that hasn't been generated, Next.js will server-render the page on the first request. Future requests will serve the static file from the cache. ISR on Vercel [persists the cache globally and handles rollbacks](https://www.google.com/search?q=https://vercel.com/docs/concepts/incremental-static-regeneration/v3%23how-it-works).
+
+### Next.js. Data Fetching. Client-side Fetching.
+
+Client-side data fetching is useful when your page doesn't require SEO indexing, when you **don't need to pre-render your data**, or when the content of your pages needs to update frequently. Unlike the server-side rendering APIs, you can use client-side data fetching at the component level.
+
+**Example 1: Client-side fetching using `useState` and `useEffect`**
+
+```javascript
+// Profile.js
+import { useState, useEffect } from 'react';
+
+function Profile() {
+  const [data, setData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/profile-data')
+      .then((res) => res.json())
+      .then((data) => {
+        setData(data);
+        setIsLoading(false);
+      });
+  }, []);
+
+  if (isLoading) return <p>Loading...</p>;
+  if (!data) return <p>No profile data</p>;
+
+  return (
+    <div>
+      <h1>{data.name}</h1>
+      <p>{data.bio}</p>
+    </div>
+  );
+}
+```
+
+**Example 2: Client-side fetching using SWR**
+
+```javascript
+// Profile.js
+import useSWR from 'swr';
+
+const fetcher = (...args) => fetch(...args).then((res) => res.json());
+
+function Profile() {
+  const { data, error } = useSWR('/api/profile-data', fetcher);
+
+  if (error) return <div>failed to load</div>;
+  if (!data) return <div>loading...</div>;
+
+  return (
+    <div>
+      <h1>{data.name}</h1>
+      <p>{data.bio}</p>
+    </div>
+  );
+}
+```
+
+The team behind Next.js has created a React hook library for data fetching called **SWR**. It is **highly recommended** if you are fetching data on the client-side. It handles caching, revalidation, focus tracking, refetching on intervals, and more.
+
+### Next.js. Styling.
+
+Next.js supports different ways of styling your application, including:
+
+- **Global CSS:** Simple to use and familiar for those experienced with traditional CSS, but can lead to larger CSS bundles and difficulty managing styles as the application grows.
+- **CSS Modules:** Create locally scoped CSS classes to avoid naming conflicts and improve maintainability.
+- **Tailwind CSS:** A utility-first CSS framework that allows for rapid custom designs by composing utility classes.
+- **Sass:** A popular CSS preprocessor that extends CSS with features like variables, nested rules, and mixins.
+- **CSS-in-JS:** Embed CSS directly in your JavaScript components, enabling dynamic and scoped styling.
+
+### Next.js. Styling. CSS Modules.
+
+Next.js has built-in support for **CSS Modules** using the `.module.css` extension. CSS Modules locally scope CSS by automatically creating a unique class name. This allows you to use the same class name in different files without worrying about collisions. This behavior makes CSS Modules the ideal way to include component-level CSS.
+
+**Example 1: `Button.module.css`**
+
+```css
+/*
+ * You do not need to worry about .error colliding with any other .css or
+ * .module.css! files!
+ */
+.error {
+  color: white;
+  background-color: red;
+}
+```
+
+**Example 2: `components/Button.js`**
+
+```javascript
+import styles from './Button.module.css';
+
+export function Button() {
+  return (
+    <button
+      type='button'
+      // Note how the "error" class is accessed as a property on the imported
+      // styles object.
+      className={styles.error}
+    >
+      Destroy
+    </button>
+  );
+}
+```
+
+CSS Modules are an optional feature and are **only enabled for files with the `.module.css` extension**. Regular `<link>` stylesheets and global CSS files are still supported.
+
+In production, all CSS Module files will be automatically concatenated into **many minified and code-split `.css` files**. These `.css` files represent hot execution paths in your application, ensuring the minimal amount of CSS is loaded for your application to paint.
+
+### Next.js. Styling. Global Styles.
+
+To add a stylesheet to your application, import the CSS file within `pages/_app.js`.
+
+**Example 1: `styles.css`**
+
+```css
+body {
+  font-family:
+    'SF Pro Text', 'SF Pro Icons', 'Helvetica Neue', 'Helvetica', 'Arial',
+    sans-serif;
+  padding: 20px 20px 60px;
+  max-width: 680px;
+  margin: 0 auto;
+}
+```
+
+**Example 2: `pages/_app.js` importing global styles**
+
+```javascript
+import '../styles.css';
+
+// This default export is required in a new `pages/_app.js` file.
+export default function MyApp({ Component, pageProps }) {
+  return <Component {...pageProps} />;
+}
+```
+
+These styles (`styles.css`) will apply to all pages and components in your application. Due to the global nature of stylesheets, and to avoid conflicts, you may only import them inside `pages/_app.js`.
+
+**Example 3: `pages/_app.js` with ErrorBoundary and global styles**
+
+```javascript
+import '../styles.css';
+// The CSS in ErrorBoundary depends on the global CSS in styles.css,
+// so we import it after styles.css.
+import ErrorBoundary from '../components/ErrorBoundary';
+
+export default function MyApp({ Component, pageProps }) {
+  return (
+    <ErrorBoundary>
+      <Component {...pageProps} />
+    </ErrorBoundary>
+  );
+}
+```
+
+In production, all CSS files will be **automatically concatenated into a single minified `.css` file**. The **order** that the CSS is concatenated will match the order the CSS is imported into the `_app.js` file. **Pay special attention to imported JS modules that include their own CSS;** the JS module's CSS will be concatenated following the same ordering rules as imported CSS files.
+
+### Next.js. Styling. External Stylesheets.
+
+Next.js allows you to import CSS files from a JavaScript file. This is possible because Next.js extends the concept of import beyond JavaScript. For global stylesheets, like bootstrap or nprogress, you should import the file inside `pages/_app.js`.
+
+**Example 1: Importing a global stylesheet in `pages/_app.js`**
+
+```javascript
+// pages/_app.js
+import 'bootstrap/dist/css/bootstrap.css';
+
+export default function MyApp({ Component, pageProps }) {
+  return <Component {...pageProps} />;
+}
+```
+
+For importing CSS required by a third-party component, you can do so in your component.
+
+**Example 2: Importing component-specific styles in `components/example-dialog.js`**
+
+```javascript
+// components/example-dialog.js
+import { useState } from 'react';
+import Dialog from '@reach/dialog';
+import VisuallyHidden from '@reach/visually-hidden';
+import '@reach/dialog/styles.css'; // Importing CSS for a third-party component
+
+function ExampleDialog(props) {
+  const [showDialog, setShowDialog] = useState(false);
+  const open = () => setShowDialog(true);
+  const close = () => setShowDialog(false);
+
+  return (
+    <div>
+      <button onClick={open}>Open Dialog</button>
+      <Dialog isOpen={showDialog} onDismiss={close}>
+        <button className='close-button' onClick={close}>
+          <VisuallyHidden>Close</VisuallyHidden>
+          <span aria-hidden>×</span>
+        </button>
+        <p>Hello there. I am a dialog!</p>
+      </Dialog>
+    </div>
+  );
+}
+```
+
+### Next.js. Styling. Tailwind CSS.
+
+**Tailwind CSS** is a utility-first CSS framework that works exceptionally well with Next.js. Install the Tailwind CSS packages and run the init command to generate both the `tailwind.config.js` and `postcss.config.js` files.
+
+**Terminal Commands:**
+
+```bash
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+```
+
+Inside `tailwind.config.js`, add paths to the files that will use Tailwind CSS class names.
+
+**Example: `tailwind.config.js`**
+
+```javascript
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    './app/**/*.{js,ts,jsx,tsx,mdx}', // Note the addition of the `app` directory.
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    // Or if using `src` directory:
+    './src/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+```
+
+Add the Tailwind CSS directives that Tailwind will use to inject its generated styles to a **Global Stylesheet** in your application. Inside the custom app file (`pages/_app.js`), import the `globals.css` stylesheet to apply the styles to every route in your application.
+
+**Example: `styles/globals.css`**
+
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+**Example: `pages/_app.js`**
+
+```javascript
+// These styles apply to every route in the application
+import './styles/globals.css';
+
+export default function App({ Component, pageProps }) {
+  return <Component {...pageProps} />;
+}
+```
+
+After installing Tailwind CSS and adding the global styles, you can use Tailwind's **utility classes** in your application.
+
+**Example: `pages/index.js`**
+
+```javascript
+export default function Page() {
+  return <h1 className='text-3xl font-bold underline'>Hello, Next.js!</h1>;
+}
+```
+
+### Next.js. Styling. CSS-in-JS.
+
+A component using `styled-jsx`.
+
+```javascript
+// pages/index.js
+function HelloWorld() {
+  return (
+    <div>
+      <p>Hello world</p>
+      <style jsx>{`
+        p {
+          color: blue;
+        }
+        div {
+          background: red;
+        }
+        @media (max-width: 600px) {
+          div {
+            background: blue;
+          }
+        }
+      `}</style>
+      <style jsx global>{`
+        body {
+          background: black;
+        }
+      `}</style>
+    </div>
+  );
+}
+
+export default HelloWorld;
+```
+
+It's possible to use **any existing CSS-in-JS solution**. The simplest one is inline styles.
+
+```javascript
+// pages/index.js
+function HiThere() {
+  return <p style={{ color: 'red' }}>Hi there</p>;
+}
+
+export default HiThere;
+```
+
+### Next.js. Styling. Sass.
+
+Next.js has built-in support for **Sass** using both the `.scss` and `.sass` extensions. You can use component-level Sass via CSS Modules and the `.module.scss` or `.module.sass` extension. If you want to configure the Sass compiler, use `sassOptions` in `next.config.js`.
+
+**Terminal Command:**
+
+```bash
+npm install --save-dev sass
+```
+
+**Example: `next.config.js` with Sass options**
+
+```javascript
+// next.config.js
+const path = require('path');
+
+module.exports = {
+  sassOptions: {
+    includePaths: [path.join(__dirname, 'styles')],
+  },
+};
+```
+
+Next.js supports Sass variables exported from CSS Module files.
+
+**Example: `app/variables.module.scss`**
+
+```scss
+$primary-color: #64ff00;
+
+:export {
+  primaryColor: $primary-color;
+}
+```
+
+**Example: `pages/_app.js` using Sass variables**
+
+```javascript
+// pages/_app.js
+import variables from '../styles/variables.module.scss';
+
+export default function MyApp({ Component, pageProps }) {
+  return (
+    <Layout color={variables.primaryColor}>
+      <Component {...pageProps} />
+    </Layout>
+  );
+}
+```
+
+### Next.js. Optimizing. Images.
+
+According to Web Almanac, images account for a huge portion of the typical website's page weight and can have a sizable impact on your website's LCP performance. The Next.js Image component extends the HTML `<img>` element with features for automatic image optimization:
+
+- **Size Optimization:** Automatically serve correctly sized images for each device, using modern image formats like WebP and AVIF.
+- **Visual Stability:** Prevent layout shift automatically when images are loading.
+- **Faster Page Loads:** Images are only loaded when they enter the viewport using native browser lazy loading, with optional blur-up placeholders.
+- **Asset Flexibility:** On-demand image resizing, even for images stored on remote servers.
+
+#### Local Images
+
+To use a local image, import your `.jpg`, `.png`, or `.webp` image files.
+
+Next.js will automatically determine the width and height of your image based on the imported file. These values are used to prevent Cumulative Layout Shift while your image is loading.
+
+**Example: `pages/index.js` for local images**
+
+```javascript
+// pages/index.js
+import Image from 'next/image';
+import profilePic from '/public/me.png'; // Assuming this is your image file
+
+export default function Page() {
+  return (
+    <>
+      <h1>Profile</h1>
+      <Image
+        src={profilePic}
+        alt='Picture of the author'
+        // width={500} automatically provided
+        // height={500} automatically provided
+        // blurDataURL="data:..." automatically provided
+        // placeholder="blur" // Optional blur-up while loading
+      />
+    </>
+  );
+}
+```
+
+#### Remote Images
+
+To use a remote image, the `src` property should be a URL string.
+
+Since Next.js does not have access to remote files during the build process, you'll need to provide the `width`, `height`, and optional `blurDataURL` props manually.
+
+The width and `height` attributes are used to infer the correct aspect ratio of image and avoid layout shift from the image loading in. The width and `height` do not determine the rendered size of the image file. Learn more about [Image Sizing](https://www.google.com/search?q=https://nextjs.org/docs/api-reference/next/image%23sizes).
+
+**Example: `pages/page.js` for remote images**
+
+```javascript
+// pages/page.js
+import Image from 'next/image';
+
+export default function Page() {
+  return (
+    <Image
+      src='https://s3.amazonaws.com/my-bucket/profile.png'
+      alt='Picture of the author'
+      width={500}
+      height={500}
+    />
+  );
+}
+```
+
+### Next.js. Optimizing. Fonts.
+
+`next/font` will automatically optimize your fonts (including custom fonts) and remove external network requests for improved privacy and performance. `next/font` includes built-in automatic self-hosting for any font file. This means you can optimally load web fonts with zero layout shift, thanks to the underlying CSS size-adjust property used. This new font system also allows you to conveniently use all **Google Fonts** with performance and privacy in mind. CSS and font files are downloaded at build time and self-hosted with the rest of your static assets. No requests are sent to Google by the browser.
+
+**Example 1: Using `next/font/google` in `pages/_app.js`**
+
+```javascript
+// pages/_app.js
+import { Inter } from 'next/font/google';
+
+// If loading a variable font, you don't need to specify the font weight
+const inter = Inter({ subsets: ['latin'] });
+
+export default function MyApp({ Component, pageProps }) {
+  return (
+    <main className={inter.className}>
+      <Component {...pageProps} />
+    </main>
+  );
+}
+```
+
+**Example 2: Using `next/font/local` in `pages/_app.js`**
+
+```javascript
+// pages/_app.js
+import localFont from 'next/font/local';
+
+// Font files can be colocated inside of `pages`
+const myFont = localFont({ src: './my-font.woff2' });
+
+export default function MyApp({ Component, pageProps }) {
+  return (
+    <main className={myFont.className}>
+      <Component {...pageProps} />
+    </main>
+  );
+}
+```
+
+### Next.js. Optimizing. Scripts.
+
+To load a third-party script for all routes, import `next/script` and include the script directly in your custom `_app.js`. This script will load and execute when any route in your application is accessed. Next.js will ensure the script will only load once, even if a user navigates between multiple pages.
+
+```javascript
+// pages/_app.js
+import Script from 'next/script';
+
+export default function MyApp({ Component, pageProps }) {
+  return (
+    <>
+      <Component {...pageProps} />
+      <Script src='https://example.com/script.js' />
+    </>
+  );
+}
+```
+
+#### Strategy
+
+Although the default behavior of `next/script` allows you load third-party scripts in any page or layout, you can fine-tune its loading behavior by using the `strategy` property:
+
+- `beforeInteractive`: Load the script before any Next.js code and before any page hydration occurs.
+- `afterInteractive`: (default) Load the script early but after some hydration on the page occurs.
+- `lazyOnload`: Load the script later during browser idle time.
+- `worker`: (experimental) Load the script in a web worker.
+
+### Next.js. Optimizing. Static Assets.
+
+Next.js can serve **static files**, like images, under a folder called `public` in the root directory. Files inside `public` can then be referenced by your code starting from the base URL (`/`). This folder is also useful for `robots.txt`, `favicon.ico`, Google Site Verification, and any other **static files** (including `.html`). But make sure to not have a static file with the same name as a file in the `pages/` directory, as this will result in an error.
+
+```javascript
+// Avatar.js
+import Image from 'next/image';
+
+export function Avatar() {
+  return <Image src='/me.png' alt='me' width='64' height='64' />;
+}
+```
+
+### Next.js. Optimizing. Lazy Loading.
+
+Lazy loading in Next.js helps improve the initial loading performance of an application by decreasing the amount of JavaScript needed to render a route.
+
+There are two ways you can implement lazy loading in Next.js:
+
+1.  Using **Dynamic Imports** with `next/dynamic`
+2.  Using **React.lazy()** with `Suspense`
+
+By default, Server Components are automatically code split, and you can use streaming to progressively send pieces of UI from the server to the client. Lazy loading applies to Client Components.
+
+#### Basic next/dynamic
+
+```javascript
+import dynamic from 'next/dynamic';
+
+const DynamicHeader = dynamic(() => import('../components/header'), {
+  loading: () => <p>Loading...</p>,
+});
+
+export default function Home() {
+  return <DynamicHeader />;
+}
+```
+
+#### With no SSR (Server-Side Rendering)
+
+```javascript
+import dynamic from 'next/dynamic';
+
+const DynamicHeader = dynamic(() => import('../components/header'), {
+  ssr: false,
+});
+```
+
+#### With external libraries
+
+```javascript
+import { useState } from 'react';
+
+export default function Typeahead() {
+  const [results, setResults] = useState([]);
+
+  return (
+    <div>
+      <input
+        type='text'
+        placeholder='Search'
+        onChange={async (e) => {
+          const { default: Fuse } = await import('fuse.js');
+          const fuse = new Fuse(['react', 'next', 'typescript', 'vercel'], {});
+          setResults(fuse.search(e.target.value));
+        }}
+      />
+      {/* ...results.map(...) */}
+    </div>
+  );
+}
+```
+
+### Next.js. Configuring.
+
+Next.js allows you to customize your project to meet specific requirements. This includes integrations with TypeScript, ESLint, and more, as well as internal configuration options such as Absolute Imports and Environment Variables.
+
+- **TypeScript**. Next.js provides a TypeScript-first development experience for building your React application.
+- **ESLint**. Next.js provides an integrated ESLint experience out of the box.
+- **Environment Variables**. Next.js comes with built-in support for environment variables.
+- **Absolute Imports and Module Path Aliases**. These options allow you to alias project directories to absolute paths, making it easier to import modules.
+- **src Directory**. As an alternative to having the special Next.js app or pages directories in the root of your project.
+- **MDX**. It allows you to write using plain text syntax and convert it to structurally valid HTML.
+- **AMP**. With Next.js you can turn any React page into an AMP page, with minimal config, and without leaving React.
+- **Babel**. If you want to extend the default Babel configs, it's also possible.
+- **Custom Server**. Next.js server allows you to start a server 100% programmatically in order to use custom server patterns.
+- **Debugging**. You can debug your Next.js frontend and backend code with full source maps support using either the VS Code debugger or Chrome DevTools.
+- **Preview Mode**.
+- **Content Security Policy**. It is important to guard your Next.js application against various security threats.
