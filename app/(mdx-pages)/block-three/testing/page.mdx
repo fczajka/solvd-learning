@@ -1,0 +1,161 @@
+# Testing
+
+### What is testing?
+
+**Software testing** is the process of evaluating and verifying that a software product or application does what it is supposed to do.
+
+The benefits of testing include preventing bugs, reducing development costs, and improving performance.
+
+### Types of software testing
+
+There are many different types of software tests, each with specific objectives and strategies:
+
+- **Acceptance testing**: Verifying whether the whole system works as intended.
+- **Integration testing**: Ensuring that software components or functions operate together.
+- **Unit testing**: Validating that each software unit performs as expected. A unit is the smallest testable component of an application.
+- **Functional testing**: Checking functions by emulating business scenarios, based on functional requirements. Black-box testing is a common way to verify functions.
+- **Performance testing**: Testing how the software performs under different workloads. Load testing, for example, is used to evaluate performance under real-life load conditions.
+- **Regression testing**: Checking whether new features break or degrade functionality. Sanity testing can be used to verify menus, functions, and commands at the surface level, when there is no time for a full regression test.
+- **Stress testing**: Testing how much strain the system can take before it fails. Considered to be a type of non-functional testing.
+- **Usability testing**: Validating how well a customer can use a system or web application to complete a task.
+
+### Types of software testing
+
+The image displays a testing pyramid, a common model in software development that categorizes tests into different levels, indicating their scope and typical quantity.
+
+- **End-to-end tests** (Top of the pyramid): These tests verify the entire system's flow from start to finish, simulating real user scenarios. They are typically fewer in number and slower to run.
+- **Integration tests** (Middle of the pyramid): These tests check the interactions between different modules or services in an application. They are more numerous than end-to-end tests and faster.
+- **Unit tests** (Bottom of the pyramid): These tests verify individual units or components of the code in isolation. They are the most numerous and fastest tests to run, forming the foundation of a robust testing strategy.
+
+### Unit Tests
+
+- **Unit Tests**- Testing of individual units like functions or classes by supplying input and making sure the output is as expected:
+
+```javascript
+expect(fn(5)).to.be(10);
+```
+
+### Integration Tests
+
+- **Integration Tests**- Testing processes across several units to achieve their goals, including their side effects:
+
+```javascript
+const flyDroneButton = document.getElementById('fly-drone-button');
+
+flyDroneButton.click();
+
+assert(isDroneFlyingCommandSent());
+
+//or even
+drone.checkIfFlyingViaBluetooth().then((isFlying) => assert(isFlying));
+```
+
+### End-to-end(Functional) Tests
+
+- **End-to-end Tests** (also known as "E2E Tests" or "Functional Tests") - Testing user scenarios on the browser itself by controlling the browser programmatically. These tests usually ignore the internals of applications and look at them like on a black box.
+
+```javascript
+Go to page "https://localhost:3303"
+
+Type "test-user" in the field "#username"
+
+Type "test-pass" in the field "#password"
+
+Click on "#login"
+
+Expect Page Url to be https://localhost:3303/dashboard
+
+Expect "#name" to be "test-name"
+```
+
+### Test Tools Types
+
+1.  Test launchers are used to launch your tests in the browser or in Node.js with user config. (Karma, Jasmine, Jest, TestCafe, Cypress, webdriverio)
+2.  Testing structure providers help you to arrange your tests in a readable and scalable way. (Mocha, Jasmine, Jest, Cucumber, TestCafe, Cypress)
+3.  Assertion functions are used to check if a test returns what you expect it to return and otherwise, to throw a clear exception. (Chai, Jasmine, Jest, Unexpected, TestCafe, Cypress)
+4.  Generate and display test progress and summary. (Mocha, Jasmine, Jest, Karma, TestCafe, Cypress)
+5.  Mocks, spies, and stubs to simulate test scenarios, isolate the tested part of the software from other parts, and attach to processes to test certain aspects of a scenario. (Sinon, Jasmine, enzyme, Jest, testdouble)
+6.  Generate and compare snapshots to make sure changes to data structures from previous test runs are intended by the user's code changes. (Jest, Ava)
+7.  Generate code coverage reports of how much of your code is covered by tests. (Istanbul, Jest, Blanket)
+8.  Browser Controllers simulate user actions for E2E Tests. (Nightwatch, Nightmare, Phantom, Puppeteer, TestCafe, Cypress)
+9.  Visual Regression Tools are used to compare your site's appearance to its previous versions visually by using image comparison techniques. (Applitools, Percy, Wraith, WebdriverCSS)
+
+## JEST
+
+### What is JEST?
+
+Jest is a JavaScript test runner, that is, a JavaScript library for creating, running, and structuring tests.
+
+Jest ships as an NPM package, you can install it in any JavaScript project. Jest is one of the most popular test runner these days, and the default choice for React projects.
+
+Here’s your text with improved formatting for clarity and readability, especially suitable for technical documentation, blog posts, or learning materials:
+
+---
+
+## How Do I Know What to Test?
+
+When it comes to **testing**, even a simple block of code can paralyze beginners. The most common question is:
+
+> **"How do I know what to test?"**
+
+If you're writing a web application, a good starting point would be testing **every page of the app** and **every user interaction**. But web applications are also made of **units of code like functions and modules**—and these need to be tested too.
+
+There are typically two common scenarios:
+
+1. You inherit **legacy code** that comes **without tests**.
+2. You need to **implement a new functionality** from scratch.
+
+### What Should You Do?
+
+In both cases, it helps to think of tests as small bits of code that **check whether a given function produces the expected result**.
+
+Here’s what a typical test flow looks like:
+
+1. **Import** the function to test.
+2. **Provide an input** to the function.
+3. **Define the expected output**.
+4. **Assert that the actual output matches the expected one**.
+
+That’s it.
+
+Testing won’t feel intimidating if you remember this simple principle:
+
+> **Input → Expected Output → Assert the Result**
+
+### Some of the advantages/features of Jest
+
+1.  Zero configuration required.
+2.  **Fast**: Jest tests run in parallel - this in turn greatly reduces the test execution time.
+3.  **Built-in code coverage**: Jest supports code coverage out of the box - this is a very useful metric for all CI-based delivery pipelines and overall test effectiveness of a project.
+4.  **Isolated and sandboxed tests**: Each Jest test runs in its own sandbox, which ensures no two tests can interfere or impact each other.
+5.  **Powerful Mocking support**: Jest supports all types of mocking - be it functional mocking, timer mocking, or mocking individual API calls.
+6.  **Support snapshot testing**: Snapshot testing is relevant from the React perspective. Jest supports capturing a snapshot of the react component being tested - this can validate with the component's actual output. This greatly helps in validating the component's behavior.
+
+### React testing
+
+You can test React components similar to testing other JavaScript code.
+
+There are a few ways to test React components. Broadly, they divide into two categories:
+
+- **Rendering component trees** in a simplified test environment and asserting on their output.
+- **Running a complete app** in a realistic browser environment (also known as "end-to-end" tests).
+
+This documentation section focuses on testing strategies for the first case. While full end-to-end tests can be very useful to prevent regressions to important workflows, such tests are not concerned with React components in particular, and are out of the scope of this section.
+
+### Recommended Tools
+
+**Jest** is a JavaScript test runner that lets you access the DOM via [jsdom](https://github.com/jsdom/jsdom). While jsdom is only an approximation of how the browser works, it is often good enough for testing React components. Jest provides a great iteration speed combined with powerful features like [mocking modules](https://jestjs.io/docs/en/mock-functions) and [timers](https://jestjs.io/docs/en/timer-mocks) so you can have more control over how the code executes.
+
+**React Testing Library** is a set of helpers that let you test React components without relying on their implementation details. This approach makes refactoring a breeze and also nudges you towards best practices for accessibility. Although it doesn't provide a way to "shallowly" render a component without its children, a test runner like Jest lets you do this by [mocking](https://www.google.com/search?q=https://jestjs.io/docs/en/es6-modules%23mocking-components).
+
+### React Testing Library
+
+[React Testing Library](https://testing-library.com/react) builds on top of [DOM Testing Library](https://testing-library.com/dom) by adding APIs for working with React components.
+
+Projects created with [Create React App](https://www.google.com/search?q=https://create-react-app.dev/) have out of the box support for **React Testing Library**. If that is not the case, you can add it via `npm` like so:
+
+npm Yarn
+
+```bash
+npm install --save-dev @testing-library/react
+```
