@@ -1,0 +1,122 @@
+# State Management
+
+### Motivation
+
+In a large application, you can encounter data storage problems. For example, you might need:
+
+- To have a single instance of data accessible anywhere in your application.
+- A centralized store for your data to perform various actions like delete, add, or update.
+
+The image illustrates the "props drilling problem," showing how data might be passed down through many levels of components without a centralized store, and how a "Store" can alleviate this by providing a direct access point for components needing data or initiating changes.
+
+### Solution
+
+You can use native React solutions for state management:
+
+- **State:** Suitable for simple data operations.
+- **Reducer:** Used when you need to manage various actions with your data.
+- **Context:** Necessary when you want to share state deeply within components.
+
+In large applications, you will likely need a global state. While Context can be used for this, it's generally not ideal for highly dynamic changes and is less performant. Custom solutions (which will be explored later) often offer better performance due to more optimized logic.
+
+### Solution
+
+- Server-state is an asynchronous state between your server and client side.
+- Client-state is the inner state of your application.
+
+The provided code example illustrates a `globalState` object, categorizing its properties into server-state and client-state:
+
+```javascript
+const globalState = {
+  projects, // server-state
+  teams, // server-state
+  tasks, // server-state
+  users, // server-state
+  themeMode, // client-state
+  sidebarStatus, // client-state
+};
+```
+
+### Libraries
+
+There are many libraries available for state management, for example:
+
+**Client side:**
+
+- Redux (RTK)
+- Mobx
+- Zustand
+
+**Server side:**
+
+- React-query
+- SWR
+- RTK-query
+
+Here's a comparison of different state management features and tools:
+
+### Feature / Tool Comparison
+
+**useContext + useReducer**
+
+- **Category:** Client state
+- **Setup Complexity:** Low
+- **Boilerplate:** Minimal
+- **Store Centralization:** Possible but manual
+- **React Integration:** Native
+- **Async Handling:** Manual (via useEffect)
+- **DevTools Support:** None
+- **Learning Curve:** Very Low
+- **Best For:** Small/local state
+- **Code Splitting:** Manual
+- **Middleware/Plugins:** No
+- **Server Sync:** Manual
+- **Caching / Revalidation:** No
+
+**Redux Toolkit (RTK)**
+
+- **Category:** Client state
+- **Setup Complexity:** Medium
+- **Boilerplate:** Moderate
+- **Store Centralization:** Yes (out-of-the-box)
+- **React Integration:** Native via Redux bindings
+- **Async Handling:** Built-in (createAsyncThunk)
+- **DevTools Support:** Excellent
+- **Learning Curve:** Medium
+- **Best For:** Large, complex apps
+- **Code Splitting:** Supported
+- **Middleware/Plugins:** Yes (Redux middleware)
+- **Server Sync:** Possible with RTK Query
+- **Caching / Revalidation:** No (unless RTK Query)
+
+**Zustand**
+
+- **Category:** Client state
+- **Setup Complexity:** Very low
+- **Boilerplate:** Minimal
+- **Store Centralization:** Yes
+- **React Integration:** Native (hooks-based)
+- **Async Handling:** Native (with async support)
+- **DevTools Support:** Optional
+- **Learning Curve:** Low
+- **Best For:** Medium-scale, flexible apps
+- **Code Splitting:** Supported
+- **Middleware/Plugins:** No (can be added manually)
+- **Server Sync:** Manual
+- **Caching / Revalidation:** No
+
+**TanStack Query**
+
+- **Category:** Server state
+- **Setup Complexity:** Medium
+- **Boilerplate:** Minimal
+- **Store Centralization:** Not applicable
+- **React Integration:** Native (hooks-based)
+- **Async Handling:** Built-in (queries/mutations)
+- **DevTools Support:** Excellent
+- **Learning Curve:** Medium
+- **Best For:** Data fetching & caching
+- **Code Splitting:** Not needed
+- **Middleware/Plugins:** No (built-in features)
+- **Server Sync:** Automatic
+- **Caching / Revalidation:** Yes

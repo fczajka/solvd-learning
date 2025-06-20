@@ -35,4 +35,6 @@ export const block_3 = [
   { name: 'Next JS, part 2', href: '/block-three/next-js-2' },
   { name: 'Next JS, part 3', href: '/block-three/next-js-3' },
   { name: 'Testing', href: '/block-three/testing' },
+  { name: 'State Management', href: '/block-three/state-management' },
+  { name: 'UI Libraries', href: '/block-three/ui-libraries' },
 ];
